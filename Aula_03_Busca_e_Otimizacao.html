@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 03 — Busca e Otimização I — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 03 · 09/04/2026 · Laboratório · 4 horários</div>
+<h1>Busca e Otimização I</h1>
+<p class="hero-sub">BFS, DFS e o poderoso A* — encontrando caminhos ótimos em labirintos e puzzles, implementados do zero.</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#formulacao" class="nav-link">Formulação</a><a href="#bfs" class="nav-link">BFS</a><a href="#dfs" class="nav-link">DFS</a><a href="#visual" class="nav-link">Visualização</a><a href="#heuristica" class="nav-link">Heurísticas</a><a href="#astar" class="nav-link">A*</a><a href="#puzzle" class="nav-link">8-Puzzle</a><a href="#desafio" class="nav-link">Desafio</a></div></nav>
+<div class="container">
+<!-- AGENDA -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Busca e Otimização I</h2>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text">Aula em <strong>laboratório</strong> — cada horário tem teoria curta + código imediato.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Formulação + BFS</h4><p>O que é um problema de busca (10 min). <strong>💻 Criar labirinto em Python e implementar BFS.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — DFS + Visualização</h4><p>BFS vs DFS: diferenças (10 min). <strong>💻 Implementar DFS, visualizar com matplotlib, comparar.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Heurísticas + A*</h4><p>Busca informada e heurísticas (15 min). <strong>💻 Implementar A*, comparar nós explorados com BFS/DFS.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — 8-Puzzle + Desafio</h4><p><strong>💻 Resolver o 8-Puzzle com A* e Manhattan. Desafio: labirinto 50×50. Competição de eficiência.</strong></p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- 1º HORÁRIO — FORMULAÇÃO + BFS     -->
+<!-- ═══════════════════════════════════ -->
+
+<section id="formulacao" class="ls">
+  <div class="sn">1º Horário · Parte A — O que é busca? (~10 min teoria)</div>
+  <h2>Problemas de Busca</h2>
+  <p class="body">Muitos problemas em IA se resumem a: dado um <strong>estado inicial</strong>, encontrar uma sequência de ações até um <strong>estado objetivo</strong>. Para formular:</p>
+
+  <div class="steps">
+    <div class="step"><h4>Estado inicial</h4><p>Onde o agente começa. Ex: entrada do labirinto, configuração embaralhada do puzzle.</p></div>
+    <div class="step"><h4>Ações possíveis</h4><p>O que pode fazer em cada estado. Ex: mover ↑↓←→ se não houver parede.</p></div>
+    <div class="step"><h4>Modelo de transição</h4><p>Resultado(estado, ação) = novo_estado. Define a mecânica do mundo.</p></div>
+    <div class="step"><h4>Teste de objetivo</h4><p>Chegou onde queria? Ex: saída do labirinto, puzzle resolvido.</p></div>
+    <div class="step"><h4>Custo do caminho</h4><p>Quanto "custa" cada ação. No labirinto simples: 1 por passo.</p></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem">🏰 Labirinto</h4><p style="font-size:.8rem"><strong>Estados:</strong> posição (x,y)<br><strong>Ações:</strong> ↑ ↓ ← →<br><strong>Objetivo:</strong> saída<br><strong>Custo:</strong> 1/passo</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem">🧩 8-Puzzle</h4><p style="font-size:.8rem"><strong>Estados:</strong> 181.440 config.<br><strong>Ações:</strong> mover peça adj.<br><strong>Objetivo:</strong> ordenado<br><strong>Custo:</strong> 1/movimento</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem">🗺️ GPS / Rotas</h4><p style="font-size:.8rem"><strong>Estados:</strong> cidades<br><strong>Ações:</strong> ir p/ adjacente<br><strong>Objetivo:</strong> destino<br><strong>Custo:</strong> distância/tempo</p></div>
+  </div>
+</section>
+
+<section id="bfs" class="ls">
+  <div class="sn">1º Horário · Parte B — BFS no labirinto (~40 min código)</div>
+  <h2>💻 Criar labirinto + implementar BFS</h2>
+  <p class="body">Vamos construir tudo do zero: primeiro o labirinto, depois a busca. Criem um notebook <code style="color:var(--accent)">CC0121_Aula03_Busca.ipynb</code>.</p>
+
+  <h3>Passo 1 — O labirinto</h3>
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text"><strong>Copiem e executem</strong> no Colab — célula 1.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Criando o labirinto</span></div><div class="code-body"><span class="cm"># ═══ CC0121 Aula 03 — Busca em Labirinto ═══</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">from</span> collections <span class="kw">import</span> deque
+<span class="kw">import</span> heapq, time
+
+<span class="cm"># Labirinto: 0 = caminho, 1 = parede</span>
+maze = np.array([
+    [<span class="num">0</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>],
+    [<span class="num">1</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">1</span>,<span class="num">0</span>],
+    [<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>],
+    [<span class="num">0</span>,<span class="num">1</span>,<span class="num">1</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>],
+    [<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>],
+    [<span class="num">1</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>],
+    [<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">1</span>,<span class="num">0</span>,<span class="num">0</span>,<span class="num">0</span>],
+])
+
+START = (<span class="num">0</span>, <span class="num">0</span>)
+GOAL  = (<span class="num">6</span>, <span class="num">6</span>)
+
+<span class="kw">def</span> <span class="fn">vizinhos</span>(maze, pos):
+    <span class="cm">"""Retorna vizinhos válidos (sem parede, dentro do grid)."""</span>
+    r, c = pos
+    <span class="kw">for</span> dr, dc <span class="kw">in</span> [(-<span class="num">1</span>,<span class="num">0</span>),(<span class="num">1</span>,<span class="num">0</span>),(<span class="num">0</span>,-<span class="num">1</span>),(<span class="num">0</span>,<span class="num">1</span>)]:
+        nr, nc = r+dr, c+dc
+        <span class="kw">if</span> <span class="num">0</span> &lt;= nr &lt; maze.shape[<span class="num">0</span>] <span class="kw">and</span> <span class="num">0</span> &lt;= nc &lt; maze.shape[<span class="num">1</span>] <span class="kw">and</span> maze[nr][nc] == <span class="num">0</span>:
+            <span class="kw">yield</span> (nr, nc)
+
+<span class="cm"># Visualizar</span>
+plt.figure(figsize=(<span class="num">6</span>,<span class="num">6</span>))
+plt.imshow(maze, cmap=<span class="str">'binary'</span>)
+plt.plot(START[<span class="num">1</span>], START[<span class="num">0</span>], <span class="str">'go'</span>, markersize=<span class="num">15</span>, label=<span class="str">'Início'</span>)
+plt.plot(GOAL[<span class="num">1</span>], GOAL[<span class="num">0</span>], <span class="str">'r*'</span>, markersize=<span class="num">20</span>, label=<span class="str">'Objetivo'</span>)
+plt.legend(fontsize=<span class="num">12</span>); plt.title(<span class="str">'Nosso Labirinto'</span>, fontsize=<span class="num">14</span>, fontweight=<span class="str">'bold'</span>)
+plt.xticks([]); plt.yticks([]); plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 5 min</div><p>Executem e visualizem o labirinto. Bolinha verde = início (0,0). Estrela vermelha = objetivo (6,6). Preto = parede. Consigam traçar o caminho mentalmente?</p></div>
+
+  <h3>Passo 2 — BFS (Busca em Largura)</h3>
+  <p class="body"><strong>BFS</strong> explora nível por nível: todos os vizinhos primeiro, depois os vizinhos dos vizinhos. Usa <strong>fila (FIFO)</strong>. Garante encontrar o caminho mais curto (se custos iguais).</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · BFS</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">bfs</span>(maze, start, goal):
+    <span class="cm">"""Busca em Largura — usa fila FIFO."""</span>
+    fila = deque([(start, [start])])  <span class="cm"># (posição, caminho)</span>
+    visitados = {start}
+    nos_explorados = <span class="num">0</span>
+    ordem_exploracao = []  <span class="cm"># para visualização</span>
+
+    <span class="kw">while</span> fila:
+        pos, caminho = fila.popleft()  <span class="cm"># FIFO!</span>
+        nos_explorados += <span class="num">1</span>
+        ordem_exploracao.append(pos)
+
+        <span class="kw">if</span> pos == goal:
+            <span class="kw">return</span> caminho, nos_explorados, ordem_exploracao
+
+        <span class="kw">for</span> viz <span class="kw">in</span> vizinhos(maze, pos):
+            <span class="kw">if</span> viz <span class="kw">not in</span> visitados:
+                visitados.add(viz)
+                fila.append((viz, caminho + [viz]))
+
+    <span class="kw">return</span> <span class="kw">None</span>, nos_explorados, ordem_exploracao
+
+<span class="cm"># Executar!</span>
+caminho_bfs, nos_bfs, explorados_bfs = bfs(maze, START, GOAL)
+<span class="fn">print</span>(<span class="str">f"BFS encontrou caminho de {len(caminho_bfs)} passos"</span>)
+<span class="fn">print</span>(<span class="str">f"Nós explorados: {nos_bfs}"</span>)
+<span class="fn">print</span>(<span class="str">f"Caminho: {caminho_bfs}"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 5 min</div><p>Executem. Quantos passos tem o caminho? Quantos nós o BFS explorou? Anotem esses números — vamos comparar com DFS e A*.</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">BFS usa qual estrutura de dados para a fronteira?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">Fila (FIFO) — primeiro a entrar, primeiro a sair</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Pilha (LIFO) — último a entrar, primeiro a sair</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Fila de prioridade — menor custo primeiro</button>
+  </div><div class="quiz-fb ok">✅ BFS usa <strong>fila FIFO</strong> (deque + popleft). Isso garante exploração nível a nível → encontra o caminho mais curto.</div><div class="quiz-fb nok">❌ BFS usa <strong>fila FIFO</strong>. Pilha = DFS. Fila de prioridade = A* / UCS.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- 2º HORÁRIO — DFS + VISUALIZAÇÃO   -->
+<!-- ═══════════════════════════════════ -->
+
+<section id="dfs" class="ls">
+  <div class="sn">2º Horário · Parte A — DFS (~10 min teoria + 15 min código)</div>
+  <h2>DFS — Busca em Profundidade</h2>
+  <p class="body"><strong>DFS</strong> vai o mais fundo possível antes de voltar (backtrack). Troca <strong>fila por pilha (LIFO)</strong>. Uma mudança de uma linha que muda tudo!</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1rem">
+    <div class="card"><h4 style="color:var(--blue)">BFS — Largura</h4><p>✅ Completa (encontra se existir)<br>✅ Ótima (caminho mais curto)<br>⚠️ Memória: O(b<sup>d</sup>) — exponencial!<br>Estrutura: <strong>Fila (FIFO)</strong></p></div>
+    <div class="card"><h4 style="color:var(--purple)">DFS — Profundidade</h4><p>⚠️ Não completa (pode loopear sem visitados)<br>❌ Não ótima (pode achar caminho longo)<br>✅ Memória: O(b·m) — linear!<br>Estrutura: <strong>Pilha (LIFO)</strong></p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 Sacada</div><p>A ÚNICA diferença no código: BFS usa <code>fila.popleft()</code> (tira do início), DFS usa <code>pilha.pop()</code> (tira do final). Uma linha muda o comportamento inteiro!</p></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · DFS — UMA linha diferente do BFS</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">dfs</span>(maze, start, goal):
+    <span class="cm">"""Busca em Profundidade — usa PILHA (LIFO)."""</span>
+    pilha = [(start, [start])]  <span class="cm"># mesma estrutura!</span>
+    visitados = {start}
+    nos_explorados = <span class="num">0</span>
+    ordem_exploracao = []
+
+    <span class="kw">while</span> pilha:
+        pos, caminho = pilha.pop()  <span class="cm"># LIFO! ← ÚNICA DIFERENÇA</span>
+        nos_explorados += <span class="num">1</span>
+        ordem_exploracao.append(pos)
+
+        <span class="kw">if</span> pos == goal:
+            <span class="kw">return</span> caminho, nos_explorados, ordem_exploracao
+
+        <span class="kw">for</span> viz <span class="kw">in</span> vizinhos(maze, pos):
+            <span class="kw">if</span> viz <span class="kw">not in</span> visitados:
+                visitados.add(viz)
+                pilha.append((viz, caminho + [viz]))
+
+    <span class="kw">return</span> <span class="kw">None</span>, nos_explorados, ordem_exploracao
+
+caminho_dfs, nos_dfs, explorados_dfs = dfs(maze, START, GOAL)
+<span class="fn">print</span>(<span class="str">f"DFS encontrou caminho de {len(caminho_dfs)} passos"</span>)
+<span class="fn">print</span>(<span class="str">f"Nós explorados: {nos_dfs}"</span>)
+<span class="fn">print</span>(<span class="str">f"\nComparação: BFS={len(caminho_bfs)} passos ({nos_bfs} nós) vs DFS={len(caminho_dfs)} passos ({nos_dfs} nós)"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 5 min</div><p>Executem e comparem. O caminho do DFS é mais curto, igual ou mais longo que o BFS? Por quê? Qual explorou mais nós?</p></div>
+</section>
+
+<section id="visual" class="ls">
+  <div class="sn">2º Horário · Parte B — Visualização (~25 min código)</div>
+  <h2>💻 Visualizando BFS vs DFS</h2>
+  <p class="body">Números são bons, mas ver a busca acontecendo é muito melhor. Vamos visualizar os nós explorados e o caminho encontrado:</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Visualização comparativa BFS vs DFS</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">visualizar_busca</span>(maze, caminho, explorados, titulo):
+    <span class="cm">"""Visualiza o labirinto com nós explorados e caminho."""</span>
+    visual = np.ones((*maze.shape, <span class="num">3</span>))  <span class="cm"># branco</span>
+    <span class="cm"># Paredes em preto</span>
+    visual[maze == <span class="num">1</span>] = [<span class="num">0.15</span>, <span class="num">0.15</span>, <span class="num">0.2</span>]
+    <span class="cm"># Nós explorados em azul claro</span>
+    <span class="kw">for</span> r, c <span class="kw">in</span> explorados:
+        visual[r, c] = [<span class="num">0.85</span>, <span class="num">0.92</span>, <span class="num">1.0</span>]
+    <span class="cm"># Caminho em verde</span>
+    <span class="kw">if</span> caminho:
+        <span class="kw">for</span> r, c <span class="kw">in</span> caminho:
+            visual[r, c] = [<span class="num">0</span>, <span class="num">0.83</span>, <span class="num">0.67</span>]
+    <span class="cm"># Início e fim</span>
+    visual[START] = [<span class="num">0</span>, <span class="num">0.7</span>, <span class="num">0</span>]
+    visual[GOAL] = [<span class="num">0.93</span>, <span class="num">0.27</span>, <span class="num">0.27</span>]
+
+    plt.imshow(visual, interpolation=<span class="str">'nearest'</span>)
+    plt.title(<span class="str">f'{titulo}\nCaminho: {len(caminho)} passos | Explorados: {len(explorados)} nós'</span>,
+              fontsize=<span class="num">11</span>, fontweight=<span class="str">'bold'</span>)
+    plt.xticks([]); plt.yticks([])
+
+fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">2</span>, figsize=(<span class="num">13</span>, <span class="num">6</span>))
+plt.sca(axes[<span class="num">0</span>]); visualizar_busca(maze, caminho_bfs, explorados_bfs, <span class="str">'BFS (Largura)'</span>)
+plt.sca(axes[<span class="num">1</span>]); visualizar_busca(maze, caminho_dfs, explorados_dfs, <span class="str">'DFS (Profundidade)'</span>)
+plt.tight_layout(); plt.show()
+
+<span class="fn">print</span>(<span class="str">"🟦 Azul claro = nós explorados | 🟩 Verde = caminho | ⬛ Preto = parede"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e observem as imagens lado a lado. Vejam como BFS expande "em onda" (nível a nível) enquanto DFS "mergulha" por um corredor. Qual cobre mais área? Qual encontra caminho mais curto?</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual busca cega garante encontrar o caminho MAIS CURTO?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">BFS — porque explora nível a nível</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">DFS — porque vai direto ao fundo</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Ambas — sempre encontram o mesmo caminho</button>
+  </div><div class="quiz-fb ok">✅ BFS é <strong>ótima</strong> para custos iguais — explora todos os caminhos de tamanho k antes de tentar k+1. DFS pode encontrar um caminho mais longo primeiro.</div><div class="quiz-fb nok">❌ Só <strong>BFS</strong> garante caminho mais curto (com custos iguais). DFS pode encontrar solução mais longa.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════ -->
+<!-- 3º HORÁRIO — HEURÍSTICAS + A* -->
+<!-- ═══════════════════════════════ -->
+
+<section id="heuristica" class="ls">
+  <div class="sn">3º Horário · Parte A — Busca informada (~15 min teoria)</div>
+  <h2>Heurísticas e o Algoritmo A*</h2>
+  <p class="body">BFS e DFS são "cegas" — não sabem onde fica o objetivo. Uma <strong>heurística h(n)</strong> é uma estimativa de quanto falta. Como ter um "senso de direção".</p>
+
+  <h3>O que é uma heurística?</h3>
+  <div class="card" style="border:1px solid var(--accent)"><p><strong>h(n)</strong> = estimativa do custo de n até o objetivo. No labirinto: a <strong>distância de Manhattan</strong> funciona perfeitamente.</p>
+  <p style="margin-top:.5rem"><strong>Manhattan:</strong> h(n) = |x<sub>n</sub> − x<sub>goal</sub>| + |y<sub>n</sub> − y<sub>goal</sub>| — soma das distâncias horizontal e vertical. Como caminhar por quarteirões de uma cidade.</p></div>
+
+  <h3>3 estratégias de busca</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Algoritmo</th><th>f(n) =</th><th>O que faz</th><th>Ótimo?</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:700">BFS / UCS</td><td>g(n)</td><td>Só custo real até agora</td><td>✅ Sim</td></tr>
+      <tr><td style="font-weight:700">Greedy</td><td>h(n)</td><td>Só estimativa até o goal</td><td>❌ Não</td></tr>
+      <tr><td style="font-weight:700;color:var(--accent)">A* ⭐</td><td style="color:var(--accent);font-weight:700">g(n) + h(n)</td><td>Custo real + estimativa</td><td style="color:var(--accent);font-weight:700">✅ Sim*</td></tr>
+    </tbody>
+  </table>
+  <p class="body" style="font-size:.82rem;color:var(--text-dim)">*A* é ótimo se h(n) é <strong>admissível</strong> (nunca superestima). Manhattan é admissível para grids sem diagonais.</p>
+
+  <div class="callout important"><div class="cl">💡 A grande ideia do A*</div><p><strong>f(n) = g(n) + h(n)</strong> — equilibra "quanto já andei" com "quanto estimo que falta". Greedy é impulsivo (só olha pra frente), UCS é cauteloso (só olha pra trás). A* combina os dois: encontra o caminho ótimo explorando MENOS nós.</p></div>
+</section>
+
+<section id="astar" class="ls">
+  <div class="sn">3º Horário · Parte B — A* no código (~35 min)</div>
+  <h2>💻 Implementando A*</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · A* com heurística Manhattan</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">manhattan</span>(a, b):
+    <span class="cm">"""Distância de Manhattan — heurística admissível."""</span>
+    <span class="kw">return</span> abs(a[<span class="num">0</span>]-b[<span class="num">0</span>]) + abs(a[<span class="num">1</span>]-b[<span class="num">1</span>])
+
+<span class="kw">def</span> <span class="fn">astar</span>(maze, start, goal):
+    <span class="cm">"""A* — f(n) = g(n) + h(n) com fila de prioridade."""</span>
+    <span class="cm"># heap: (f, g, posição, caminho)</span>
+    heap = [(manhattan(start, goal), <span class="num">0</span>, start, [start])]
+    visitados = set()
+    nos_explorados = <span class="num">0</span>
+    ordem_exploracao = []
+
+    <span class="kw">while</span> heap:
+        f, g, pos, caminho = heapq.heappop(heap)
+
+        <span class="kw">if</span> pos <span class="kw">in</span> visitados:
+            <span class="kw">continue</span>
+        visitados.add(pos)
+        nos_explorados += <span class="num">1</span>
+        ordem_exploracao.append(pos)
+
+        <span class="kw">if</span> pos == goal:
+            <span class="kw">return</span> caminho, nos_explorados, ordem_exploracao
+
+        <span class="kw">for</span> viz <span class="kw">in</span> vizinhos(maze, pos):
+            <span class="kw">if</span> viz <span class="kw">not in</span> visitados:
+                novo_g = g + <span class="num">1</span>
+                novo_f = novo_g + manhattan(viz, goal)
+                heapq.heappush(heap, (novo_f, novo_g, viz, caminho + [viz]))
+
+    <span class="kw">return</span> <span class="kw">None</span>, nos_explorados, ordem_exploracao
+
+caminho_a, nos_a, explorados_a = astar(maze, START, GOAL)
+<span class="fn">print</span>(<span class="str">f"A* encontrou caminho de {len(caminho_a)} passos"</span>)
+<span class="fn">print</span>(<span class="str">f"Nós explorados: {nos_a}"</span>)
+<span class="fn">print</span>(<span class="str">f"\n{'Algoritmo':<span class="num">12</span>s} {'Caminho':<span class="num">10</span>s} {'Nós explorados'}"</span>)
+<span class="fn">print</span>(<span class="str">f"{'BFS':<span class="num">12</span>s} {len(caminho_bfs):<span class="num">10</span>d} {nos_bfs}"</span>)
+<span class="fn">print</span>(<span class="str">f"{'DFS':<span class="num">12</span>s} {len(caminho_dfs):<span class="num">10</span>d} {nos_dfs}"</span>)
+<span class="fn">print</span>(<span class="str">f"{'A*':<span class="num">12</span>s} {len(caminho_a):<span class="num">10</span>d} {nos_a}"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 5 min</div><p>Executem e comparem os 3 números. A* encontra caminho do mesmo tamanho que BFS? E quantos nós explorou? <strong>A eficiência do A* aparece aqui!</strong></p></div>
+
+  <h3>Visualização dos 3 algoritmos</h3>
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Comparação visual BFS vs DFS vs A*</span></div><div class="code-body">fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">3</span>, figsize=(<span class="num">18</span>, <span class="num">6</span>))
+<span class="kw">for</span> ax, (cam, exp, titulo) <span class="kw">in</span> zip(axes, [
+    (caminho_bfs, explorados_bfs, <span class="str">'BFS (Largura)'</span>),
+    (caminho_dfs, explorados_dfs, <span class="str">'DFS (Profundidade)'</span>),
+    (caminho_a,   explorados_a,   <span class="str">'A* (Manhattan)'</span>),
+]):
+    plt.sca(ax); visualizar_busca(maze, cam, exp, titulo)
+plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — observem</div><p>Vejam a diferença na área azul clara (nós explorados). A* explora <strong>muito menos</strong> que BFS — mas encontra o mesmo caminho ótimo! É como ter um GPS vs andar sem rumo.</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual é a função de avaliação do A*?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">f(n) = h(n) — só a heurística</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">f(n) = g(n) — só o custo real</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">f(n) = g(n) + h(n) — custo real + heurística</button>
+  </div><div class="quiz-fb ok">✅ f(n) = g(n) + h(n) — combina custo real até n com estimativa de n ao goal. Melhor dos dois mundos!</div><div class="quiz-fb nok">❌ A* usa <strong>f(n) = g(n) + h(n)</strong>. g(n) sozinho = UCS. h(n) sozinho = Greedy.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<!-- 4º HORÁRIO — 8-PUZZLE + DESAFIO      -->
+<!-- ══════════════════════════════════════ -->
+
+<section id="puzzle" class="ls">
+  <div class="sn">4º Horário · Parte A — 8-Puzzle com A* (~25 min)</div>
+  <h2>💻 O 8-Puzzle: A* com Manhattan</h2>
+  <p class="body">O 8-puzzle é UM DOS problemas clássicos de busca. 8 peças numeradas num grid 3×3 com um espaço vazio. Objetivo: ordenar as peças.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · 8-Puzzle com A*</span></div><div class="code-body"><span class="cm"># ═══ 8-Puzzle com A* ═══</span>
+
+GOAL_STATE = (<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">5</span>,<span class="num">6</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">0</span>)  <span class="cm"># 0 = espaço vazio</span>
+
+<span class="kw">def</span> <span class="fn">manhattan_puzzle</span>(state):
+    <span class="cm">"""Soma das distâncias Manhattan de cada peça à posição correta."""</span>
+    dist = <span class="num">0</span>
+    <span class="kw">for</span> i, val <span class="kw">in</span> enumerate(state):
+        <span class="kw">if</span> val != <span class="num">0</span>:
+            goal_pos = val - <span class="num">1</span>  <span class="cm"># peça 1 → posição 0, etc</span>
+            dist += abs(i//<span class="num">3</span> - goal_pos//<span class="num">3</span>) + abs(i%<span class="num">3</span> - goal_pos%<span class="num">3</span>)
+    <span class="kw">return</span> dist
+
+<span class="kw">def</span> <span class="fn">pecas_fora</span>(state):
+    <span class="cm">"""Heurística h1: conta peças fora do lugar."""</span>
+    <span class="kw">return</span> sum(<span class="num">1</span> <span class="kw">for</span> i, v <span class="kw">in</span> enumerate(state) <span class="kw">if</span> v != <span class="num">0</span> <span class="kw">and</span> v != i+<span class="num">1</span>)
+
+<span class="kw">def</span> <span class="fn">vizinhos_puzzle</span>(state):
+    <span class="cm">"""Gera estados vizinhos movendo o espaço vazio."""</span>
+    state = list(state)
+    i = state.index(<span class="num">0</span>)
+    r, c = i//<span class="num">3</span>, i%<span class="num">3</span>
+    <span class="kw">for</span> dr, dc <span class="kw">in</span> [(-<span class="num">1</span>,<span class="num">0</span>),(<span class="num">1</span>,<span class="num">0</span>),(<span class="num">0</span>,-<span class="num">1</span>),(<span class="num">0</span>,<span class="num">1</span>)]:
+        nr, nc = r+dr, c+dc
+        <span class="kw">if</span> <span class="num">0</span> &lt;= nr &lt; <span class="num">3</span> <span class="kw">and</span> <span class="num">0</span> &lt;= nc &lt; <span class="num">3</span>:
+            novo = state[:]
+            j = nr*<span class="num">3</span>+nc
+            novo[i], novo[j] = novo[j], novo[i]
+            <span class="kw">yield</span> tuple(novo)
+
+<span class="kw">def</span> <span class="fn">astar_puzzle</span>(start, heuristica=manhattan_puzzle):
+    <span class="cm">"""A* para o 8-puzzle."""</span>
+    heap = [(heuristica(start), <span class="num">0</span>, start, [start])]
+    visitados = set()
+    nos = <span class="num">0</span>
+    <span class="kw">while</span> heap:
+        f, g, state, caminho = heapq.heappop(heap)
+        <span class="kw">if</span> state <span class="kw">in</span> visitados: <span class="kw">continue</span>
+        visitados.add(state)
+        nos += <span class="num">1</span>
+        <span class="kw">if</span> state == GOAL_STATE:
+            <span class="kw">return</span> caminho, nos
+        <span class="kw">for</span> viz <span class="kw">in</span> vizinhos_puzzle(state):
+            <span class="kw">if</span> viz <span class="kw">not in</span> visitados:
+                ng = g + <span class="num">1</span>
+                heapq.heappush(heap, (ng + heuristica(viz), ng, viz, caminho + [viz]))
+    <span class="kw">return</span> <span class="kw">None</span>, nos
+
+<span class="cm"># Testar com configuração fácil (6 movimentos)</span>
+facil = (<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>,<span class="num">0</span>,<span class="num">5</span>,<span class="num">7</span>,<span class="num">8</span>,<span class="num">6</span>)
+<span class="cm"># Testar com configuração média (~20 movimentos)</span>
+medio = (<span class="num">1</span>,<span class="num">8</span>,<span class="num">2</span>,<span class="num">0</span>,<span class="num">4</span>,<span class="num">3</span>,<span class="num">7</span>,<span class="num">6</span>,<span class="num">5</span>)
+
+<span class="kw">for</span> nome, config <span class="kw">in</span> [(<span class="str">"Fácil"</span>, facil), (<span class="str">"Médio"</span>, medio)]:
+    t0 = time.time()
+    sol_m, nos_m = astar_puzzle(config, manhattan_puzzle)
+    t_m = time.time() - t0
+    t0 = time.time()
+    sol_p, nos_p = astar_puzzle(config, pecas_fora)
+    t_p = time.time() - t0
+    <span class="fn">print</span>(<span class="str">f"\n{nome}: {len(sol_m)-1} movimentos"</span>)
+    <span class="fn">print</span>(<span class="str">f"  Manhattan: {nos_m:>6d} nós, {t_m:.4f}s"</span>)
+    <span class="fn">print</span>(<span class="str">f"  Peças fora: {nos_p:>6d} nós, {t_p:.4f}s"</span>)
+    <span class="fn">print</span>(<span class="str">f"  Manhattan é {nos_p/nos_m:.1f}x mais eficiente!"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e comparem as duas heurísticas. Manhattan explora MUITO menos nós. Por quê? Porque é mais <strong>informativa</strong> — dá uma estimativa mais precisa da distância real. Uma boa heurística faz toda a diferença!</p></div>
+
+  <div class="quiz" id="q4"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">O que torna a heurística Manhattan melhor que "peças fora do lugar"?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q4',this,false)">Manhattan roda mais rápido por iteração</button>
+    <button class="quiz-opt" onclick="checkQ('q4',this,true)">Manhattan é mais informativa — estima melhor o custo real, explorando menos nós</button>
+    <button class="quiz-opt" onclick="checkQ('q4',this,false)">Manhattan usa menos memória</button>
+    <button class="quiz-opt" onclick="checkQ('q4',this,false)">Manhattan funciona e peças fora não funciona</button>
+  </div><div class="quiz-fb ok">✅ Manhattan <strong>domina</strong> peças fora: para todo estado, h_manhattan ≥ h_peças_fora. Quanto mais próxima do custo real (sem superestimar), melhor a heurística.</div><div class="quiz-fb nok">❌ Manhattan é mais <strong>informativa</strong> — h_manhattan(n) ≥ h_peças(n) para todo n. Ambas são admissíveis, mas Manhattan estima melhor, guiando A* com menos nós.</div></div>
+</section>
+
+<section id="desafio" class="ls">
+  <div class="sn">4º Horário · Parte B — Desafio (~20 min)</div>
+  <h2>🏆 Desafio: Labirintos Gigantes</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Gerador de labirintos aleatórios + benchmark</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">gerar_labirinto</span>(tamanho, prob_parede=<span class="num">0.3</span>):
+    <span class="cm">"""Gera labirinto aleatório garantindo caminho possível."""</span>
+    <span class="kw">while True</span>:
+        maze = (np.random.random((tamanho, tamanho)) &lt; prob_parede).astype(int)
+        maze[<span class="num">0</span>][<span class="num">0</span>] = <span class="num">0</span>; maze[-<span class="num">1</span>][-<span class="num">1</span>] = <span class="num">0</span>
+        <span class="cm"># Verificar se tem solução com BFS rápido</span>
+        sol, _, _ = bfs(maze, (<span class="num">0</span>,<span class="num">0</span>), (tamanho-<span class="num">1</span>, tamanho-<span class="num">1</span>))
+        <span class="kw">if</span> sol: <span class="kw">return</span> maze
+
+<span class="cm"># Benchmark em diferentes tamanhos</span>
+resultados = []
+<span class="kw">for</span> tam <span class="kw">in</span> [<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">50</span>]:
+    maze_grande = gerar_labirinto(tam)
+    goal = (tam-<span class="num">1</span>, tam-<span class="num">1</span>)
+    linha = {<span class="str">'tamanho'</span>: <span class="str">f'{tam}x{tam}'</span>}
+    <span class="kw">for</span> nome, fn <span class="kw">in</span> [(<span class="str">'BFS'</span>, bfs), (<span class="str">'DFS'</span>, dfs), (<span class="str">'A*'</span>, astar)]:
+        t0 = time.time()
+        cam, nos, _ = fn(maze_grande, (<span class="num">0</span>,<span class="num">0</span>), goal)
+        t = time.time() - t0
+        linha[<span class="str">f'{nome}_nos'</span>] = nos
+        linha[<span class="str">f'{nome}_tempo'</span>] = <span class="str">f'{t:.4f}s'</span>
+        linha[<span class="str">f'{nome}_cam'</span>] = len(cam) <span class="kw">if</span> cam <span class="kw">else</span> <span class="str">'falhou'</span>
+    resultados.append(linha)
+
+<span class="cm"># Mostrar resultados</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.DataFrame(resultados)
+<span class="fn">print</span>(df.to_string(index=False))</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e analisem a tabela. Em labirintos maiores, a vantagem do A* fica <strong>muito mais evidente</strong>. No 50×50, quantas vezes mais nós o BFS explora comparado ao A*?</p></div>
+
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🎯 Desafio para entregar</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1.</strong> Gere um labirinto <strong>100×100</strong>. Rode BFS, DFS e A*. Compare nós e tempo. Mostre a visualização do A*.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.</strong> No 8-Puzzle, teste com a configuração <strong>difícil</strong>: (8,6,7,2,5,4,3,0,1). Quantos nós com Manhattan? E com peças fora?</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.</strong> Crie uma heurística <strong>Euclidiana</strong> para o labirinto: h(n) = √((x₁−x₂)² + (y₁−y₂)²). Compare com Manhattan: ambas são admissíveis? Qual é melhor?</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4. Reflexão (Markdown):</strong> Compare BFS, DFS e A* em uma tabela com: completude, otimalidade, memória, quando usar cada um. Em que situação real DFS seria melhor que A*?</p></div>
+    </div>
+  </div>
+
+  <div class="callout warning"><div class="cl">📌 Entrega + Próxima aula (16/04)</div><p><strong>Entrega:</strong> Notebook Colab no GitHub até 15/04. <strong>Leitura:</strong> Russell & Norvig Cap. 4 (Busca Local). Próxima aula: <strong>Hill Climbing, Simulated Annealing, Algoritmos Genéticos, Minimax e Poda Alfa-Beta</strong>.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🎯</div><p style="font-size:.76rem;font-weight:600">Formulação de busca</p><p style="font-size:.68rem;color:var(--text-dim)">5 componentes</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🔵</div><p style="font-size:.76rem;font-weight:600">BFS implementado</p><p style="font-size:.68rem;color:var(--text-dim)">Fila FIFO, ótimo</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🟣</div><p style="font-size:.76rem;font-weight:600">DFS implementado</p><p style="font-size:.68rem;color:var(--text-dim)">Pilha LIFO, pouca memória</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">⭐</div><p style="font-size:.76rem;font-weight:600">A* implementado</p><p style="font-size:.68rem;color:var(--text-dim)">f(n) = g(n) + h(n)</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📊</div><p style="font-size:.76rem;font-weight:600">Visualização comparativa</p><p style="font-size:.68rem;color:var(--text-dim)">matplotlib lado a lado</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🧩</div><p style="font-size:.76rem;font-weight:600">8-Puzzle resolvido</p><p style="font-size:.68rem;color:var(--text-dim)">Manhattan vs peças fora</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 03 — 9 de abril de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clustering, PCA e Ensembles — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 07 · 11/06/2026 · Laboratório · 4 horários · 🏁 Competição</div>
+<h1>Clustering, PCA e Ensembles</h1>
+<p class="hero-sub">Descobrir padrões sem gabarito + a sabedoria das multidões — fechando com a mini-competição Kaggle da turma.</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#clustering" class="nav-link">Clustering</a><a href="#kmeans-lab" class="nav-link">K-Means</a><a href="#pca" class="nav-link">PCA</a><a href="#pca-lab" class="nav-link">Lab PCA</a><a href="#ensemble" class="nav-link">Ensembles</a><a href="#ensemble-lab" class="nav-link">RF & XGBoost</a><a href="#competicao" class="nav-link">🏁 Competição</a><a href="#entrega" class="nav-link">Lab 1</a></div></nav>
+<div class="container">
+<!-- AGENDA -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Padrões Ocultos e a Sabedoria das Multidões</h2>
+  <div class="lab-banner"><span class="icon">🏁</span><span class="text">Hoje tem <strong>MINI-COMPETIÇÃO estilo Kaggle</strong> no último horário — com leaderboard ao vivo. E é dia de <strong>entrega do Lab 1 (15% da nota)</strong>.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Aprender sem Gabarito</h4><p>Clustering: encontrar grupos sem rótulos (15 min). <strong>💻 K-Means: segmentar clientes de um shopping em tribos de consumo.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — Enxergar em 2D o Invisível</h4><p>PCA: comprimir dimensões sem perder a essência (10 min). <strong>💻 Visualizar dados de 13 dimensões em 2D. DBSCAN vs K-Means.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — A Sabedoria das Multidões</h4><p>Ensembles: por que 100 modelos medianos vencem 1 gênio (15 min). <strong>💻 Random Forest e XGBoost esmagando modelos individuais.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — 🏁 COMPETIÇÃO</h4><p><strong>💻 Mini-Kaggle da turma: cada equipe submete previsões, leaderboard ao vivo, equipe campeã leva pontos extras no Lab 1!</strong></p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- 1º HORÁRIO -->
+<section id="clustering" class="ls">
+  <div class="sn">1º Horário · Parte A — Teoria (~15 min)</div>
+  <h2>Aprender sem Professor</h2>
+  <p class="body">Na aula passada, todo dado vinha com gabarito: este passageiro sobreviveu, aquele não. Isso é aprendizado <strong>supervisionado</strong> — alguém "supervisiona" dizendo as respostas. Mas e quando não há resposta? Um shopping tem dados de 10 mil clientes: idade, renda, frequência, gasto médio. Ninguém rotulou "este é cliente premium" ou "este é caçador de promoções". <strong>Os grupos existem — mas estão escondidos nos dados.</strong></p>
+
+  <p class="body">Aprendizado <strong>não supervisionado</strong> é a arte de descobrir estrutura sem gabarito. É como chegar numa festa onde você não conhece ninguém: em meia hora, você percebe os grupos — a roda dos que falam de futebol, o canto dos gamers, a turma da dança. Ninguém te deu uma lista; você inferiu pela <strong>proximidade e semelhança</strong>. Algoritmos de clustering fazem exatamente isso com dados.</p>
+
+  <h3>K-Means: o algoritmo da festa</h3>
+  <p class="body">O K-Means é elegantemente simples. Você diz quantos grupos quer (o <strong>K</strong>), e ele faz uma dança em dois passos que se repete até estabilizar:</p>
+  <div class="steps">
+    <div class="step"><h4>Chuta K centros aleatórios</h4><p>Joga K "bandeiras" no espaço dos dados.</p></div>
+    <div class="step"><h4>Atribui cada ponto à bandeira mais próxima</h4><p>Cada cliente entra no grupo do centro mais perto dele.</p></div>
+    <div class="step"><h4>Move cada bandeira para o centro do seu grupo</h4><p>A bandeira recalcula sua posição como a média dos seus membros.</p></div>
+    <div class="step"><h4>Repete 2–3 até nada mudar</h4><p>Quando as bandeiras param de se mover: convergiu. Grupos encontrados!</p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 E como escolher o K?</div><p>O <strong>método do cotovelo</strong>: rode com K=1,2,3...10 e meça a "compactação" dos grupos (inércia). O gráfico cai rápido e depois estabiliza — o ponto da dobra (o "cotovelo") é o K natural dos dados. Vocês vão ver isso ao vivo já já.</p></div>
+</section>
+
+<section id="kmeans-lab" class="ls">
+  <div class="sn">1º Horário · Parte B — Mão na massa (~35 min)</div>
+  <h2>💻 As Tribos de Consumo do Shopping</h2>
+  <p class="body">Dataset clássico: clientes de um shopping com renda anual e "score de gastos" (0–100, calculado pelo shopping). Sua missão: descobrir as tribos.</p>
+
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text">Criem <code style="color:var(--accent)">CC0121_Aula07_Clustering_Ensemble.ipynb</code>.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · K-Means: segmentação de clientes</span></div><div class="code-body"><span class="cm"># ═══ CC0121 Aula 07 — Clustering de Clientes ═══</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">from</span> sklearn.cluster <span class="kw">import</span> KMeans
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+url = <span class="str">"https://raw.githubusercontent.com/SteffiPeTaffy/machineLearningAZ/master/Machine%20Learning%20A-Z%20Template%20Folder/Part%204%20-%20Clustering/Section%2025%20-%20Hierarchical%20Clustering/Mall_Customers.csv"</span>
+df = pd.read_csv(url)
+df.columns = [<span class="str">'ID'</span>, <span class="str">'Genero'</span>, <span class="str">'Idade'</span>, <span class="str">'Renda_kUSD'</span>, <span class="str">'Score_Gastos'</span>]
+<span class="fn">print</span>(df.head())
+
+X = df[[<span class="str">'Renda_kUSD'</span>, <span class="str">'Score_Gastos'</span>]].values
+
+<span class="cm"># ── Método do cotovelo: qual K? ──</span>
+inercias = []
+<span class="kw">for</span> k <span class="kw">in</span> range(<span class="num">1</span>, <span class="num">11</span>):
+    km = KMeans(n_clusters=k, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+    km.fit(X)
+    inercias.append(km.inertia_)
+
+plt.figure(figsize=(<span class="num">8</span>,<span class="num">4</span>))
+plt.plot(range(<span class="num">1</span>,<span class="num">11</span>), inercias, <span class="str">'o-'</span>, color=<span class="str">'#00d4aa'</span>, linewidth=<span class="num">2</span>)
+plt.axvline(<span class="num">5</span>, color=<span class="str">'#f59e0b'</span>, linestyle=<span class="str">'--'</span>, label=<span class="str">'O cotovelo!'</span>)
+plt.xlabel(<span class="str">'K (número de grupos)'</span>); plt.ylabel(<span class="str">'Inércia'</span>)
+plt.title(<span class="str">'Método do Cotovelo'</span>, fontweight=<span class="str">'bold'</span>); plt.legend(); plt.grid(alpha=<span class="num">.3</span>)
+plt.show()
+
+<span class="cm"># ── K-Means com K=5 ──</span>
+km = KMeans(n_clusters=<span class="num">5</span>, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>)
+df[<span class="str">'Tribo'</span>] = km.fit_predict(X)
+
+plt.figure(figsize=(<span class="num">10</span>,<span class="num">6</span>))
+cores = [<span class="str">'#00d4aa'</span>,<span class="str">'#3b82f6'</span>,<span class="str">'#ec4899'</span>,<span class="str">'#f59e0b'</span>,<span class="str">'#8b5cf6'</span>]
+<span class="kw">for</span> t <span class="kw">in</span> range(<span class="num">5</span>):
+    grupo = df[df[<span class="str">'Tribo'</span>] == t]
+    plt.scatter(grupo[<span class="str">'Renda_kUSD'</span>], grupo[<span class="str">'Score_Gastos'</span>],
+                s=<span class="num">60</span>, c=cores[t], label=<span class="str">f'Tribo {t}'</span>, alpha=<span class="num">.7</span>)
+plt.scatter(km.cluster_centers_[:,<span class="num">0</span>], km.cluster_centers_[:,<span class="num">1</span>],
+            s=<span class="num">350</span>, c=<span class="str">'white'</span>, marker=<span class="str">'*'</span>, edgecolors=<span class="str">'black'</span>, linewidths=<span class="num">1.5</span>, label=<span class="str">'Centros'</span>)
+plt.xlabel(<span class="str">'Renda anual (k US$)'</span>); plt.ylabel(<span class="str">'Score de gastos (0-100)'</span>)
+plt.title(<span class="str">'🛍️ As 5 Tribos do Shopping'</span>, fontweight=<span class="str">'bold'</span>, fontsize=<span class="num">13</span>)
+plt.legend(); plt.grid(alpha=<span class="num">.3</span>); plt.show()
+
+<span class="cm"># ─── Persona Cards: quem é cada tribo? ───</span>
+<span class="fn">print</span>(<span class="str">"🪪 PERSONA CARDS — conheça as tribos:\n"</span>)
+<span class="kw">for</span> t <span class="kw">in</span> range(<span class="num">5</span>):
+    g = df[df[<span class="str">'Tribo'</span>] == t]
+    <span class="fn">print</span>(<span class="str">f"  Tribo {t} ({len(g)} pessoas)"</span>)
+    <span class="fn">print</span>(<span class="str">f"    Idade média: {g['Idade'].mean():.0f} anos | Renda: ${g['Renda_kUSD'].mean():.0f}k | Gasto: {g['Score_Gastos'].mean():.0f}/100 | {(g['Genero']=='Female').mean()*100:.0f}% mulheres"</span>)
+    <span class="fn">print</span>(<span class="str">f"    Batize esta tribo: ________________\n"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e <strong>batizem as 5 tribos</strong> em dupla. Sugestões para começar: quem tem renda alta + gasto alto? ("VIPs"?) Renda alta + gasto baixo? ("Pão-duros ricos"?) Renda baixa + gasto alto? ("Vivendo no limite"?). <strong>Pergunta de negócio:</strong> se o shopping tem verba de marketing para UMA tribo, qual escolher e por quê?</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">A diferença fundamental entre supervisionado e não supervisionado é:</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Supervisionado usa mais dados</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">Supervisionado tem rótulos (gabarito); não supervisionado descobre estrutura sem rótulos</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Não supervisionado é sempre mais preciso</button>
+  </div><div class="quiz-fb ok">✅ Exato! Supervisionado: prever um alvo conhecido. Não supervisionado: revelar grupos/estrutura que ninguém rotulou.</div><div class="quiz-fb nok">❌ A diferença é a presença de <strong>rótulos</strong>. Titanic tinha "sobreviveu sim/não" (supervisionado). Os clientes do shopping não têm tribo definida (não supervisionado).</div></div>
+</section>
+<hr class="divider">
+
+<!-- 2º HORÁRIO -->
+<section id="pca" class="ls">
+  <div class="sn">2º Horário · Parte A — Teoria (~10 min)</div>
+  <h2>PCA: A Sombra Perfeita</h2>
+  <p class="body">Dados reais raramente têm 2 dimensões plotáveis. Um cliente de banco tem 50 atributos; um exame genético, milhares. Como <em>enxergar</em> dados de 50 dimensões? Não dá — nosso cérebro trava em 3.</p>
+  <p class="body">O <strong>PCA (Análise de Componentes Principais)</strong> resolve com uma ideia linda: projetar os dados em menos dimensões <strong>preservando o máximo de informação</strong>. Pense numa escultura 3D e sua sombra na parede: a sombra é 2D, mas se você escolher bem o ângulo da luz, ela ainda revela a forma. PCA encontra matematicamente <strong>o melhor ângulo de luz</strong> — as direções onde os dados mais variam.</p>
+  <div class="callout important"><div class="cl">💡 Para que serve na prática</div><p>(1) <strong>Visualizar</strong> dados de alta dimensão em 2D/3D. (2) <strong>Acelerar</strong> modelos reduzindo features redundantes. (3) <strong>Remover ruído</strong> mantendo só os componentes principais. É pré-processamento padrão em pipelines profissionais.</p></div>
+</section>
+
+<section id="pca-lab" class="ls">
+  <div class="sn">2º Horário · Parte B — Mão na massa (~40 min)</div>
+  <h2>💻 Enxergando 13 Dimensões + DBSCAN</h2>
+  <p class="body">O dataset Wine tem 13 medidas químicas de 178 vinhos de 3 vinícolas. Treze dimensões — impossível plotar. Vamos usar PCA para "fotografar" esse espaço em 2D:</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · PCA + comparação K-Means vs DBSCAN</span></div><div class="code-body"><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_wine
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">from</span> sklearn.cluster <span class="kw">import</span> DBSCAN
+
+<span class="cm"># 178 vinhos × 13 medidas químicas</span>
+wine = load_wine()
+X_wine = StandardScaler().fit_transform(wine.data)
+<span class="fn">print</span>(<span class="str">f"Dimensões originais: {X_wine.shape}"</span>)  <span class="cm"># (178, 13)</span>
+
+<span class="cm"># PCA: 13D → 2D</span>
+pca = PCA(n_components=<span class="num">2</span>)
+X_2d = pca.fit_transform(X_wine)
+<span class="fn">print</span>(<span class="str">f"Variância preservada: {pca.explained_variance_ratio_.sum()*100:.1f}%"</span>)
+
+fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">3</span>, figsize=(<span class="num">17</span>, <span class="num">5</span>))
+
+<span class="cm"># 1. A verdade (rótulos reais — só para conferência!)</span>
+axes[<span class="num">0</span>].scatter(X_2d[:,<span class="num">0</span>], X_2d[:,<span class="num">1</span>], c=wine.target, cmap=<span class="str">'viridis'</span>, s=<span class="num">50</span>)
+axes[<span class="num">0</span>].set_title(<span class="str">'Realidade: 3 vinícolas\n(rótulos verdadeiros)'</span>, fontweight=<span class="str">'bold'</span>)
+
+<span class="cm"># 2. K-Means (sem nunca ver os rótulos!)</span>
+km3 = KMeans(n_clusters=<span class="num">3</span>, random_state=<span class="num">42</span>, n_init=<span class="num">10</span>).fit(X_2d)
+axes[<span class="num">1</span>].scatter(X_2d[:,<span class="num">0</span>], X_2d[:,<span class="num">1</span>], c=km3.labels_, cmap=<span class="str">'viridis'</span>, s=<span class="num">50</span>)
+axes[<span class="num">1</span>].set_title(<span class="str">'K-Means descobriu sozinho'</span>, fontweight=<span class="str">'bold'</span>)
+
+<span class="cm"># 3. DBSCAN (descobre K sozinho + detecta outliers)</span>
+db = DBSCAN(eps=<span class="num">0.6</span>, min_samples=<span class="num">5</span>).fit(X_2d)
+axes[<span class="num">2</span>].scatter(X_2d[:,<span class="num">0</span>], X_2d[:,<span class="num">1</span>], c=db.labels_, cmap=<span class="str">'viridis'</span>, s=<span class="num">50</span>)
+n_outliers = (db.labels_ == -<span class="num">1</span>).sum()
+axes[<span class="num">2</span>].set_title(<span class="str">f'DBSCAN ({n_outliers} outliers em amarelo)'</span>, fontweight=<span class="str">'bold'</span>)
+plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e comparem os 3 painéis. O K-Means recuperou as 3 vinícolas <strong>sem nunca ver os rótulos</strong> — quanto ele acertou visualmente? Depois brinquem com o <code>eps</code> do DBSCAN (0.4, 0.6, 0.8): o que acontece com o número de grupos e outliers? <strong>Quando DBSCAN é melhor que K-Means?</strong> (Dica: grupos com formato de lua crescente.)</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual a principal vantagem do DBSCAN sobre o K-Means?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">É sempre mais rápido</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">Não precisa definir K, encontra grupos de formas arbitrárias e detecta outliers</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Funciona melhor com poucos dados</button>
+  </div><div class="quiz-fb ok">✅ DBSCAN agrupa por densidade: acha o número de grupos sozinho, lida com formas não-esféricas e marca outliers (-1). K-Means assume grupos "redondos" e exige K.</div><div class="quiz-fb nok">❌ As vantagens do DBSCAN: <strong>não exige K, encontra formas arbitrárias, detecta outliers</strong>. Em troca, é sensível ao parâmetro eps.</div></div>
+</section>
+<hr class="divider">
+
+<!-- 3º HORÁRIO -->
+<section id="ensemble" class="ls">
+  <div class="sn">3º Horário · Parte A — Teoria (~15 min)</div>
+  <h2>A Sabedoria das Multidões</h2>
+  <p class="body">Em 1906, o estatístico Francis Galton viu 787 pessoas numa feira tentando adivinhar o peso de um boi. Ninguém acertou — mas a <strong>média dos palpites errou por menos de 1%</strong>, melhor que qualquer especialista presente. Erros individuais em direções diferentes se cancelam; o sinal comum permanece.</p>
+  <p class="body">Ensembles aplicam isso a ML: <strong>muitos modelos medianos, combinados, vencem um modelo genial.</strong> Há duas filosofias principais — e a diferença entre elas é uma das perguntas favoritas de entrevista de emprego:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent)">🌳 Bagging → Random Forest</h4><p><strong>Paralelo e independente.</strong> Treina centenas de árvores, cada uma num sorteio diferente dos dados (bootstrap) e das features. Cada árvore vota; maioria vence. Como um júri: cada jurado vê o caso de um ângulo, e o veredito coletivo é mais confiável que qualquer jurado isolado. <strong>Reduz variância</strong> (overfitting).</p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange)">🚀 Boosting → XGBoost</h4><p><strong>Sequencial e corretivo.</strong> Treina um modelo fraco, vê onde ele errou, e treina o próximo <em>focado nos erros do anterior</em>. Repete centenas de vezes. Como estudar refazendo só as questões que você errou. <strong>Reduz viés</strong> (underfitting). XGBoost dominou competições Kaggle por uma década.</p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 Regra de ouro do mercado (2026)</div><p>Para <strong>dados tabulares</strong> (planilhas, bancos de dados), ensembles de árvores (XGBoost, LightGBM, Random Forest) ainda costumam <strong>vencer redes neurais</strong> — com fração do custo. Deep learning domina imagem, texto e áudio. Saber quando usar cada um é o que separa o júnior do pleno.</p></div>
+</section>
+
+<section id="ensemble-lab" class="ls">
+  <div class="sn">3º Horário · Parte B — Mão na massa (~35 min)</div>
+  <h2>💻 Random Forest e XGBoost vs o Mundo</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · O torneio definitivo (Titanic revisitado)</span></div><div class="code-body"><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier, GradientBoostingClassifier
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+!pip install xgboost -q
+<span class="kw">from</span> xgboost <span class="kw">import</span> XGBClassifier
+
+<span class="cm"># Recarregar Titanic com as features da aula passada</span>
+url = <span class="str">"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"</span>
+df = pd.read_csv(url)
+df[<span class="str">'Sexo'</span>] = (df[<span class="str">'Sex'</span>]==<span class="str">'female'</span>).astype(int)
+df[<span class="str">'Age'</span>] = df[<span class="str">'Age'</span>].fillna(df[<span class="str">'Age'</span>].median())
+df[<span class="str">'Fare'</span>] = df[<span class="str">'Fare'</span>].fillna(df[<span class="str">'Fare'</span>].median())
+df[<span class="str">'Sozinho'</span>] = ((df[<span class="str">'SibSp'</span>]+df[<span class="str">'Parch'</span>])==<span class="num">0</span>).astype(int)
+X = df[[<span class="str">'Pclass'</span>,<span class="str">'Sexo'</span>,<span class="str">'Age'</span>,<span class="str">'Fare'</span>,<span class="str">'Sozinho'</span>]]
+y = df[<span class="str">'Survived'</span>]
+
+<span class="cm"># Individuais vs Ensembles</span>
+modelos = {
+    <span class="str">'Árvore solo'</span>:        DecisionTreeClassifier(max_depth=<span class="num">4</span>, random_state=<span class="num">42</span>),
+    <span class="str">'Regressão Logística'</span>: LogisticRegression(max_iter=<span class="num">1000</span>),
+    <span class="str">'Random Forest (300)'</span>: RandomForestClassifier(n_estimators=<span class="num">300</span>, random_state=<span class="num">42</span>),
+    <span class="str">'Gradient Boosting'</span>:   GradientBoostingClassifier(random_state=<span class="num">42</span>),
+    <span class="str">'XGBoost'</span>:             XGBClassifier(random_state=<span class="num">42</span>, eval_metric=<span class="str">'logloss'</span>),
+}
+
+<span class="fn">print</span>(<span class="str">"Validação cruzada 5-fold (a avaliação honesta):\n"</span>)
+medias = {}
+<span class="kw">for</span> nome, m <span class="kw">in</span> modelos.items():
+    scores = cross_val_score(m, X, y, cv=<span class="num">5</span>)
+    medias[nome] = scores.mean()
+    barra = <span class="str">'█'</span> * int(scores.mean()*<span class="num">40</span> - <span class="num">28</span>)
+    <span class="fn">print</span>(<span class="str">f"{nome:&lt;22s} {barra} {scores.mean()*100:.1f}% ± {scores.std()*100:.1f}"</span>)
+
+<span class="cm"># Quem importa? Feature importance do Random Forest</span>
+rf = RandomForestClassifier(n_estimators=<span class="num">300</span>, random_state=<span class="num">42</span>).fit(X, y)
+imp = pd.Series(rf.feature_importances_, index=X.columns).sort_values()
+plt.figure(figsize=(<span class="num">8</span>,<span class="num">4</span>))
+imp.plot.barh(color=<span class="str">'#00d4aa'</span>)
+plt.title(<span class="str">'O que mais importava para sobreviver? (Random Forest)'</span>, fontweight=<span class="str">'bold'</span>)
+plt.xlabel(<span class="str">'Importância'</span>); plt.tight_layout(); plt.show()
+
+<span class="cm"># ─── 🔥 Os passageiros mais POLÊMICOS: onde as 300 árvores se dividem ───</span>
+probs = rf.predict_proba(X)[:, <span class="num">1</span>]
+df[<span class="str">'Incerteza'</span>] = np.abs(probs - <span class="num">0.5</span>)
+polemicos = df.nsmallest(<span class="num">5</span>, <span class="str">'Incerteza'</span>)
+
+<span class="fn">print</span>(<span class="str">"⚖️ TRIBUNAL DIVIDIDO — as 300 árvores não chegam a acordo:\n"</span>)
+<span class="kw">for</span> _, r <span class="kw">in</span> polemicos.iterrows():
+    nome = r[<span class="str">'Name'</span>].split(<span class="str">','</span>)[<span class="num">0</span>]
+    sexo = <span class="str">'♂'</span> <span class="kw">if</span> r[<span class="str">'Sexo'</span>]==<span class="num">0</span> <span class="kw">else</span> <span class="str">'♀'</span>
+    real = <span class="str">'🛟 viveu'</span> <span class="kw">if</span> r[<span class="str">'Survived'</span>] <span class="kw">else</span> <span class="str">'💀 morreu'</span>
+    <span class="fn">print</span>(<span class="str">f"  {nome} ({sexo}, {r['Age']:.0f} anos, {r['Pclass']}ª classe): {probs[r.name]*100:.0f}% de chance → realidade: {real}"</span>)
+<span class="fn">print</span>(<span class="str">"\n💭 Sunderland e Rush: mesma idade, mesma classe, mesmo sexo. Um viveu, outro morreu."</span>)
+<span class="fn">print</span>(<span class="str">"   O modelo não tem como saber — e essa é a lição: previsão tem limites."</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem. Os ensembles venceram os modelos solo? Analisem a importância: <strong>qual feature dominava 1912?</strong> E olhem o "Tribunal Dividido": Sunderland e Rush eram <strong>idênticos para o modelo</strong> — mesma idade, classe e sexo — mas um viveu e o outro morreu. Discutam: o que isso ensina sobre os limites de qualquer previsão? Depois testem <code>n_estimators=10</code> vs <code>1000</code>.</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual a diferença entre bagging (Random Forest) e boosting (XGBoost)?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">Bagging treina modelos em paralelo e independentes; boosting treina em sequência, cada um corrigindo os erros do anterior</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Bagging usa árvores; boosting usa redes neurais</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">São o mesmo algoritmo com nomes diferentes</button>
+  </div><div class="quiz-fb ok">✅ Perfeito! Bagging = júri independente votando (reduz variância). Boosting = corrente de modelos onde cada elo conserta o anterior (reduz viés).</div><div class="quiz-fb nok">❌ <strong>Bagging</strong>: paralelo e independente (júri). <strong>Boosting</strong>: sequencial e corretivo (refazer as questões erradas). Essa é pergunta clássica de entrevista!</div></div>
+</section>
+<hr class="divider">
+
+<!-- 4º HORÁRIO — COMPETIÇÃO -->
+<section id="competicao" class="ls">
+  <div class="sn">4º Horário — 🏁 A COMPETIÇÃO</div>
+  <h2>🏆 Mini-Kaggle da Turma</h2>
+  <p class="body">Agora é pra valer. Cada equipe (a mesma do projeto final) tem <strong>40 minutos</strong> para construir o melhor modelo possível para o Titanic. As regras:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card" style="border-left:3px solid var(--accent)">
+      <h4 style="color:var(--accent)">📜 Regras</h4>
+      <ul class="sl" style="font-size:.84rem">
+        <li>Métrica oficial: <strong>acurácia média em validação cruzada 5-fold</strong> (cv=5, random_state=42)</li>
+        <li>Vale tudo: feature engineering, qualquer modelo do sklearn/XGBoost, GridSearch</li>
+        <li>NÃO vale: mudar o random_state do cv, usar o target como feature 😅</li>
+        <li>Submissões: a equipe roda a célula de avaliação e grita o score</li>
+        <li>Professor mantém o <strong>leaderboard no quadro</strong>, atualizado a cada submissão</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left:3px solid var(--orange)">
+      <h4 style="color:var(--orange)">🏅 Premiação</h4>
+      <ul class="sl" style="font-size:.84rem">
+        <li><strong>1º lugar:</strong> +1,0 ponto no Lab 1</li>
+        <li><strong>2º lugar:</strong> +0,5 ponto no Lab 1</li>
+        <li><strong>3º lugar:</strong> +0,25 ponto no Lab 1</li>
+        <li>Todos que superarem 82%: menção no Hall da Fama da disciplina 🏛️</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Célula oficial de avaliação (NÃO MODIFICAR)</span></div><div class="code-body"><span class="cm"># ═══ CÉLULA OFICIAL DE SUBMISSÃO — Mini-Kaggle CC0121 ═══</span>
+<span class="cm"># Substituam apenas: SEU_X (suas features) e SEU_MODELO</span>
+
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+
+SEU_X = X            <span class="cm"># ← suas features (mesmas linhas do df original!)</span>
+SEU_MODELO = rf      <span class="cm"># ← seu melhor modelo</span>
+
+scores = cross_val_score(SEU_MODELO, SEU_X, y, cv=<span class="num">5</span>)
+<span class="fn">print</span>(<span class="str">f"═"</span>*<span class="num">50</span>)
+<span class="fn">print</span>(<span class="str">f"  🏁 SCORE OFICIAL: {scores.mean()*100:.2f}%  (±{scores.std()*100:.2f})"</span>)
+<span class="fn">print</span>(<span class="str">f"═"</span>*<span class="num">50</span>)</div></div>
+
+  <h3>💡 Dicas para subir no leaderboard</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem;color:var(--blue)">Feature engineering</h4><p style="font-size:.8rem">Título do nome (Mr/Mrs/Miss/Master/Dr), tamanho da família, cabine conhecida, faixas de tarifa. <strong>É aqui que se ganha.</strong></p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem;color:var(--purple)">Tuning</h4><p style="font-size:.8rem"><code>GridSearchCV</code> no XGBoost: max_depth (3-7), learning_rate (0.01-0.3), n_estimators (100-500).</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem;color:var(--accent)">Combine</h4><p style="font-size:.8rem"><code>VotingClassifier</code> juntando seus 3 melhores modelos. A sabedoria das multidões na prática!</p></div>
+  </div>
+
+  <div class="callout hands"><div class="cl">🖥️ Valendo! — 40 min no cronômetro</div><p>⏱️ Vai! Submetam cedo e iterem: um modelo simples no leaderboard vale mais que um modelo perfeito que não ficou pronto. <em>Exatamente como no mercado.</em></p></div>
+</section>
+
+<section id="entrega" class="ls">
+  <div class="sn">Entrega</div>
+  <h2>📦 Lab 1 — Entrega Hoje (15% da nota)</h2>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">O que entregar (notebook único no GitHub)</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1. EDA completa</strong> do Titanic: gráficos comentados, valores faltantes tratados, no mínimo 3 insights escritos em Markdown (20%).</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2. Pipeline supervisionado:</strong> mínimo 4 modelos comparados com validação cruzada + matriz de confusão + análise precisão/recall do campeão (30%).</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3. Clustering:</strong> as 5 tribos do shopping batizadas + recomendação de negócio justificada + cotovelo (20%).</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4. Score da competição</strong> + descrição da estratégia da equipe + feature importance interpretada (15%).</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--pink)"><p style="font-size:.86rem"><strong style="color:var(--pink)">5. Reflexão final:</strong> overfitting encontrado? Como diagnosticaram? Supervisionado vs não supervisionado — quando usar cada um? (15%).</p></div>
+    </div>
+    <p style="margin-top:.7rem;font-size:.84rem;color:var(--text-muted)">Os 30% restantes: qualidade do código, organização e documentação. <strong>Prazo: domingo 23h59 no GitHub da equipe.</strong></p>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Próxima aula (18/06)</div><p><strong>📝 PROVA Teórico-Prática</strong> (Aulas 1–7) + <strong>⚡ Checkpoint do Projeto Final</strong> (5 min por equipe). Estudem: agentes, busca (BFS/DFS/A*/minimax), lógica/KG, ML supervisionado e não supervisionado, métricas, overfitting, ensembles. A parte prática da prova será análise de código e resultados — quem fez os labs está pronto.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🛍️</div><p style="font-size:.76rem;font-weight:600">K-Means: tribos do shopping</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">💡</div><p style="font-size:.76rem;font-weight:600">Método do cotovelo</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🔦</div><p style="font-size:.76rem;font-weight:600">PCA: 13D → 2D</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🔍</div><p style="font-size:.76rem;font-weight:600">DBSCAN + outliers</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🌳</div><p style="font-size:.76rem;font-weight:600">Random Forest & XGBoost</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🏁</div><p style="font-size:.76rem;font-weight:600">Mini-Kaggle + Lab 1</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 07 — 11 de junho de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

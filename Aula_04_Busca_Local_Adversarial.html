@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Busca Local e Adversarial — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 04 · 16/04/2026 · Laboratório · 4 horários</div>
+<h1>Busca Local e Adversarial</h1>
+<p class="hero-sub">Hill Climbing, Simulated Annealing, Algoritmos Genéticos e o imbatível Minimax — otimização e jogos.</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#local" class="nav-link">Busca Local</a><a href="#nqueens" class="nav-link">N-Rainhas</a><a href="#sa" class="nav-link">Sim. Annealing</a><a href="#genetico" class="nav-link">Genético</a><a href="#minimax" class="nav-link">Minimax</a><a href="#velha" class="nav-link">Jogo da Velha</a><a href="#alfabeta" class="nav-link">Alfa-Beta</a><a href="#desafio" class="nav-link">Desafio</a></div></nav>
+<div class="container">
+<!-- AGENDA -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Busca Local e Adversarial</h2>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text">Aula em <strong>laboratório</strong> — teoria curta → código imediato em cada horário.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Hill Climbing</h4><p>Busca local: conceito e limitações (10 min). <strong>💻 Implementar Hill Climbing para o problema das N-Rainhas.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — Simulated Annealing + AG</h4><p>Escapando de ótimos locais (10 min). <strong>💻 Implementar SA e Algoritmo Genético. Comparar os 3.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Minimax</h4><p>Busca adversarial e jogos (15 min). <strong>💻 Implementar Minimax para Jogo da Velha jogável.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — Alfa-Beta + Desafio</h4><p>Poda alfa-beta (10 min). <strong>💻 Adicionar poda. Desafio: Connect 4 com IA.</strong></p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ══════════════════════════════ -->
+<!-- 1º HORÁRIO — HILL CLIMBING   -->
+<!-- ══════════════════════════════ -->
+<section id="local" class="ls">
+  <div class="sn">1º Horário · Parte A — Busca Local (~10 min teoria)</div>
+  <h2>Busca Local: Otimização sem Caminho</h2>
+  <p class="body">Na Aula 03, buscávamos um <strong>caminho</strong> (início → objetivo). Agora o problema é diferente: queremos encontrar o <strong>melhor estado</strong> — sem nos importar com o caminho. Exemplos: posicionar rainhas, otimizar rota de entrega, treinar pesos de rede neural.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--accent)">🔍 Busca Sistemática (Aula 03)</h4><p>Explora o espaço todo. Guarda caminho. BFS, DFS, A*. Garante ótimo. <strong>Não escala para espaços enormes.</strong></p></div>
+    <div class="card"><h4 style="color:var(--orange)">⛰️ Busca Local (Aula 04)</h4><p>Mantém só estado atual. Move para vizinho melhor. Rápida, pouca memória. <strong>Pode ficar presa em ótimos locais.</strong></p></div>
+  </div>
+
+  <h3>Hill Climbing (Subida de Encosta)</h3>
+  <p class="body">Algoritmo mais simples de busca local: olha os vizinhos, move para o melhor. Repete até não ter vizinho melhor. Como subir uma montanha no nevoeiro — só sente o terreno ao redor.</p>
+  <div class="callout warning"><div class="cl">⚠️ Problemas do Hill Climbing</div><p><strong>Ótimos locais:</strong> topo de morro, mas não da montanha. <strong>Platôs:</strong> área plana, sem direção. <strong>Cristas:</strong> progresso em zigue-zague. Solução? Simulated Annealing e Algoritmos Genéticos (2º horário).</p></div>
+</section>
+
+<section id="nqueens" class="ls">
+  <div class="sn">1º Horário · Parte B — N-Rainhas com Hill Climbing (~40 min)</div>
+  <h2>💻 O Problema das N-Rainhas</h2>
+  <p class="body">Colocar N rainhas num tabuleiro N×N sem que nenhuma ataque outra (mesma linha, coluna ou diagonal). Para N=8: mais de 4 bilhões de configurações possíveis!</p>
+
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text">Criem <code style="color:var(--accent)">CC0121_Aula04_BuscaLocal.ipynb</code> e copiem o código.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · N-Rainhas com Hill Climbing</span></div><div class="code-body"><span class="cm"># ═══ CC0121 Aula 04 — N-Rainhas com Hill Climbing ═══</span>
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> random, time
+
+<span class="kw">def</span> <span class="fn">conflitos</span>(estado):
+    <span class="cm">"""Conta pares de rainhas que se atacam."""</span>
+    n = len(estado)
+    ataques = <span class="num">0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(n):
+        <span class="kw">for</span> j <span class="kw">in</span> range(i+<span class="num">1</span>, n):
+            <span class="kw">if</span> estado[i] == estado[j]:  <span class="cm"># mesma linha</span>
+                ataques += <span class="num">1</span>
+            <span class="kw">if</span> abs(estado[i] - estado[j]) == abs(i - j):  <span class="cm"># diagonal</span>
+                ataques += <span class="num">1</span>
+    <span class="kw">return</span> ataques
+
+<span class="kw">def</span> <span class="fn">hill_climbing</span>(n=<span class="num">8</span>, max_iter=<span class="num">1000</span>):
+    <span class="cm">"""Hill Climbing para N-Rainhas. Estado = lista de linhas por coluna."""</span>
+    estado = [random.randint(<span class="num">0</span>, n-<span class="num">1</span>) <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    custo = conflitos(estado)
+    historico = [custo]
+
+    <span class="kw">for</span> it <span class="kw">in</span> range(max_iter):
+        <span class="kw">if</span> custo == <span class="num">0</span>:
+            <span class="kw">return</span> estado, historico, <span class="str">"sucesso"</span>
+
+        <span class="cm"># Gerar todos os vizinhos (mover 1 rainha)</span>
+        melhor_viz = estado[:]
+        melhor_custo = custo
+        <span class="kw">for</span> col <span class="kw">in</span> range(n):
+            <span class="kw">for</span> linha <span class="kw">in</span> range(n):
+                <span class="kw">if</span> estado[col] != linha:
+                    viz = estado[:]
+                    viz[col] = linha
+                    c = conflitos(viz)
+                    <span class="kw">if</span> c &lt; melhor_custo:
+                        melhor_viz = viz
+                        melhor_custo = c
+
+        <span class="kw">if</span> melhor_custo >= custo:
+            <span class="kw">return</span> estado, historico, <span class="str">"preso"</span>  <span class="cm"># ótimo local!</span>
+
+        estado = melhor_viz
+        custo = melhor_custo
+        historico.append(custo)
+
+    <span class="kw">return</span> estado, historico, <span class="str">"max_iter"</span>
+
+<span class="cm"># ─── Rodar e visualizar ───</span>
+estado, hist, status = hill_climbing(n=<span class="num">8</span>)
+<span class="fn">print</span>(<span class="str">f"Status: {status} | Conflitos finais: {conflitos(estado)} | Iterações: {len(hist)}"</span>)
+
+fig, (ax1, ax2) = plt.subplots(<span class="num">1</span>, <span class="num">2</span>, figsize=(<span class="num">12</span>, <span class="num">5</span>))
+<span class="cm"># Tabuleiro</span>
+board = np.zeros((<span class="num">8</span>,<span class="num">8</span>))
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">8</span>):
+    <span class="kw">for</span> j <span class="kw">in</span> range(<span class="num">8</span>):
+        board[i][j] = (i+j) % <span class="num">2</span>
+ax1.imshow(board, cmap=<span class="str">'binary'</span>, alpha=<span class="num">0.3</span>)
+<span class="kw">for</span> col, linha <span class="kw">in</span> enumerate(estado):
+    ax1.text(col, linha, <span class="str">'♛'</span>, ha=<span class="str">'center'</span>, va=<span class="str">'center'</span>, fontsize=<span class="num">24</span>,
+             color=<span class="str">'#00d4aa'</span> <span class="kw">if</span> status==<span class="str">'sucesso'</span> <span class="kw">else</span> <span class="str">'#ef4444'</span>)
+ax1.set_title(<span class="str">f'8-Rainhas ({status})'</span>, fontweight=<span class="str">'bold'</span>)
+ax1.set_xticks([]); ax1.set_yticks([])
+<span class="cm"># Curva de conflitos</span>
+ax2.plot(hist, <span class="str">'o-'</span>, color=<span class="str">'#00d4aa'</span>, linewidth=<span class="num">2</span>, markersize=<span class="num">4</span>)
+ax2.set_title(<span class="str">'Conflitos ao longo das iterações'</span>, fontweight=<span class="str">'bold'</span>)
+ax2.set_xlabel(<span class="str">'Iteração'</span>); ax2.set_ylabel(<span class="str">'Conflitos'</span>); ax2.grid(alpha=<span class="num">0.3</span>)
+plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem várias vezes. Às vezes dá "sucesso", às vezes "preso" (ótimo local). Contem: em 10 execuções, quantas vezes resolve? Essa <strong>taxa de sucesso</strong> é a limitação do Hill Climbing.</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Por que o Hill Climbing fica "preso"?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">O algoritmo tem um bug</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">Encontra um ótimo local — nenhum vizinho é melhor, mas não é a solução global</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">O problema não tem solução</button>
+  </div><div class="quiz-fb ok">✅ Ótimo local: todos os vizinhos são piores ou iguais, mas existe uma solução melhor longe dali. O algoritmo não consegue "descer para subir".</div><div class="quiz-fb nok">❌ Hill Climbing fica preso em <strong>ótimos locais</strong> — não há vizinho melhor, mas a solução global está em outra região do espaço.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- 2º HORÁRIO — SA + GENÉTICO        -->
+<!-- ═══════════════════════════════════ -->
+<section id="sa" class="ls">
+  <div class="sn">2º Horário · Parte A — Simulated Annealing (~10 min teoria + 20 min código)</div>
+  <h2>Simulated Annealing: Aceitar o Pior para Encontrar o Melhor</h2>
+  <p class="body">Inspirado na metalurgia: metal quente aceita mudanças grandes; ao esfriar, aceita cada vez menos. SA começa aceitando movimentos ruins (para escapar de ótimos locais) e gradualmente fica mais exigente.</p>
+
+  <div class="callout important"><div class="cl">💡 A ideia-chave</div><p>Probabilidade de aceitar vizinho pior: <strong>P = e<sup>−ΔE/T</sup></strong>. Temperatura T começa alta (aceita quase tudo) e diminui (fica seletivo). Quando T→0, comporta-se como Hill Climbing.</p></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Simulated Annealing para N-Rainhas</span></div><div class="code-body"><span class="kw">import</span> math
+
+<span class="kw">def</span> <span class="fn">simulated_annealing</span>(n=<span class="num">8</span>, temp_init=<span class="num">4.0</span>, cooling=<span class="num">0.995</span>, max_iter=<span class="num">10000</span>):
+    estado = [random.randint(<span class="num">0</span>, n-<span class="num">1</span>) <span class="kw">for</span> _ <span class="kw">in</span> range(n)]
+    custo = conflitos(estado)
+    historico = [custo]
+    temp = temp_init
+
+    <span class="kw">for</span> it <span class="kw">in</span> range(max_iter):
+        <span class="kw">if</span> custo == <span class="num">0</span>:
+            <span class="kw">return</span> estado, historico, <span class="str">"sucesso"</span>
+
+        <span class="cm"># Vizinho aleatório: mover rainha aleatória</span>
+        viz = estado[:]
+        col = random.randint(<span class="num">0</span>, n-<span class="num">1</span>)
+        viz[col] = random.randint(<span class="num">0</span>, n-<span class="num">1</span>)
+        delta = conflitos(viz) - custo
+
+        <span class="cm"># Aceitar se melhor OU com probabilidade e^(-delta/T)</span>
+        <span class="kw">if</span> delta &lt; <span class="num">0</span> <span class="kw">or</span> random.random() &lt; math.exp(-delta / max(temp, <span class="num">0.001</span>)):
+            estado = viz
+            custo = conflitos(viz)
+
+        historico.append(custo)
+        temp *= cooling  <span class="cm"># esfriar!</span>
+
+    <span class="kw">return</span> estado, historico, <span class="str">"sucesso"</span> <span class="kw">if</span> custo == <span class="num">0</span> <span class="kw">else</span> <span class="str">"max_iter"</span>
+
+<span class="cm"># Comparar taxa de sucesso: HC vs SA</span>
+n_testes = <span class="num">100</span>
+hc_ok = sum(<span class="num">1</span> <span class="kw">for</span> _ <span class="kw">in</span> range(n_testes) <span class="kw">if</span> hill_climbing(<span class="num">8</span>)[<span class="num">2</span>] == <span class="str">"sucesso"</span>)
+sa_ok = sum(<span class="num">1</span> <span class="kw">for</span> _ <span class="kw">in</span> range(n_testes) <span class="kw">if</span> simulated_annealing(<span class="num">8</span>)[<span class="num">2</span>] == <span class="str">"sucesso"</span>)
+<span class="fn">print</span>(<span class="str">f"Taxa de sucesso (100 testes):"</span>)
+<span class="fn">print</span>(<span class="str">f"  Hill Climbing:       {hc_ok}%"</span>)
+<span class="fn">print</span>(<span class="str">f"  Simulated Annealing: {sa_ok}%"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e comparem as taxas de sucesso. SA deve ser significativamente melhor. Experimentem mudar <code>cooling=0.99</code> (esfria rápido) vs <code>0.999</code> (esfria devagar). O que acontece?</p></div>
+</section>
+
+<section id="genetico" class="ls">
+  <div class="sn">2º Horário · Parte B — Algoritmo Genético (~25 min)</div>
+  <h2>💻 Algoritmo Genético para N-Rainhas</h2>
+  <p class="body">Inspirado na evolução: <strong>população</strong> de soluções que evolui por <strong>seleção, crossover e mutação</strong>.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Algoritmo Genético</span></div><div class="code-body"><span class="kw">def</span> <span class="fn">algoritmo_genetico</span>(n=<span class="num">8</span>, pop_size=<span class="num">100</span>, geracoes=<span class="num">500</span>, mutacao=<span class="num">0.1</span>):
+    <span class="cm"># População inicial aleatória</span>
+    pop = [[random.randint(<span class="num">0</span>,n-<span class="num">1</span>) <span class="kw">for</span> _ <span class="kw">in</span> range(n)] <span class="kw">for</span> _ <span class="kw">in</span> range(pop_size)]
+    historico = []
+
+    <span class="kw">for</span> gen <span class="kw">in</span> range(geracoes):
+        <span class="cm"># Fitness = inverso dos conflitos</span>
+        fitness = [<span class="num">1</span> / (<span class="num">1</span> + conflitos(ind)) <span class="kw">for</span> ind <span class="kw">in</span> pop]
+        melhor = pop[np.argmax(fitness)]
+        historico.append(conflitos(melhor))
+
+        <span class="kw">if</span> conflitos(melhor) == <span class="num">0</span>:
+            <span class="kw">return</span> melhor, historico, <span class="str">"sucesso"</span>
+
+        <span class="cm"># Seleção por torneio</span>
+        <span class="kw">def</span> <span class="fn">torneio</span>():
+            a, b = random.sample(range(pop_size), <span class="num">2</span>)
+            <span class="kw">return</span> pop[a] <span class="kw">if</span> fitness[a] > fitness[b] <span class="kw">else</span> pop[b]
+
+        nova_pop = [melhor[:]]  <span class="cm"># elitismo</span>
+        <span class="kw">while</span> len(nova_pop) &lt; pop_size:
+            pai, mae = torneio(), torneio()
+            <span class="cm"># Crossover de 1 ponto</span>
+            corte = random.randint(<span class="num">1</span>, n-<span class="num">1</span>)
+            filho = pai[:corte] + mae[corte:]
+            <span class="cm"># Mutação</span>
+            <span class="kw">if</span> random.random() &lt; mutacao:
+                filho[random.randint(<span class="num">0</span>,n-<span class="num">1</span>)] = random.randint(<span class="num">0</span>,n-<span class="num">1</span>)
+            nova_pop.append(filho)
+        pop = nova_pop
+
+    melhor = min(pop, key=conflitos)
+    <span class="kw">return</span> melhor, historico, <span class="str">"sucesso"</span> <span class="kw">if</span> conflitos(melhor)==<span class="num">0</span> <span class="kw">else</span> <span class="str">"max_gen"</span>
+
+<span class="cm"># Comparar todos</span>
+ag_ok = sum(<span class="num">1</span> <span class="kw">for</span> _ <span class="kw">in</span> range(n_testes) <span class="kw">if</span> algoritmo_genetico(<span class="num">8</span>)[<span class="num">2</span>]==<span class="str">"sucesso"</span>)
+<span class="fn">print</span>(<span class="str">f"\nTaxa de sucesso (100 testes, 8-Rainhas):"</span>)
+<span class="fn">print</span>(<span class="str">f"  Hill Climbing:       {hc_ok}%"</span>)
+<span class="fn">print</span>(<span class="str">f"  Simulated Annealing: {sa_ok}%"</span>)
+<span class="fn">print</span>(<span class="str">f"  Algoritmo Genético:  {ag_ok}%"</span>)
+
+nomes = [<span class="str">'Hill Climbing'</span>, <span class="str">'Simulated Annealing'</span>, <span class="str">'Alg. Genético'</span>]
+taxas = [hc_ok, sa_ok, ag_ok]
+cores = [<span class="str">'#ef4444'</span>, <span class="str">'#f59e0b'</span>, <span class="str">'#00d4aa'</span>]
+plt.figure(figsize=(<span class="num">8</span>,<span class="num">4</span>))
+bars = plt.bar(nomes, taxas, color=cores, edgecolor=<span class="str">'white'</span>, linewidth=<span class="num">0.5</span>)
+<span class="kw">for</span> b, v <span class="kw">in</span> zip(bars, taxas):
+    plt.text(b.get_x()+b.get_width()/<span class="num">2</span>, b.get_height()+<span class="num">1</span>, <span class="str">f'{v}%'</span>, ha=<span class="str">'center'</span>, fontweight=<span class="str">'bold'</span>)
+plt.ylabel(<span class="str">'Taxa de sucesso (%)'</span>); plt.title(<span class="str">'Comparação: Busca Local para 8-Rainhas'</span>, fontweight=<span class="str">'bold'</span>)
+plt.ylim(<span class="num">0</span>,<span class="num">110</span>); plt.grid(axis=<span class="str">'y'</span>, alpha=<span class="num">0.3</span>); plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e vejam o gráfico comparativo. Qual algoritmo ganha? Testem com <code>n=20</code> (20-Rainhas) — os resultados mudam? Experimentem aumentar <code>pop_size</code> e <code>mutacao</code>.</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">No Algoritmo Genético, qual operador introduz diversidade impedindo convergência prematura?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Seleção por torneio</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Crossover</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">Mutação</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Elitismo</button>
+  </div><div class="quiz-fb ok">✅ A <strong>mutação</strong> introduz variação aleatória, impedindo que a população inteira convirja para o mesmo ótimo local.</div><div class="quiz-fb nok">❌ A <strong>mutação</strong> é o operador de diversidade. Crossover combina soluções existentes; seleção escolhe as melhores; elitismo preserva a melhor.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ══════════════════════════════ -->
+<!-- 3º HORÁRIO — MINIMAX          -->
+<!-- ══════════════════════════════ -->
+<section id="minimax" class="ls">
+  <div class="sn">3º Horário · Parte A — Busca Adversarial (~15 min teoria)</div>
+  <h2>Jogos e Minimax</h2>
+  <p class="body">Agora o ambiente tem um <strong>oponente</strong>. Não basta otimizar — precisa considerar que o adversário vai tentar te atrapalhar. É o domínio da <strong>busca adversarial</strong>.</p>
+
+  <div class="callout important"><div class="cl">💡 Minimax em 30 segundos</div><p><strong>MAX</strong> (você) quer maximizar o score. <strong>MIN</strong> (oponente) quer minimizar. Minimax explora toda a árvore do jogo, assumindo que o oponente joga perfeitamente. Garante a melhor jogada possível contra um adversário ótimo.</p></div>
+
+  <table class="cmp-table">
+    <thead><tr><th>Conceito</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--accent);font-weight:700">Estado terminal</td><td>Fim do jogo: vitória, derrota ou empate</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Utilidade</td><td>Score do estado terminal: +1 (vitória), -1 (derrota), 0 (empate)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Nó MAX</td><td>Escolhe a ação com MAIOR valor (seu turno)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Nó MIN</td><td>Escolhe a ação com MENOR valor (turno do oponente)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="velha" class="ls">
+  <div class="sn">3º Horário · Parte B — Jogo da Velha com Minimax (~35 min)</div>
+  <h2>💻 Jogo da Velha Imbatível</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Jogo da Velha com Minimax</span></div><div class="code-body"><span class="cm"># ═══ Jogo da Velha com Minimax ═══</span>
+
+<span class="kw">def</span> <span class="fn">vencedor</span>(board):
+    linhas = [board[i*<span class="num">3</span>:(i+<span class="num">1</span>)*<span class="num">3</span>] <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">3</span>)]
+    cols = [[board[i+j*<span class="num">3</span>] <span class="kw">for</span> j <span class="kw">in</span> range(<span class="num">3</span>)] <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">3</span>)]
+    diags = [[board[<span class="num">0</span>],board[<span class="num">4</span>],board[<span class="num">8</span>]], [board[<span class="num">2</span>],board[<span class="num">4</span>],board[<span class="num">6</span>]]]
+    <span class="kw">for</span> trio <span class="kw">in</span> linhas + cols + diags:
+        <span class="kw">if</span> trio == [<span class="str">'X'</span>]*<span class="num">3</span>: <span class="kw">return</span> <span class="str">'X'</span>
+        <span class="kw">if</span> trio == [<span class="str">'O'</span>]*<span class="num">3</span>: <span class="kw">return</span> <span class="str">'O'</span>
+    <span class="kw">return</span> <span class="kw">None</span>
+
+<span class="kw">def</span> <span class="fn">terminal</span>(board):
+    <span class="kw">return</span> vencedor(board) <span class="kw">is not</span> <span class="kw">None</span> <span class="kw">or</span> <span class="str">' '</span> <span class="kw">not in</span> board
+
+<span class="kw">def</span> <span class="fn">minimax</span>(board, is_max):
+    v = vencedor(board)
+    <span class="kw">if</span> v == <span class="str">'X'</span>: <span class="kw">return</span> <span class="num">1</span>, <span class="kw">None</span>
+    <span class="kw">if</span> v == <span class="str">'O'</span>: <span class="kw">return</span> -<span class="num">1</span>, <span class="kw">None</span>
+    <span class="kw">if</span> terminal(board): <span class="kw">return</span> <span class="num">0</span>, <span class="kw">None</span>
+
+    best_move = <span class="kw">None</span>
+    <span class="kw">if</span> is_max:
+        best = -<span class="num">999</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">9</span>):
+            <span class="kw">if</span> board[i] == <span class="str">' '</span>:
+                board[i] = <span class="str">'X'</span>
+                val, _ = minimax(board, <span class="kw">False</span>)
+                board[i] = <span class="str">' '</span>
+                <span class="kw">if</span> val > best:
+                    best, best_move = val, i
+    <span class="kw">else</span>:
+        best = <span class="num">999</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">9</span>):
+            <span class="kw">if</span> board[i] == <span class="str">' '</span>:
+                board[i] = <span class="str">'O'</span>
+                val, _ = minimax(board, <span class="kw">True</span>)
+                board[i] = <span class="str">' '</span>
+                <span class="kw">if</span> val &lt; best:
+                    best, best_move = val, i
+    <span class="kw">return</span> best, best_move
+
+<span class="kw">def</span> <span class="fn">mostrar</span>(board):
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">3</span>):
+        <span class="fn">print</span>(<span class="str">' | '</span>.join(board[i*<span class="num">3</span>:(i+<span class="num">1</span>)*<span class="num">3</span>]))
+        <span class="kw">if</span> i &lt; <span class="num">2</span>: <span class="fn">print</span>(<span class="str">'---------'</span>)
+
+<span class="cm"># Jogar contra a IA!</span>
+board = [<span class="str">' '</span>]*<span class="num">9</span>
+<span class="fn">print</span>(<span class="str">"Você é O, IA é X. Posições 0-8:"</span>)
+<span class="fn">print</span>(<span class="str">"0|1|2\n3|4|5\n6|7|8\n"</span>)
+
+<span class="cm"># IA começa</span>
+_, move = minimax(board, <span class="kw">True</span>)
+board[move] = <span class="str">'X'</span>
+<span class="fn">print</span>(<span class="str">f"IA jogou na posição {move}:"</span>)
+mostrar(board)
+
+<span class="cm"># Loop do jogo (interativo no Colab)</span>
+<span class="kw">while not</span> terminal(board):
+    pos = int(input(<span class="str">"Sua jogada (0-8): "</span>))
+    <span class="kw">if</span> board[pos] != <span class="str">' '</span>:
+        <span class="fn">print</span>(<span class="str">"Posição ocupada!"</span>); <span class="kw">continue</span>
+    board[pos] = <span class="str">'O'</span>
+    <span class="kw">if not</span> terminal(board):
+        _, move = minimax(board, <span class="kw">True</span>)
+        board[move] = <span class="str">'X'</span>
+        <span class="fn">print</span>(<span class="str">f"IA jogou na posição {move}:"</span>)
+    mostrar(board)
+
+v = vencedor(board)
+<span class="fn">print</span>(<span class="str">f"\n{'IA venceu!' if v=='X' else 'Você venceu!' if v=='O' else 'Empate!'}"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Joguem contra a IA! Tentem vencer. <strong>Spoiler: é impossível.</strong> Minimax garante que a IA nunca perde no jogo da velha. Discutam em dupla: por que não dá para ganhar?</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">No Minimax, o que o jogador MIN faz?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Maximiza o score</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">Minimiza o score (assume que o oponente joga perfeitamente)</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Joga aleatoriamente</button>
+  </div><div class="quiz-fb ok">✅ MIN escolhe a jogada que <strong>minimiza</strong> o score — assume adversário perfeito. Isso garante a melhor resposta possível.</div><div class="quiz-fb nok">❌ MIN <strong>minimiza</strong> o score. MAX maximiza. Juntos, exploram toda a árvore assumindo jogo perfeito de ambos.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ══════════════════════════════════ -->
+<!-- 4º HORÁRIO — ALFA-BETA + DESAFIO -->
+<!-- ══════════════════════════════════ -->
+<section id="alfabeta" class="ls">
+  <div class="sn">4º Horário · Parte A — Poda Alfa-Beta (~10 min teoria + 20 min código)</div>
+  <h2>Poda Alfa-Beta: Minimax Inteligente</h2>
+  <p class="body">Minimax explora TODA a árvore. Alfa-Beta corta ramos que não podem influenciar a decisão final — mesmo resultado, <strong>muito menos nós</strong>.</p>
+
+  <div class="callout important"><div class="cl">💡 A ideia</div><p><strong>α</strong> = melhor valor que MAX pode garantir. <strong>β</strong> = melhor valor que MIN pode garantir. Se α ≥ β, pode podar (cortar) — esse ramo nunca será escolhido. No melhor caso, reduz de O(b<sup>d</sup>) para O(b<sup>d/2</sup>) — raiz quadrada!</p></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Minimax com Poda Alfa-Beta</span></div><div class="code-body">nos_minimax = <span class="num">0</span>
+nos_alfabeta = <span class="num">0</span>
+
+<span class="kw">def</span> <span class="fn">minimax_count</span>(board, is_max):
+    <span class="kw">global</span> nos_minimax; nos_minimax += <span class="num">1</span>
+    v = vencedor(board)
+    <span class="kw">if</span> v == <span class="str">'X'</span>: <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">if</span> v == <span class="str">'O'</span>: <span class="kw">return</span> -<span class="num">1</span>
+    <span class="kw">if</span> terminal(board): <span class="kw">return</span> <span class="num">0</span>
+    vals = []
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">9</span>):
+        <span class="kw">if</span> board[i] == <span class="str">' '</span>:
+            board[i] = <span class="str">'X'</span> <span class="kw">if</span> is_max <span class="kw">else</span> <span class="str">'O'</span>
+            vals.append(minimax_count(board, <span class="kw">not</span> is_max))
+            board[i] = <span class="str">' '</span>
+    <span class="kw">return</span> max(vals) <span class="kw">if</span> is_max <span class="kw">else</span> min(vals)
+
+<span class="kw">def</span> <span class="fn">alfabeta</span>(board, is_max, alpha=-<span class="num">999</span>, beta=<span class="num">999</span>):
+    <span class="kw">global</span> nos_alfabeta; nos_alfabeta += <span class="num">1</span>
+    v = vencedor(board)
+    <span class="kw">if</span> v == <span class="str">'X'</span>: <span class="kw">return</span> <span class="num">1</span>
+    <span class="kw">if</span> v == <span class="str">'O'</span>: <span class="kw">return</span> -<span class="num">1</span>
+    <span class="kw">if</span> terminal(board): <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">if</span> is_max:
+        val = -<span class="num">999</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">9</span>):
+            <span class="kw">if</span> board[i] == <span class="str">' '</span>:
+                board[i] = <span class="str">'X'</span>
+                val = max(val, alfabeta(board, <span class="kw">False</span>, alpha, beta))
+                board[i] = <span class="str">' '</span>
+                alpha = max(alpha, val)
+                <span class="kw">if</span> alpha >= beta: <span class="kw">break</span>  <span class="cm"># ← PODA!</span>
+        <span class="kw">return</span> val
+    <span class="kw">else</span>:
+        val = <span class="num">999</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">9</span>):
+            <span class="kw">if</span> board[i] == <span class="str">' '</span>:
+                board[i] = <span class="str">'O'</span>
+                val = min(val, alfabeta(board, <span class="kw">True</span>, alpha, beta))
+                board[i] = <span class="str">' '</span>
+                beta = min(beta, val)
+                <span class="kw">if</span> alpha >= beta: <span class="kw">break</span>  <span class="cm"># ← PODA!</span>
+        <span class="kw">return</span> val
+
+<span class="cm"># Comparar nós explorados</span>
+board_vazio = [<span class="str">' '</span>]*<span class="num">9</span>
+nos_minimax = <span class="num">0</span>; minimax_count(board_vazio[:], <span class="kw">True</span>)
+nos_alfabeta = <span class="num">0</span>; alfabeta(board_vazio[:], <span class="kw">True</span>)
+<span class="fn">print</span>(<span class="str">f"Minimax puro:  {nos_minimax:>8,} nós explorados"</span>)
+<span class="fn">print</span>(<span class="str">f"Alfa-Beta:     {nos_alfabeta:>8,} nós explorados"</span>)
+<span class="fn">print</span>(<span class="str">f"Redução:       {nos_minimax/nos_alfabeta:.1f}x menos nós! 🚀"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e vejam a diferença. Alfa-Beta deve explorar ~5-10x menos nós que Minimax puro — <strong>mesmo resultado, muito mais rápido</strong>. Em jogos maiores (xadrez) essa otimização é essencial.</p></div>
+</section>
+
+<section id="desafio" class="ls">
+  <div class="sn">4º Horário · Parte B — Desafio</div>
+  <h2>🏆 Desafio: Entrega</h2>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🎯 Tarefas para entregar</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1.</strong> Rode HC, SA e AG para <strong>N=20 Rainhas</strong>. Compare taxa de sucesso e tempo. Gráfico.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.</strong> Experimente 3 valores diferentes de <code>cooling</code> no SA e 3 valores de <code>mutacao</code> no AG. Qual combinação é melhor?</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.</strong> Implemente <strong>Connect 4</strong> (4 em linha, grid 6×7) com Minimax + Alfa-Beta. Use profundidade limitada + heurística simples.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4. Reflexão:</strong> Em que situações reais usaríamos cada algoritmo? Hill Climbing serve para treinar redes neurais? SA serve para logística?</p></div>
+    </div>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Para 23/04</div><p><strong>Entrega:</strong> Notebook no GitHub até 22/04. <strong>Leitura:</strong> R&N Cap. 7–8 (Lógica). Próxima aula: <strong>Representação do Conhecimento e Raciocínio</strong>.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">⛰️</div><p style="font-size:.76rem;font-weight:600">Hill Climbing</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🌡️</div><p style="font-size:.76rem;font-weight:600">Simulated Annealing</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🧬</div><p style="font-size:.76rem;font-weight:600">Alg. Genético</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">♟️</div><p style="font-size:.76rem;font-weight:600">Minimax</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">✂️</div><p style="font-size:.76rem;font-weight:600">Poda Alfa-Beta</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">❌⭕</div><p style="font-size:.76rem;font-weight:600">Jogo da Velha imbatível</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 04 — 16 de abril de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

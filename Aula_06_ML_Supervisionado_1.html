@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Machine Learning Supervisionado — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 06 · 28/05/2026 · Laboratório · 4 horários</div>
+<h1>Machine Learning Supervisionado</h1>
+<p class="hero-sub">Sua primeira IA que aprende com dados — prevendo quem sobreviveria ao Titanic (inclusive você).</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#oque-ml" class="nav-link">O que é ML</a><a href="#primeiro-modelo" class="nav-link">1º Modelo</a><a href="#eda" class="nav-link">EDA</a><a href="#titanic-eda" class="nav-link">Titanic</a><a href="#metricas" class="nav-link">Métricas</a><a href="#torneio" class="nav-link">Torneio</a><a href="#overfitting" class="nav-link">Overfitting</a><a href="#overfit-lab" class="nav-link">Lab Overfit</a><a href="#desafio" class="nav-link">Desafio</a></div></nav>
+<div class="container">
+<!-- AGENDA -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Sua primeira IA que aprende</h2>
+  <div class="lab-banner"><span class="icon">🚢</span><span class="text">Hoje vocês vão construir um modelo que prevê <strong>quem sobreviveria ao Titanic</strong> — e descobrir se VOCÊS sobreviveriam.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — O que é Aprender?</h4><p>ML explicado de verdade: dados → padrões → previsões (15 min). <strong>💻 Seu primeiro modelo em 10 linhas de código.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — Conhecendo os Dados</h4><p>EDA: a arte de interrogar dados (10 min). <strong>💻 Explorar o Titanic: quem eram os passageiros? O que determinava sobrevivência?</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Torneio de Modelos</h4><p>Métricas além da acurácia (15 min). <strong>💻 4 algoritmos competem: quem prevê melhor? Matriz de confusão.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — O Inimigo Invisível</h4><p>Overfitting: quando o modelo decora em vez de aprender (10 min). <strong>💻 Provocar e curar overfitting. Prever a própria sobrevivência!</strong></p></div>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Hoje também</div><p><strong>Entrega da Proposta do Projeto Final!</strong> PDF no GitHub até o fim do dia. Equipes sem proposta não apresentam em julho.</p></div>
+</section>
+<hr class="divider">
+
+<!-- 1º HORÁRIO -->
+<section id="oque-ml" class="ls">
+  <div class="sn">1º Horário · Parte A — Teoria (~15 min)</div>
+  <h2>O que significa uma máquina "aprender"?</h2>
+
+  <p class="body">Até a aula passada, nós <strong>dizíamos</strong> ao computador o que fazer: regras lógicas, heurísticas, condições IF-THEN. Funcionou para labirintos e diagnósticos simples. Mas tente escrever regras para reconhecer um gato numa foto. Qual regra? "Tem orelhas pontudas"? Cachorros também têm. "Tem bigodes"? E se a foto cortar os bigodes? Você escreveria milhares de regras e ainda falharia.</p>
+
+  <p class="body">Machine Learning inverte o jogo: <strong>em vez de escrever as regras, mostramos exemplos — e a máquina descobre as regras sozinha.</strong> Mostre 10 mil fotos de gatos e 10 mil de cachorros, e o algoritmo encontra os padrões que os distinguem. É exatamente como uma criança aprende: ninguém explica formalmente o que é um gato — ela vê vários e generaliza.</p>
+
+  <div class="callout important"><div class="cl">💡 A definição clássica (Tom Mitchell, 1997)</div><p>"Um programa aprende com a experiência <strong>E</strong>, em relação a uma tarefa <strong>T</strong> e medida de desempenho <strong>P</strong>, se seu desempenho em T, medido por P, melhora com E." Tradução: <strong>quanto mais dados vê, melhor fica.</strong> Se não melhora com dados, não é ML.</p></div>
+
+  <h3>O contrato fundamental: treino e teste</h3>
+  <p class="body">Aqui está a regra mais importante de todo o ML, e a fonte do erro mais comum de iniciantes. Imagine um professor que entrega a lista de exercícios <strong>com gabarito</strong> e depois usa <em>as mesmas questões</em> na prova. Todo mundo tira 10 — mas ninguém aprendeu nada. Avaliação justa exige <strong>questões novas</strong>.</p>
+  <p class="body">Com modelos é igual: separamos os dados em <strong>treino</strong> (o modelo estuda aqui, ~80%) e <strong>teste</strong> (a prova com questões inéditas, ~20%). A performance que importa é a do teste — ela mede se o modelo <strong>generalizou</strong> ou apenas decorou.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--blue)">📚 Dados de TREINO (~80%)</h4><p>A "lista de exercícios com gabarito". O modelo vê as características (idade, classe, sexo...) E a resposta (sobreviveu ou não). Ajusta seus parâmetros para acertar.</p></div>
+    <div class="card"><h4 style="color:var(--accent)">📝 Dados de TESTE (~20%)</h4><p>A "prova surpresa". O modelo vê só as características e palpita. Comparamos com a resposta real que escondemos dele. Essa é a nota que vale.</p></div>
+  </div>
+</section>
+
+<section id="primeiro-modelo" class="ls">
+  <div class="sn">1º Horário · Parte B — Mão na massa (~35 min)</div>
+  <h2>💻 Seu primeiro modelo em 10 linhas</h2>
+  <p class="body">Chega de teoria. Em 1912, o Titanic afundou com 2.224 pessoas a bordo — 1.502 morreram. Os dados de 891 passageiros sobreviveram até hoje. Vamos treinar um modelo que descobre <strong>os padrões de quem viveu e quem morreu</strong>.</p>
+
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text">Criem <code style="color:var(--accent)">CC0121_Aula06_ML.ipynb</code> no Colab.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Primeiro modelo — 10 linhas que aprendem</span></div><div class="code-body"><span class="cm"># ═══ CC0121 Aula 06 — Machine Learning Supervisionado ═══</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> seaborn <span class="kw">as</span> sns
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+
+<span class="cm"># Carregar o Titanic direto da internet</span>
+url = <span class="str">"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"</span>
+df = pd.read_csv(url)
+
+<span class="cm"># Preparação mínima: 3 features simples</span>
+df[<span class="str">'Sexo'</span>] = (df[<span class="str">'Sex'</span>] == <span class="str">'female'</span>).astype(int)  <span class="cm"># 1 = mulher</span>
+df[<span class="str">'Age'</span>] = df[<span class="str">'Age'</span>].fillna(df[<span class="str">'Age'</span>].median())
+X = df[[<span class="str">'Pclass'</span>, <span class="str">'Sexo'</span>, <span class="str">'Age'</span>]]   <span class="cm"># características</span>
+y = df[<span class="str">'Survived'</span>]                    <span class="cm"># resposta: 0=morreu, 1=viveu</span>
+
+<span class="cm"># O contrato: 80% treino, 20% teste</span>
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>)
+
+<span class="cm"># Treinar (sim, é UMA linha)</span>
+modelo = DecisionTreeClassifier(max_depth=<span class="num">3</span>, random_state=<span class="num">42</span>)
+modelo.fit(X_tr, y_tr)
+
+<span class="cm"># A prova!</span>
+<span class="fn">print</span>(<span class="str">f"🎓 Acurácia no TREINO: {modelo.score(X_tr, y_tr)*100:.1f}%"</span>)
+<span class="fn">print</span>(<span class="str">f"📝 Acurácia no TESTE:  {modelo.score(X_te, y_te)*100:.1f}%"</span>)
+
+<span class="cm"># ─── Vendo o modelo em ação: passageiros REAIS do teste ───</span>
+previsoes = modelo.predict(X_te)
+amostra = X_te.copy()
+amostra[<span class="str">'Nome'</span>] = df.loc[X_te.index, <span class="str">'Name'</span>].str.split(<span class="str">','</span>).str[<span class="num">0</span>]
+amostra[<span class="str">'Realidade'</span>] = y_te.map({<span class="num">0</span>: <span class="str">'💀 Morreu'</span>, <span class="num">1</span>: <span class="str">'🛟 Sobreviveu'</span>})
+amostra[<span class="str">'Modelo disse'</span>] = pd.Series(previsoes, index=X_te.index).map({<span class="num">0</span>: <span class="str">'💀 Morreu'</span>, <span class="num">1</span>: <span class="str">'🛟 Sobreviveu'</span>})
+amostra[<span class="str">'Acertou?'</span>] = np.where(previsoes == y_te, <span class="str">'✅'</span>, <span class="str">'❌'</span>)
+
+<span class="fn">print</span>(<span class="str">"\n🔍 O modelo julgando 10 passageiros reais que NUNCA viu:\n"</span>)
+<span class="fn">print</span>(amostra[[<span class="str">'Nome'</span>, <span class="str">'Pclass'</span>, <span class="str">'Sexo'</span>, <span class="str">'Age'</span>, <span class="str">'Modelo disse'</span>, <span class="str">'Realidade'</span>, <span class="str">'Acertou?'</span>]]
+      .head(<span class="num">10</span>).to_string(index=<span class="kw">False</span>))</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem. Vocês acabaram de criar uma IA que prevê sobrevivência com ~80% de acerto usando só classe, sexo e idade — e a tabela mostra o modelo <strong>julgando passageiros reais, com nome</strong>: quem ele salvou, quem condenou e onde errou. <strong>Discutam:</strong> olhem os ❌ — há um padrão nos erros? Por que essas 3 variáveis funcionam tão bem? O que aconteceu naquela noite de 1912 que o modelo "descobriu"?</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Por que separamos treino e teste em vez de usar todos os dados para treinar?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Para o treino rodar mais rápido</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">Para avaliar se o modelo generaliza para dados que nunca viu</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Porque o Scikit-learn exige</button>
+  </div><div class="quiz-fb ok">✅ Exato! O teste simula "dados do mundo real". Acertar dados já vistos é fácil (decoreba) — o que vale é acertar dados novos.</div><div class="quiz-fb nok">❌ A razão é <strong>generalização</strong>: avaliar o modelo em dados inéditos. Acurácia no treino pode ser pura decoreba.</div></div>
+</section>
+<hr class="divider">
+
+<!-- 2º HORÁRIO -->
+<section id="eda" class="ls">
+  <div class="sn">2º Horário · Parte A — Teoria (~10 min)</div>
+  <h2>EDA: A Arte de Interrogar os Dados</h2>
+  <p class="body">Um erro clássico de iniciante: jogar os dados no modelo sem olhá-los. Profissionais gastam <strong>60-80% do tempo</strong> explorando e limpando dados — porque o modelo é tão bom quanto os dados que come. <em>"Garbage in, garbage out."</em></p>
+  <p class="body">A <strong>Análise Exploratória de Dados (EDA)</strong> é um interrogatório: Quantas linhas e colunas? Há valores faltando? Quais variáveis se relacionam com o alvo? Há valores absurdos (idade 999, preço negativo)? Cada resposta orienta uma decisão de modelagem. E frequentemente a EDA revela a história humana por trás dos números — como vocês vão ver agora.</p>
+</section>
+
+<section id="titanic-eda" class="ls">
+  <div class="sn">2º Horário · Parte B — Mão na massa (~40 min)</div>
+  <h2>💻 Quem vivia e quem morria no Titanic?</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · EDA do Titanic — descobrindo a história</span></div><div class="code-body"><span class="cm"># ═══ Interrogando o Titanic ═══</span>
+
+<span class="cm"># 1. Visão geral</span>
+<span class="fn">print</span>(df.shape)            <span class="cm"># (891, 12) — 891 passageiros, 12 colunas</span>
+<span class="fn">print</span>(df.isnull().sum())   <span class="cm"># valores faltando por coluna</span>
+df.head()
+
+<span class="cm"># 2. A pergunta de 1 milhão: o que determinava sobreviver?</span>
+fig, axes = plt.subplots(<span class="num">1</span>, <span class="num">3</span>, figsize=(<span class="num">16</span>, <span class="num">4.5</span>))
+
+<span class="cm"># Sexo: "mulheres e crianças primeiro" era real?</span>
+sns.barplot(data=df, x=<span class="str">'Sex'</span>, y=<span class="str">'Survived'</span>, ax=axes[<span class="num">0</span>], palette=[<span class="str">'#3b82f6'</span>,<span class="str">'#ec4899'</span>])
+axes[<span class="num">0</span>].set_title(<span class="str">'Sobrevivência por Sexo'</span>, fontweight=<span class="str">'bold'</span>)
+axes[<span class="num">0</span>].set_ylabel(<span class="str">'Taxa de sobrevivência'</span>)
+
+<span class="cm"># Classe: dinheiro comprava vida?</span>
+sns.barplot(data=df, x=<span class="str">'Pclass'</span>, y=<span class="str">'Survived'</span>, ax=axes[<span class="num">1</span>], palette=<span class="str">'viridis'</span>)
+axes[<span class="num">1</span>].set_title(<span class="str">'Sobrevivência por Classe'</span>, fontweight=<span class="str">'bold'</span>)
+
+<span class="cm"># Idade: crianças tinham prioridade?</span>
+df[<span class="str">'FaixaEtaria'</span>] = pd.cut(df[<span class="str">'Age'</span>], bins=[<span class="num">0</span>,<span class="num">12</span>,<span class="num">18</span>,<span class="num">35</span>,<span class="num">60</span>,<span class="num">100</span>],
+                            labels=[<span class="str">'Criança'</span>,<span class="str">'Adolesc.'</span>,<span class="str">'Jovem'</span>,<span class="str">'Adulto'</span>,<span class="str">'Idoso'</span>])
+sns.barplot(data=df, x=<span class="str">'FaixaEtaria'</span>, y=<span class="str">'Survived'</span>, ax=axes[<span class="num">2</span>], palette=<span class="str">'rocket'</span>)
+axes[<span class="num">2</span>].set_title(<span class="str">'Sobrevivência por Idade'</span>, fontweight=<span class="str">'bold'</span>)
+plt.tight_layout(); plt.show()
+
+<span class="cm"># 3. O cruzamento mais revelador: sexo × classe</span>
+pivot = df.pivot_table(<span class="str">'Survived'</span>, index=<span class="str">'Sex'</span>, columns=<span class="str">'Pclass'</span>)
+plt.figure(figsize=(<span class="num">8</span>,<span class="num">4</span>))
+sns.heatmap(pivot, annot=<span class="kw">True</span>, fmt=<span class="str">'.0%'</span>, cmap=<span class="str">'RdYlGn'</span>, vmin=<span class="num">0</span>, vmax=<span class="num">1</span>)
+plt.title(<span class="str">'Taxa de sobrevivência: Sexo × Classe'</span>, fontweight=<span class="str">'bold'</span>)
+plt.show()
+<span class="fn">print</span>(<span class="str">"😱 Mulher da 1ª classe: ~97% viveu. Homem da 3ª classe: ~14%."</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e analisem o heatmap. Os dados contam a história: <strong>"mulheres e crianças primeiro" era real — mas a classe social pesava brutalmente.</strong> Investiguem mais: (1) o porto de embarque (<code>Embarked</code>) influenciava? (2) E o preço da passagem (<code>Fare</code>)? (3) Quem viajava sozinho (<code>SibSp + Parch == 0</code>) tinha mais ou menos chance?</p></div>
+
+  <div class="callout think"><div class="cl">🤔 Reflexão ética</div><p>O modelo vai aprender que "ser homem da 3ª classe" = morte provável. Isso é um <strong>padrão histórico real</strong> — mas se fosse um modelo de crédito aprendendo que "morar no bairro X" = não pagar? A mesma matemática que revela injustiças passadas pode perpetuá-las no futuro. Guardem isso para a Semana 14.</p></div>
+</section>
+<hr class="divider">
+
+<!-- 3º HORÁRIO -->
+<section id="metricas" class="ls">
+  <div class="sn">3º Horário · Parte A — Teoria (~15 min)</div>
+  <h2>Por que Acurácia Engana</h2>
+  <p class="body">Imagine um modelo que detecta uma doença rara que afeta 1% da população. Eu posso criar um "modelo" com 99% de acurácia agora mesmo: <strong>chutar "saudável" para todo mundo.</strong> Acerto 99 de cada 100 — e sou completamente inútil, porque erro exatamente os casos que importam.</p>
+  <p class="body">Por isso profissionais usam métricas que separam os <strong>tipos de erro</strong>. A ferramenta central é a <strong>matriz de confusão</strong> — uma tabela 2×2 que mostra onde o modelo acerta e onde se confunde:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th></th><th>Modelo disse: SOBREVIVEU</th><th>Modelo disse: MORREU</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:700;color:var(--green)">Realidade: sobreviveu</td><td style="color:var(--green)">✅ Verdadeiro Positivo (VP)</td><td style="color:var(--red)">❌ Falso Negativo (FN)</td></tr>
+      <tr><td style="font-weight:700;color:var(--red)">Realidade: morreu</td><td style="color:var(--red)">❌ Falso Positivo (FP)</td><td style="color:var(--green)">✅ Verdadeiro Negativo (VN)</td></tr>
+    </tbody>
+  </table>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--blue)">Precisão</h4><p style="font-size:.82rem">Das vezes que o modelo disse "positivo", quantas acertou? <strong>VP / (VP+FP)</strong>. Importa quando falso alarme custa caro (ex: marcar e-mail legítimo como spam).</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--purple)">Recall</h4><p style="font-size:.82rem">Dos positivos reais, quantos o modelo capturou? <strong>VP / (VP+FN)</strong>. Importa quando deixar passar custa caro (ex: não detectar um câncer).</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--accent)">F1-Score</h4><p style="font-size:.82rem">Média harmônica de precisão e recall. O equilíbrio entre os dois. Boa métrica única quando as classes são desbalanceadas.</p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 A pergunta profissional</div><p>Antes de escolher a métrica, pergunte: <strong>qual erro custa mais caro neste problema?</strong> Detector de câncer → recall (não pode deixar passar). Filtro de spam → precisão (não pode bloquear e-mail importante). Não existe métrica universal — existe métrica certa para o problema.</p></div>
+</section>
+
+<section id="torneio" class="ls">
+  <div class="sn">3º Horário · Parte B — Mão na massa (~35 min)</div>
+  <h2>💻 Torneio: 4 Algoritmos Entram, 1 Sai</h2>
+  <p class="body">Cada algoritmo "pensa" diferente. Vamos colocar 4 deles para competir no mesmo dataset:</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Torneio de modelos + matriz de confusão</span></div><div class="code-body"><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.neighbors <span class="kw">import</span> KNeighborsClassifier
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVC
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report, ConfusionMatrixDisplay
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+<span class="cm"># Features melhoradas (feature engineering!)</span>
+df[<span class="str">'Sozinho'</span>] = ((df[<span class="str">'SibSp'</span>] + df[<span class="str">'Parch'</span>]) == <span class="num">0</span>).astype(int)
+df[<span class="str">'Fare'</span>] = df[<span class="str">'Fare'</span>].fillna(df[<span class="str">'Fare'</span>].median())
+features = [<span class="str">'Pclass'</span>, <span class="str">'Sexo'</span>, <span class="str">'Age'</span>, <span class="str">'Fare'</span>, <span class="str">'Sozinho'</span>]
+X = df[features]; y = df[<span class="str">'Survived'</span>]
+X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=<span class="num">0.2</span>, random_state=<span class="num">42</span>)
+
+<span class="cm"># Escalar (KNN e SVM precisam!)</span>
+scaler = StandardScaler()
+X_tr_s = scaler.fit_transform(X_tr)
+X_te_s = scaler.transform(X_te)  <span class="cm"># note: só transform no teste!</span>
+
+<span class="cm"># Os 4 competidores</span>
+competidores = {
+    <span class="str">'Regressão Logística'</span>: (LogisticRegression(max_iter=<span class="num">1000</span>), <span class="kw">True</span>),
+    <span class="str">'Árvore de Decisão'</span>:   (DecisionTreeClassifier(max_depth=<span class="num">4</span>, random_state=<span class="num">42</span>), <span class="kw">False</span>),
+    <span class="str">'KNN (k=7)'</span>:           (KNeighborsClassifier(n_neighbors=<span class="num">7</span>), <span class="kw">True</span>),
+    <span class="str">'SVM'</span>:                 (SVC(probability=<span class="kw">True</span>, random_state=<span class="num">42</span>), <span class="kw">True</span>),
+}
+
+resultados = {}
+<span class="kw">for</span> nome, (modelo, usa_escala) <span class="kw">in</span> competidores.items():
+    Xtr = X_tr_s <span class="kw">if</span> usa_escala <span class="kw">else</span> X_tr
+    Xte = X_te_s <span class="kw">if</span> usa_escala <span class="kw">else</span> X_te
+    modelo.fit(Xtr, y_tr)
+    resultados[nome] = modelo.score(Xte, y_te)
+    <span class="fn">print</span>(<span class="str">f"{nome:&lt;22s} → {resultados[nome]*100:.1f}% no teste"</span>)
+
+<span class="cm"># Pódio visual</span>
+plt.figure(figsize=(<span class="num">9</span>,<span class="num">4</span>))
+ordem = sorted(resultados, key=resultados.get, reverse=<span class="kw">True</span>)
+cores = [<span class="str">'#fbbf24'</span>,<span class="str">'#94a3b8'</span>,<span class="str">'#b45309'</span>,<span class="str">'#475569'</span>]
+bars = plt.bar(ordem, [resultados[n] <span class="kw">for</span> n <span class="kw">in</span> ordem], color=cores)
+<span class="kw">for</span> b, n <span class="kw">in</span> zip(bars, ordem):
+    plt.text(b.get_x()+b.get_width()/<span class="num">2</span>, b.get_height()+<span class="num">.005</span>,
+             <span class="str">f'{resultados[n]*100:.1f}%'</span>, ha=<span class="str">'center'</span>, fontweight=<span class="str">'bold'</span>)
+plt.title(<span class="str">'🏆 Torneio de Modelos — Titanic'</span>, fontweight=<span class="str">'bold'</span>, fontsize=<span class="num">13</span>)
+plt.ylim(<span class="num">0.7</span>, <span class="num">0.9</span>); plt.ylabel(<span class="str">'Acurácia no teste'</span>); plt.grid(axis=<span class="str">'y'</span>, alpha=<span class="num">.3</span>)
+plt.tight_layout(); plt.show()
+
+<span class="cm"># Matriz de confusão + relatório do campeão</span>
+campeao_nome = ordem[<span class="num">0</span>]
+campeao, usa_esc = competidores[campeao_nome]
+Xte = X_te_s <span class="kw">if</span> usa_esc <span class="kw">else</span> X_te
+ConfusionMatrixDisplay.from_estimator(campeao, Xte, y_te,
+    display_labels=[<span class="str">'Morreu'</span>,<span class="str">'Sobreviveu'</span>], cmap=<span class="str">'Blues'</span>)
+plt.title(<span class="str">f'Matriz de Confusão — {campeao_nome}'</span>, fontweight=<span class="str">'bold'</span>); plt.show()
+<span class="fn">print</span>(classification_report(y_te, campeao.predict(Xte),
+      target_names=[<span class="str">'Morreu'</span>,<span class="str">'Sobreviveu'</span>]))
+
+<span class="cm"># ─── 😱 Os erros mais CONFIANTES do campeão ───</span>
+<span class="cm"># Casos onde o modelo tinha CERTEZA... e errou feio</span>
+probs_teste = campeao.predict_proba(Xte)[:, <span class="num">1</span>]
+analise = X_te.copy()
+analise[<span class="str">'Nome'</span>] = df.loc[X_te.index, <span class="str">'Name'</span>].str.split(<span class="str">','</span>).str[<span class="num">0</span>]
+analise[<span class="str">'Prob_sobreviver'</span>] = probs_teste
+analise[<span class="str">'Realidade'</span>] = y_te.values
+analise[<span class="str">'Errou'</span>] = (probs_teste > <span class="num">0.5</span>).astype(int) != y_te.values
+erros = analise[analise[<span class="str">'Errou'</span>]].copy()
+erros[<span class="str">'Confianca_no_erro'</span>] = np.abs(erros[<span class="str">'Prob_sobreviver'</span>] - <span class="num">0.5</span>)
+
+<span class="fn">print</span>(<span class="str">"\n😱 ERROS MAIS CONFIANTES — o modelo tinha certeza e errou:\n"</span>)
+<span class="kw">for</span> _, r <span class="kw">in</span> erros.nlargest(<span class="num">3</span>, <span class="str">'Confianca_no_erro'</span>).iterrows():
+    palpite = <span class="str">'sobreviveria'</span> <span class="kw">if</span> r[<span class="str">'Prob_sobreviver'</span>] > <span class="num">0.5</span> <span class="kw">else</span> <span class="str">'morreria'</span>
+    real = <span class="str">'🛟 sobreviveu'</span> <span class="kw">if</span> r[<span class="str">'Realidade'</span>] <span class="kw">else</span> <span class="str">'💀 morreu'</span>
+    <span class="fn">print</span>(<span class="str">f"  {r['Nome']} ({r['Pclass']:.0f}ª classe, {r['Age']:.0f} anos): "</span>)
+    <span class="fn">print</span>(<span class="str">f"    modelo apostou {max(r['Prob_sobreviver'], 1-r['Prob_sobreviver'])*100:.0f}% que {palpite} → na verdade {real}\n"</span>)
+<span class="fn">print</span>(<span class="str">"💭 Pessoas reais que desafiaram as estatísticas — heróis e tragédias que nenhum modelo prevê."</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem o torneio. Analisem a matriz de confusão: <strong>o modelo erra mais para que lado?</strong> E vejam os "erros confiantes" — pessoas reais que desafiaram as estatísticas: quem o modelo condenou com 90% de certeza e sobreviveu? Pesquisem um desses nomes no Google — muitos têm histórias documentadas. Depois testem mudar o <code>k</code> do KNN (3, 15, 50) — o ranking muda?</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Num detector de câncer, qual métrica é mais crítica?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Acurácia — total de acertos</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Precisão — evitar falsos alarmes</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">Recall — não deixar nenhum caso real passar</button>
+  </div><div class="quiz-fb ok">✅ Recall! Falso negativo (câncer não detectado) pode custar uma vida. Falso positivo gera um exame extra — desagradável, mas recuperável.</div><div class="quiz-fb nok">❌ <strong>Recall</strong>: deixar um câncer real passar (falso negativo) é o erro mais caro. Melhor um falso alarme que uma doença não detectada.</div></div>
+</section>
+<hr class="divider">
+
+<!-- 4º HORÁRIO -->
+<section id="overfitting" class="ls">
+  <div class="sn">4º Horário · Parte A — Teoria (~10 min)</div>
+  <h2>Overfitting: O Aluno que Decorou a Prova</h2>
+  <p class="body">Lembram do aluno que decora as 50 questões da lista — cada vírgula — e trava quando o professor muda um número? Isso é <strong>overfitting</strong>: o modelo memorizou os dados de treino (incluindo o ruído e as coincidências) em vez de aprender os padrões gerais. Sintoma clássico: <strong>nota alta no treino, nota baixa no teste.</strong></p>
+  <p class="body">O oposto também existe: <strong>underfitting</strong> — o aluno que nem estudou. Modelo simples demais para capturar o padrão. Vai mal no treino E no teste. A arte do ML é encontrar o ponto ideal entre os dois — complexo o bastante para aprender, simples o bastante para generalizar.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="font-size:.85rem">😴 Underfitting</h4><p style="font-size:.8rem">Treino: ruim<br>Teste: ruim<br><em>"Nem estudou"</em></p></div>
+    <div class="card" style="border-top:3px solid var(--green)"><h4 style="font-size:.85rem">🎯 Ponto ideal</h4><p style="font-size:.8rem">Treino: bom<br>Teste: bom<br><em>"Entendeu a matéria"</em></p></div>
+    <div class="card" style="border-top:3px solid var(--red)"><h4 style="font-size:.85rem">🤯 Overfitting</h4><p style="font-size:.8rem">Treino: perfeito<br>Teste: ruim<br><em>"Decorou o gabarito"</em></p></div>
+  </div>
+</section>
+
+<section id="overfit-lab" class="ls">
+  <div class="sn">4º Horário · Parte B — Mão na massa (~40 min)</div>
+  <h2>💻 Provocando (e curando) Overfitting</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Overfitting ao vivo + validação cruzada</span></div><div class="code-body"><span class="cm"># ═══ Experimento: profundidade da árvore vs overfitting ═══</span>
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+
+profundidades = range(<span class="num">1</span>, <span class="num">21</span>)
+acc_treino, acc_teste = [], []
+
+<span class="kw">for</span> d <span class="kw">in</span> profundidades:
+    arvore = DecisionTreeClassifier(max_depth=d, random_state=<span class="num">42</span>)
+    arvore.fit(X_tr, y_tr)
+    acc_treino.append(arvore.score(X_tr, y_tr))
+    acc_teste.append(arvore.score(X_te, y_te))
+
+plt.figure(figsize=(<span class="num">10</span>,<span class="num">5</span>))
+plt.plot(profundidades, acc_treino, <span class="str">'o-'</span>, color=<span class="str">'#3b82f6'</span>, label=<span class="str">'Treino (a "lista de exercícios")'</span>, linewidth=<span class="num">2</span>)
+plt.plot(profundidades, acc_teste, <span class="str">'s-'</span>, color=<span class="str">'#ef4444'</span>, label=<span class="str">'Teste (a "prova surpresa")'</span>, linewidth=<span class="num">2</span>)
+plt.axvspan(<span class="num">3</span>, <span class="num">5</span>, alpha=<span class="num">0.15</span>, color=<span class="str">'green'</span>, label=<span class="str">'Zona saudável'</span>)
+plt.xlabel(<span class="str">'Profundidade da árvore (complexidade)'</span>)
+plt.ylabel(<span class="str">'Acurácia'</span>)
+plt.title(<span class="str">'📉 Anatomia do Overfitting'</span>, fontweight=<span class="str">'bold'</span>, fontsize=<span class="num">13</span>)
+plt.legend(); plt.grid(alpha=<span class="num">.3</span>); plt.tight_layout(); plt.show()
+
+<span class="cm"># A cura: validação cruzada (5 "provas" diferentes)</span>
+<span class="fn">print</span>(<span class="str">"Validação cruzada (5-fold) — a avaliação honesta:"</span>)
+<span class="kw">for</span> d <span class="kw">in</span> [<span class="num">2</span>, <span class="num">4</span>, <span class="num">8</span>, <span class="num">16</span>]:
+    arvore = DecisionTreeClassifier(max_depth=d, random_state=<span class="num">42</span>)
+    scores = cross_val_score(arvore, X, y, cv=<span class="num">5</span>)
+    <span class="fn">print</span>(<span class="str">f"  Profundidade {d:2d}: {scores.mean()*100:.1f}% ± {scores.std()*100:.1f}%"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e observem o gráfico: a linha azul (treino) só sobe — quanto mais profunda a árvore, mais ela "decora". A linha vermelha (teste) sobe e depois <strong>desce</strong> — esse é o overfitting acontecendo na frente de vocês. Onde está o ponto ideal?</p></div>
+
+  <h3>🔮 Grand finale: você sobreviveria?</h3>
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Prevendo a própria sobrevivência</span></div><div class="code-body"><span class="cm"># Coloquem os SEUS dados!</span>
+meu_nome   = <span class="str">"Seu Nome"</span>
+minha_classe = <span class="num">3</span>      <span class="cm"># 1, 2 ou 3 (sejamos honestos: estudante = 3ª classe 😅)</span>
+meu_sexo     = <span class="num">0</span>      <span class="cm"># 1 = mulher, 0 = homem</span>
+minha_idade  = <span class="num">21</span>
+minha_tarifa = <span class="num">8.0</span>    <span class="cm"># tarifa típica da 3ª classe: ~£8</span>
+sozinho      = <span class="num">1</span>      <span class="cm"># viajando sozinho? 1 = sim</span>
+
+eu = pd.DataFrame([[minha_classe, meu_sexo, minha_idade, minha_tarifa, sozinho]],
+                  columns=features)
+prob = campeao.predict_proba(scaler.transform(eu) <span class="kw">if</span> usa_esc <span class="kw">else</span> eu)[<span class="num">0</span>][<span class="num">1</span>]
+emoji = <span class="str">"🛟"</span> <span class="kw">if</span> prob > <span class="num">0.5</span> <span class="kw">else</span> <span class="str">"💀"</span>
+<span class="fn">print</span>(<span class="str">f"{emoji} {meu_nome}, sua chance de sobreviver ao Titanic: {prob*100:.1f}%"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — todos!</div><p>Cada um coloca seus dados e roda. Comparem os resultados na turma — quem tem a maior chance? Por quê? <strong>Mudem uma variável por vez</strong> (e se você fosse da 1ª classe? e se fosse mulher?) e vejam o impacto. Isso se chama análise de sensibilidade!</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Seu modelo tem 99% no treino e 71% no teste. Diagnóstico?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Underfitting — modelo simples demais</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">Overfitting — decorou o treino, não generaliza</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Modelo perfeito — 99% é excelente</button>
+  </div><div class="quiz-fb ok">✅ Gap enorme treino-teste = overfitting clássico. Curas: simplificar o modelo, mais dados, regularização, validação cruzada.</div><div class="quiz-fb nok">❌ Gap de 28 pontos entre treino e teste = <strong>overfitting</strong>. O 99% é decoreba; o 71% é a verdade.</div></div>
+</section>
+
+<section id="desafio" class="ls">
+  <div class="sn">Desafio</div>
+  <h2>🏆 Desafio: Bata os 82%</h2>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🎯 Tarefas para entregar (este é o aquecimento do Lab 1!)</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1.</strong> Crie pelo menos <strong>2 features novas</strong> (ex: título extraído do nome — Mr/Mrs/Miss/Master; tamanho da família; cabine conhecida sim/não). Elas melhoram o modelo?</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.</strong> Use <code>GridSearchCV</code> para encontrar os melhores hiperparâmetros do seu melhor modelo.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.</strong> Meta: <strong>superar 82% de acurácia em validação cruzada (cv=5)</strong>. Quem conseguir entra no Hall da Fama da turma. 🏅</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4. Reflexão:</strong> qual feature mais importou? Use <code>campeao.feature_importances_</code> (árvore) e interprete: o que isso diz sobre 1912?</p></div>
+    </div>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Próxima aula</div><p><strong>ML II: Não Supervisionado e Ensembles</strong> — clustering, PCA, Random Forest, XGBoost e a <strong>mini-competição interna estilo Kaggle com leaderboard ao vivo</strong>. O Lab 1 (15% da nota) será entregue lá. Leitura: Géron Cap. 2 e 6-7.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🧠</div><p style="font-size:.76rem;font-weight:600">ML = aprender com exemplos</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📊</div><p style="font-size:.76rem;font-weight:600">Treino/teste = lista/prova</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🚢</div><p style="font-size:.76rem;font-weight:600">EDA do Titanic</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🏆</div><p style="font-size:.76rem;font-weight:600">Torneio de 4 modelos</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🎯</div><p style="font-size:.76rem;font-weight:600">Precisão, recall, F1</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🤯</div><p style="font-size:.76rem;font-weight:600">Overfitting visualizado</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 06 — 28 de maio de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

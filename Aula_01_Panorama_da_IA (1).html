@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 01 — Panorama da IA em 2026 — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:85vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.15rem;color:var(--text-muted);max-width:600px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.danger{background:rgba(239,68,68,.06);border-left:3px solid var(--red)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.danger .cl{color:var(--red)}
+.tl-h{display:flex;gap:0;overflow-x:auto;padding:1rem 0;scrollbar-width:thin;scrollbar-color:var(--surface-3) transparent}
+.era{flex:0 0 auto;width:190px;position:relative;padding:1rem .8rem;text-align:center}
+.era::before{content:'';position:absolute;top:2.4rem;left:0;right:0;height:2px;background:var(--surface-3)}
+.era::after{content:'';position:absolute;top:2rem;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;border:2px solid;z-index:1;background:var(--bg)}
+.era:nth-child(1)::after{border-color:var(--text-muted)}.era:nth-child(2)::after{border-color:var(--blue)}.era:nth-child(3)::after{border-color:var(--purple)}.era:nth-child(4)::after{border-color:var(--pink)}.era:nth-child(5)::after{border-color:var(--orange)}.era:nth-child(6)::after{border-color:var(--accent)}
+.era-year{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);margin-bottom:1.8rem}
+.era-title{font-weight:700;font-size:.85rem;margin-bottom:.3rem}
+.era-desc{font-size:.76rem;color:var(--text-muted);line-height:1.45}
+.def-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:.8rem}
+.def-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;transition:all .3s}
+.def-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--glow)}
+.def-card .author{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--accent);margin-bottom:.35rem}
+.def-card .quote{font-style:italic;font-size:.88rem;color:var(--text-muted);line-height:1.5}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem;margin:1.2rem 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
+.stat-value{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:.75rem;color:var(--text-muted);margin-top:.2rem}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.prompt-box{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);margin:.7rem 0;overflow:hidden}
+.prompt-label{padding:.4rem 1rem;font-family:'JetBrains Mono',monospace;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+.prompt-label.user{background:rgba(59,130,246,.1);color:var(--blue)}
+.prompt-label.ai{background:rgba(0,212,170,.08);color:var(--accent)}
+.prompt-content{padding:.7rem 1rem;font-size:.86rem;line-height:1.6}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.accordion{margin:.6rem 0}
+.acc-toggle{width:100%;padding:.8rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:.88rem;font-weight:600;text-align:left;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:all .2s;font-family:'DM Sans',sans-serif}
+.acc-toggle:hover{border-color:var(--accent)}
+.acc-toggle .arrow{transition:transform .2s;color:var(--accent)}
+.acc-toggle.open .arrow{transform:rotate(90deg)}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
+.acc-body.open{max-height:1500px}
+.acc-inner{padding:1rem;font-size:.88rem;color:var(--text-muted);line-height:1.7}
+.tab-group{margin:1rem 0}
+.tab-btns{display:flex;gap:.3rem;margin-bottom:.8rem;flex-wrap:wrap}
+.tab-btn{padding:.4rem .9rem;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tab-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}.def-grid,.stats-row{grid-template-columns:1fr 1fr}.era{width:160px}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content"><div class="hero-badge"><span class="dot"></span> Aula 01 · 26/03/2026 · 4 horários</div><h1>Panorama da Inteligência Artificial</h1><p class="hero-sub">Das origens de Turing aos modelos generativos — como a IA se tornou a tecnologia mais transformadora do nosso tempo.</p><div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">Ciência da Computação · UFPA</span><span class="hero-tag">4h de aula</span></div></div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#plano" class="nav-link">Plano</a><a href="#oque" class="nav-link">O que é IA</a><a href="#historia" class="nav-link">História</a><a href="#paisagem" class="nav-link">IA 2026</a><a href="#tipos" class="nav-link">Tipos</a><a href="#como" class="nav-link">Como funciona</a><a href="#mercado" class="nav-link">Mercado</a><a href="#etica" class="nav-link">Ética</a><a href="#prompt" class="nav-link">Prompts</a><a href="#setup" class="nav-link">Setup</a><a href="#exercicio" class="nav-link">Exercício</a></div></nav>
+<div class="container">
+
+<!-- 1 HORARIO: AGENDA + PLANO -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — o que vamos ver hoje</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Fundamentos</h4><p>Apresentação do plano de ensino. O que é IA? As quatro abordagens. O Teste de Turing e o Quarto Chinês de Searle.</p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — História e Panorama</h4><p>A jornada da IA de 1950 a 2026. Invernos e primaveras. Os grandes players. O que funciona e o que não. Papers fundamentais.</p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Tipos, Mercado e Ética</h4><p>Taxonomia da IA. Como LLMs funcionam (visão geral). IA no mercado de trabalho e carreiras. Ética: viés, privacidade e alinhamento. IA no Brasil e na Amazônia.</p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — Prática</h4><p>Prompt Engineering: 5 técnicas fundamentais. Setup do ambiente (Colab, GitHub, Kaggle, HF). Exercício prático hands-on com LLMs.</p></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section id="plano" class="ls">
+  <div class="sn">Apresentação</div>
+  <h2>Plano de Ensino — Visão Geral</h2>
+  <p class="body">Disciplina com <strong>50% teoria + 50% prática</strong>. Objetivo: sair com experiência real para trabalhar com IA no mercado.</p>
+  <h3>Cronograma resumido</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Sem.</th><th>Data</th><th>Tema</th><th>Entrega</th></tr></thead>
+    <tbody>
+      <tr><td>01</td><td>26/03</td><td>Panorama da IA em 2026 (esta aula!)</td><td></td></tr>
+      <tr><td>02</td><td>02/04</td><td>Agentes Inteligentes e Ambientes</td><td></td></tr>
+      <tr><td>03</td><td>09/04</td><td>Busca I: Cega e Informada (A*)</td><td></td></tr>
+      <tr><td>04</td><td>16/04</td><td>Busca II: Local e Adversarial (Minimax)</td><td></td></tr>
+      <tr><td>05</td><td>23/04</td><td>Representação do Conhecimento e Raciocínio</td><td></td></tr>
+      <tr><td>06</td><td>30/04</td><td>ML I: Supervisionado (Scikit-learn)</td><td>📋 Proposta Projeto</td></tr>
+      <tr><td>07</td><td>07/05</td><td>ML II: Não Supervisionado e Ensemble</td><td>📦 Lab 1</td></tr>
+      <tr><td style="color:var(--red);font-weight:700">08</td><td style="color:var(--red)">14/05</td><td style="color:var(--red);font-weight:600">📝 PROVA — Teórico-Prática</td><td style="color:var(--red)">Prova</td></tr>
+      <tr><td>09</td><td>21/05</td><td>Redes Neurais e Deep Learning I</td><td></td></tr>
+      <tr><td>10</td><td>28/05</td><td>Deep Learning II: CNNs e Visão Computacional</td><td>⚡ Checkpoint Proj.</td></tr>
+      <tr><td style="color:var(--orange)">—</td><td style="color:var(--orange)">04/06</td><td style="color:var(--orange)">🔴 FERIADO — Corpus Christi</td><td></td></tr>
+      <tr><td>11</td><td>11/06</td><td>Deep Learning III: Atenção e Transformers</td><td></td></tr>
+      <tr><td>12</td><td>18/06</td><td>LLMs e IA Generativa</td><td>📦 Lab 2</td></tr>
+      <tr><td>13</td><td>25/06</td><td>Engenharia de Prompt, RAG e Agentes</td><td></td></tr>
+      <tr><td>14</td><td>02/07</td><td>Ética, Viés e Regulação + Seminários (pt.1)</td><td>🎤 Semin. 1</td></tr>
+      <tr><td style="color:var(--green);font-weight:700">15</td><td style="color:var(--green)">09/07</td><td style="color:var(--green);font-weight:600">🚀 Seminários (pt.2) + Projetos Finais</td><td style="color:var(--green)">🚀 Projeto</td></tr>
+    </tbody>
+  </table>
+  <h3>Avaliações</h3>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-value">15%</div><div class="stat-label">Lab 1 — ML Clássico</div></div>
+    <div class="stat"><div class="stat-value">15%</div><div class="stat-label">Lab 2 — DL / LLMs</div></div>
+    <div class="stat"><div class="stat-value">20%</div><div class="stat-label">Prova</div></div>
+    <div class="stat"><div class="stat-value">20%</div><div class="stat-label">Seminário</div></div>
+    <div class="stat"><div class="stat-value">30%</div><div class="stat-label">Projeto Final</div></div>
+  </div>
+  <div class="callout important"><div class="cl">📌 Critérios</div><p><strong>Média ≥ 7,0 → Aprovado.</strong> Média < 7,0 → Reprovado. Não há segunda chamada. Frequência mínima: 75% (máx. 4 faltas). Labs e projeto em equipe; prova individual.</p></div>
+</section>
+
+<hr class="divider">
+
+<!-- 1 HORARIO: O QUE E IA -->
+<section id="oque" class="ls">
+  <div class="sn">1º Horário · Parte 01</div>
+  <h2>O que é Inteligência Artificial?</h2>
+  <p class="body">Não existe uma definição única. A IA reúne ciência da computação, matemática, linguística, psicologia e filosofia.</p>
+  <div class="def-grid">
+    <div class="def-card"><div class="author">Russell & Norvig (2022)</div><div class="quote">"O estudo de agentes que recebem percepções do ambiente e executam ações."</div><p style="font-size:.72rem;color:var(--text-dim);margin-top:.3rem">→ Foco: agentes racionais</p></div>
+    <div class="def-card"><div class="author">John McCarthy (1956)</div><div class="quote">"A ciência e engenharia de construir máquinas inteligentes."</div><p style="font-size:.72rem;color:var(--text-dim);margin-top:.3rem">→ Foco: construção e engenharia</p></div>
+    <div class="def-card"><div class="author">Marvin Minsky (1968)</div><div class="quote">"A ciência de fazer máquinas fazerem coisas que requeririam inteligência se feitas por humanos."</div><p style="font-size:.72rem;color:var(--text-dim);margin-top:.3rem">→ Foco: capacidade funcional</p></div>
+  </div>
+  <h3>As quatro abordagens da IA</h3>
+  <p class="body">Russell & Norvig organizam o campo em dois eixos: <strong>pensar vs. agir</strong> e <strong>como humano vs. racionalmente</strong>:</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4>🧠 Pensar como humano</h4><p>Modelagem cognitiva — simular processos mentais. Ciência cognitiva computacional. Redes neurais inspiradas no cérebro.</p></div>
+    <div class="card"><h4>🎯 Pensar racionalmente</h4><p>Lógica e raciocínio formal — leis do pensamento. Silogismos, inferência, provadores de teoremas. Limitação: nem tudo é formalizável.</p></div>
+    <div class="card"><h4>🗣️ Agir como humano</h4><p>Teste de Turing (1950) — se não dá pra distinguir, é inteligente. Exige: NLP, representação do conhecimento, raciocínio, aprendizado.</p></div>
+    <div class="card" style="border:1px solid var(--accent)"><h4>✅ Agir racionalmente</h4><p>Agentes racionais — tomar a melhor decisão dado o que sabe. <strong>Abordagem dominante na IA moderna.</strong></p></div>
+  </div>
+  <h3>O Teste de Turing e o Quarto Chinês</h3>
+  <p class="body">Turing (1950): se um interrogador não distingue máquina de humano numa conversa, a máquina é "inteligente". Searle (1980): alguém num quarto pode seguir regras para responder em chinês sem entender — manipulação de símbolos ≠ compreensão.</p>
+  <div class="callout think"><div class="cl">🤔 Discussão em sala</div><p>O ChatGPT/Claude passam no Teste de Turing em muitas situações. Isso significa que são inteligentes? Os LLMs "entendem" ou apenas manipulam padrões estatísticos? Qual a posição de vocês?</p></div>
+  <h3>O Efeito IA (AI Effect)</h3>
+  <p class="body">Assim que uma máquina aprende algo, as pessoas dizem "isso não é IA de verdade". Xadrez era IA até Deep Blue. OCR era IA até funcionar. Filtro de spam era IA até virar commodity. Hoje muitos dizem "LLMs não são IA de verdade". Nossa definição de inteligência é um alvo móvel.</p>
+  <div class="quiz" id="q1"><h4>⚡ Quick Check #1</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual abordagem da IA é dominante no livro de Russell & Norvig?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q1',this,false)">Pensar como humano</button><button class="quiz-opt" onclick="checkQ('q1',this,false)">Pensar racionalmente</button><button class="quiz-opt" onclick="checkQ('q1',this,false)">Agir como humano</button><button class="quiz-opt" onclick="checkQ('q1',this,true)">Agir racionalmente (agentes racionais)</button></div><div class="quiz-fb ok">✅ Correto! <strong>Agentes racionais</strong> — percebem o ambiente e agem para maximizar desempenho.</div><div class="quiz-fb nok">❌ A resposta é <strong>agir racionalmente</strong> — agentes que tomam as melhores decisões possíveis.</div></div>
+</section>
+
+<hr class="divider">
+
+<!-- 2 HORARIO -->
+<section id="historia" class="ls">
+  <div class="sn">2º Horário · Parte 02</div>
+  <h2>A Jornada da IA: 1950 → 2026</h2>
+  <div class="tl-h">
+    <div class="era"><div class="era-year">1950–1960</div><div class="era-title">Nascimento</div><div class="era-desc">Teste de Turing (1950). Dartmouth (1956) — nasce o termo "IA". Perceptron de Rosenblatt (1958).</div></div>
+    <div class="era"><div class="era-year">1960–1980</div><div class="era-title">IA Simbólica</div><div class="era-desc">ELIZA (1966). Sistemas especialistas: MYCIN, DENDRAL. Minsky & Papert matam Perceptron (1969). 1º Inverno.</div></div>
+    <div class="era"><div class="era-year">1980–2000</div><div class="era-title">Renascimento</div><div class="era-desc">Backpropagation (1986). SVMs (1992). Deep Blue vence Kasparov (1997). 2º Inverno para IA simbólica.</div></div>
+    <div class="era"><div class="era-year">2000–2012</div><div class="era-title">Big Data + ML</div><div class="era-desc">Internet gera dados massivos. Netflix Prize. Random Forest, XGBoost. GPUs para treino. ImageNet (2009).</div></div>
+    <div class="era"><div class="era-year">2012–2020</div><div class="era-title">Deep Learning</div><div class="era-desc">AlexNet (2012). GANs (2014). AlphaGo (2016). Transformer (2017). BERT (2018). GPT-2 (2019).</div></div>
+    <div class="era"><div class="era-year">2020–2026</div><div class="era-title">IA Generativa</div><div class="era-desc">GPT-3/4/5, Claude, Gemini, LLaMA. DALL-E, Stable Diffusion, Sora. Agentes de IA. Regulação.</div></div>
+  </div>
+  <h3>Os "Invernos" da IA</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--blue)">❄️ 1º Inverno (1974–1980)</h4><p>Promessas exageradas. Relatório Lighthill (UK, 1973). Perceptron de camada única não resolvia XOR. Financiamento cortado.</p></div>
+    <div class="card"><h4 style="color:var(--blue)">❄️ 2º Inverno (1987–1993)</h4><p>Sistemas especialistas caros e frágeis. Máquinas LISP perderam para PCs. Japão cancelou o 5th Gen Computer. ML estatístico substituiu IA simbólica.</p></div>
+  </div>
+  <div class="callout warning"><div class="cl">⚠️ Estamos num 3º inverno chegando?</div><p>Investimento sem precedentes ($200B+), mas ROI questionável. Custos de treino enormes. "AI bubble"? Como profissionais, vocês precisam separar hype de realidade.</p></div>
+  <h3>10 Papers Fundamentais da IA</h3>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">1. Computing Machinery and Intelligence — Turing, 1950 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">O artigo que começou tudo. Propõe o "Jogo da Imitação" (Teste de Turing). Surpreendentemente acessível e divertido de ler.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">2. McCulloch & Pitts, 1943 — Modelo do neurônio artificial <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">Modelo matemático do neurônio. Base de todas as redes neurais. Mostrou que neurônios podem computar funções lógicas.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">3. Backpropagation — Rumelhart, Hinton & Williams, 1986 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">O algoritmo que treina redes neurais. Sem este paper, deep learning não existiria. Hinton ganhou Nobel de Física em 2024.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">4. AlexNet — Krizhevsky et al., 2012 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">"Big Bang" do deep learning. CNNs profundas com GPUs esmagaram ImageNet. Inaugurou a era moderna.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">5. Attention Is All You Need — Vaswani et al., 2017 ⭐ <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner"><strong>O paper mais impactante da última década.</strong> Introduziu o Transformer — base de GPT, BERT, Claude, LLaMA. Vamos estudá-lo na Semana 11.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">6. BERT — Devlin et al., 2018 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">Revolucionou NLP: pré-treino bidirecional + fine-tuning. Paradigma "pré-treino + fine-tuning" nasceu aqui.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">7. GPT-3 — Brown et al., 2020 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">175B parâmetros. In-context learning: o modelo aprende de exemplos no prompt, sem retreino. Mudou o paradigma.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">8. GANs — Goodfellow et al., 2014 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">Dois modelos competem: gerador vs discriminador. Precursor de toda IA generativa visual.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">9. AlphaGo — Silver et al., 2016 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">IA vence campeão mundial de Go. Deep learning + busca Monte Carlo + reforço. Momento icônico.</div></div></div>
+  <div class="accordion"><button class="acc-toggle" onclick="toggleAcc(this)">10. AlphaFold — Jumper et al., 2021 <span class="arrow">▶</span></button><div class="acc-body"><div class="acc-inner">Resolveu dobramento de proteínas (50 anos aberto). Nobel de Química 2024. IA faz descoberta científica real.</div></div></div>
+  <div class="quiz" id="q2"><h4>⚡ Quick Check #2</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual paper introduziu a arquitetura Transformer?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q2',this,false)">AlexNet (2012)</button><button class="quiz-opt" onclick="checkQ('q2',this,true)">Attention Is All You Need (2017)</button><button class="quiz-opt" onclick="checkQ('q2',this,false)">GPT-3 (2020)</button><button class="quiz-opt" onclick="checkQ('q2',this,false)">BERT (2018)</button></div><div class="quiz-fb ok">✅ <strong>"Attention Is All You Need"</strong> (Vaswani et al., 2017) — eliminou recorrência, só atenção, treino paralelizável.</div><div class="quiz-fb nok">❌ A resposta é <strong>"Attention Is All You Need"</strong> (2017). GPT e BERT são Transformers, mas vieram depois.</div></div>
+</section>
+
+<section id="paisagem" class="ls">
+  <div class="sn">2º Horário · Parte 03</div>
+  <h2>O Panorama da IA em 2026</h2>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-value">$200B+</div><div class="stat-label">Investimento global</div></div>
+    <div class="stat"><div class="stat-value">1T+</div><div class="stat-label">Parâmetros (maiores modelos)</div></div>
+    <div class="stat"><div class="stat-value">90%</div><div class="stat-label">Fortune 500 usando IA</div></div>
+    <div class="stat"><div class="stat-value">3.5M</div><div class="stat-label">Vagas de IA no mundo</div></div>
+  </div>
+  <h3>Os grandes players</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.6rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🟢 OpenAI</h4><p style="font-size:.8rem">GPT-4/5, DALL-E, Sora. Pioneiros em LLMs comerciais.</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🟠 Anthropic</h4><p style="font-size:.8rem">Claude. Foco em segurança e alinhamento.</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🔵 Google DeepMind</h4><p style="font-size:.8rem">Gemini, AlphaFold. Pesquisa de fronteira.</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🟣 Meta AI</h4><p style="font-size:.8rem">LLaMA (open source). Visão e linguagem.</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🔴 Hugging Face</h4><p style="font-size:.8rem">Hub open source de modelos e datasets.</p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.85rem">🟡 Mistral / xAI</h4><p style="font-size:.8rem">Novos entrantes: Mixtral, Grok. Competição acirrada.</p></div>
+  </div>
+  <h3>O que funciona vs. o que não funciona</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card" style="border-left:3px solid var(--green)"><h4 style="color:var(--green)">✅ Funciona bem</h4><ul class="sl"><li><strong>Geração de texto</strong> — artigos, código, e-mails</li><li><strong>Imagem/vídeo</strong> — Midjourney, Sora</li><li><strong>Código</strong> — Copilot, Cursor, Claude Code</li><li><strong>Diagnóstico médico</strong> — radiologia, dermatologia</li><li><strong>Tradução</strong> — qualidade quase humana</li><li><strong>Ciência</strong> — proteínas, materiais, drogas</li></ul></div>
+    <div class="card" style="border-left:3px solid var(--red)"><h4 style="color:var(--red)">❌ Ainda não funciona</h4><ul class="sl"><li><strong>Raciocínio causal</strong> — correlação ≠ causalidade</li><li><strong>Planejamento longo</strong> — agentes falham em multi-etapa</li><li><strong>Senso comum</strong> — erros "bobos"</li><li><strong>Alucinações</strong> — inventa fatos com confiança</li><li><strong>Compreensão real</strong> — debate aberto</li><li><strong>Robótica geral</strong> — mundo físico é muito difícil</li></ul></div>
+  </div>
+  <div class="quiz" id="q3"><h4>⚡ Quick Check #3</h4><p style="font-size:.88rem;margin-bottom:.5rem">O que é uma "alucinação" no contexto de LLMs?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q3',this,false)">O modelo trava por um bug</button><button class="quiz-opt" onclick="checkQ('q3',this,true)">O modelo gera informação falsa com aparência de verdadeira</button><button class="quiz-opt" onclick="checkQ('q3',this,false)">O modelo recusa responder</button><button class="quiz-opt" onclick="checkQ('q3',this,false)">O modelo gera imagens distorcidas</button></div><div class="quiz-fb ok">✅ Correto! Alucinações são respostas confiantes e coerentes, mas com informações inventadas.</div><div class="quiz-fb nok">❌ <strong>Alucinação</strong> = informação falsa apresentada como verdadeira. Limitação fundamental dos LLMs.</div></div>
+</section>
+
+<hr class="divider">
+
+<!-- 3 HORARIO -->
+<section id="tipos" class="ls">
+  <div class="sn">3º Horário · Parte 04</div>
+  <h2>Taxonomia da IA</h2>
+  <h3>Simbólica vs. Conexionista</h3>
+  <table class="cmp-table">
+    <thead><tr><th></th><th>IA Simbólica (GOFAI)</th><th>IA Conexionista (ML/DL)</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--accent);font-weight:600">Como funciona</td><td>Regras explícitas, lógica, ontologias</td><td>Aprende padrões a partir de dados</td></tr>
+      <tr><td style="color:var(--accent);font-weight:600">Exemplo</td><td>Sistema especialista médico IF-THEN</td><td>CNN que classifica raio-X</td></tr>
+      <tr><td style="color:var(--accent);font-weight:600">Vantagem</td><td>Explicável, previsível, auditável</td><td>Escala, performance, generalização</td></tr>
+      <tr><td style="color:var(--accent);font-weight:600">Desvantagem</td><td>Não escala, frágil</td><td>"Caixa-preta", precisa de muitos dados</td></tr>
+      <tr><td style="color:var(--accent);font-weight:600">Era dominante</td><td>1960–1990</td><td>2012–presente</td></tr>
+    </tbody>
+  </table>
+  <h3>Por capacidade: ANI / AGI / ASI</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem">
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent)">ANI — Narrow</h4><p>Uma tarefa. Tudo que existe hoje. GPT para texto, ResNet para imagens. Pode superar humanos na tarefa, mas não generaliza.</p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange)">AGI — General</h4><p>Nível humano em qualquer tarefa. Não existe. Debate: 5 anos? 50? Nunca? LLMs se aproximam em algumas dimensões.</p></div>
+    <div class="card" style="border-top:3px solid var(--pink)"><h4 style="color:var(--pink)">ASI — Super</h4><p>Supera humanos em tudo. Teórica. Tema de segurança (alignment). Preocupação de Hinton, Bengio, Russell.</p></div>
+  </div>
+  <h3>Paradigmas de ML</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--blue)">Supervisionado</h4><p>Dados rotulados → entrada→saída. Classificação, regressão. <strong>Sem. 6–7.</strong></p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--purple)">Não Supervisionado</h4><p>Sem rótulos → descobre padrões. Clustering, PCA. <strong>Sem. 7.</strong></p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--accent)">Por Reforço</h4><p>Tentativa/erro + recompensas. AlphaGo, RLHF. <strong>Sem. 4, 12.</strong></p></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.7rem">
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--orange)">Auto-supervisionado</h4><p>Gera seus próprios rótulos. Base do pré-treinamento de LLMs: prever próxima palavra. <strong>Sem. 11–12.</strong></p></div>
+    <div class="card" style="padding:1rem"><h4 style="font-size:.88rem;color:var(--pink)">Transfer Learning</h4><p>Conhecimento de uma tarefa transferido para outra. Pré-treino + fine-tune. <strong>Sem. 10, 12.</strong></p></div>
+  </div>
+</section>
+
+<section id="como" class="ls">
+  <div class="sn">3º Horário · Parte 05</div>
+  <h2>Como Funciona um LLM? (Visão Geral)</h2>
+  <p class="body">Detalhes na Semana 11–12, mas a intuição desde já:</p>
+  <div class="steps">
+    <div class="step"><h4>Tokenização</h4><p>Texto → pedaços (tokens). "Inteligência Artificial" → ["Int", "elig", "ência", " Art", "ific", "ial"]. Modelos veem números, não letras.</p></div>
+    <div class="step"><h4>Embeddings</h4><p>Cada token vira vetor de alta dimensão (ex: 4096D). Palavras similares ficam próximas. "rei" - "homem" + "mulher" ≈ "rainha".</p></div>
+    <div class="step"><h4>Transformer (self-attention)</h4><p>Processa todos os tokens em paralelo. Atenção decide quais tokens são relevantes para cada outro. "O gato sentou no ___" → atenção em "gato" para prever "tapete".</p></div>
+    <div class="step"><h4>Predição do próximo token</h4><p>Calcula probabilidades para cada possível próximo token. Escolhe um (com "temperature"). Repete. Assim "gera" texto.</p></div>
+    <div class="step"><h4>Escala absurda</h4><p>Trilhões de palavras. Bilhões de parâmetros. Milhares de GPUs. Custo: $10M–$100M+. Scaling laws: mais dados + parâmetros = melhor.</p></div>
+  </div>
+  <div class="callout important"><div class="cl">💡 A grande sacada</div><p>LLMs são <strong>máquinas de prever a próxima palavra</strong> — mas em escala absurda, isso gera capacidades emergentes: raciocínio, tradução, código, matemática. <strong>A inteligência (ou algo parecido) emerge da escala.</strong></p></div>
+  <div class="quiz" id="q4"><h4>⚡ Quick Check #4</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual é a operação fundamental de um LLM?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q4',this,false)">Busca em banco de dados de respostas</button><button class="quiz-opt" onclick="checkQ('q4',this,false)">Compreensão semântica profunda</button><button class="quiz-opt" onclick="checkQ('q4',this,true)">Predição do próximo token dado o contexto</button><button class="quiz-opt" onclick="checkQ('q4',this,false)">Consulta à internet em tempo real</button></div><div class="quiz-fb ok">✅ LLMs são <strong>modelos de predição do próximo token</strong>. Tudo emerge dessa operação simples em escala massiva.</div><div class="quiz-fb nok">❌ LLMs prevêem o próximo token. Não buscam respostas prontas nem consultam internet (sem ferramentas).</div></div>
+</section>
+
+<section id="mercado" class="ls">
+  <div class="sn">3º Horário · Parte 06</div>
+  <h2>IA e o Mercado de Trabalho</h2>
+  <p class="body">"A IA vai tomar meu emprego?" Resposta: <strong>não diretamente, mas vai transformar radicalmente o que vocês fazem.</strong></p>
+  <h3>Carreiras em IA</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Cargo</th><th>O que faz</th><th>Salário BR</th><th>Skills</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:600">ML Engineer</td><td>Implementa e faz deploy de modelos</td><td>R$ 12–25k</td><td>Python, PyTorch, MLOps, Docker</td></tr>
+      <tr><td style="font-weight:600">Data Scientist</td><td>Analisa dados e constrói modelos</td><td>R$ 10–20k</td><td>Python, SQL, Scikit-learn, estatística</td></tr>
+      <tr><td style="font-weight:600">AI/Prompt Engineer</td><td>Otimiza LLMs, pipelines RAG</td><td>R$ 8–18k</td><td>Prompt engineering, APIs, LangChain</td></tr>
+      <tr><td style="font-weight:600">AI Researcher</td><td>Publica papers, estado da arte</td><td>R$ 15–35k</td><td>Matemática, PyTorch, publicações</td></tr>
+      <tr><td style="font-weight:600">MLOps Engineer</td><td>Infra de ML: treino, deploy, monitor</td><td>R$ 12–22k</td><td>Kubernetes, AWS/GCP, CI/CD</td></tr>
+    </tbody>
+  </table>
+  <div class="callout important"><div class="cl">💡 O diferencial em 2026</div><p>Saber usar IA é baseline. Diferencial: <strong>saber quando NÃO usar IA</strong>, entender limitações, e combinar IA com domínio específico.</p></div>
+  <h3>IA no Brasil e na Amazônia</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--accent)">🇧🇷 IA no Brasil</h4><ul class="sl"><li>Estratégia Brasileira de IA (EBIA)</li><li>Maritaca AI — LLM em português</li><li>Regulação: PL 2338/2023</li><li>Hubs: SP, Recife, Manaus</li></ul></div>
+    <div class="card"><h4 style="color:var(--accent)">🌿 IA na Amazônia</h4><ul class="sl"><li>Monitoramento de desmatamento (DETER + ML)</li><li>Classificação de espécies por bioacústica</li><li>Detecção de garimpo ilegal via satélite</li><li>Previsão de cheias e secas</li></ul></div>
+  </div>
+</section>
+
+<section id="etica" class="ls">
+  <div class="sn">3º Horário · Parte 07</div>
+  <h2>Ética em IA — Primeiros Conceitos</h2>
+  <p class="body">Tratamos a fundo na Semana 14, mas toda aula de IA deveria começar com: <strong>"só porque podemos, devemos?"</strong></p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--orange)">⚖️ Viés algorítmico</h4><p>Modelos aprendem preconceitos dos dados. Ex: sistema de recrutamento da Amazon penalizava mulheres. Reconhecimento facial falha mais em negros.</p></div>
+    <div class="card"><h4 style="color:var(--orange)">🔒 Privacidade</h4><p>LLMs memorizam dados pessoais. LGPD regulamenta. Como garantir que IA respeite privacidade?</p></div>
+    <div class="card"><h4 style="color:var(--orange)">🎭 Deepfakes</h4><p>Vídeos e áudios falsos convincentes. Implicações para democracia, eleições, relações pessoais.</p></div>
+    <div class="card"><h4 style="color:var(--orange)">🤖 Alinhamento</h4><p>Como garantir que IA faça o que queremos? "O problema do alinhamento" é considerado existencial por muitos pesquisadores.</p></div>
+  </div>
+  <div class="callout think"><div class="cl">🤔 Discussão</div><p>Modelo de crédito nega empréstimos para certas regiões. Ninguém programou isso — aprendeu dos dados. De quem é a responsabilidade?</p></div>
+  <div class="quiz" id="q5"><h4>⚡ Quick Check #5</h4><p style="font-size:.88rem;margin-bottom:.5rem">O que é "viés algorítmico"?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q5',this,false)">Bug no código</button><button class="quiz-opt" onclick="checkQ('q5',this,true)">O modelo reproduz preconceitos dos dados de treinamento</button><button class="quiz-opt" onclick="checkQ('q5',this,false)">Discriminação intencional do desenvolvedor</button><button class="quiz-opt" onclick="checkQ('q5',this,false)">Preferência por certos idiomas</button></div><div class="quiz-fb ok">✅ Viés algorítmico: o modelo <strong>absorve e perpetua preconceitos dos dados</strong>, mesmo sem intenção.</div><div class="quiz-fb nok">❌ Viés algorítmico = <strong>preconceitos dos dados de treinamento reproduzidos</strong>. Geralmente não intencional.</div></div>
+</section>
+
+<hr class="divider">
+
+<!-- 4 HORARIO -->
+<section id="prompt" class="ls">
+  <div class="sn">4º Horário · Parte 08</div>
+  <h2>Prompt Engineering — 5 Técnicas</h2>
+  <p class="body">A forma como você fala com um LLM determina a qualidade. <strong>Engenharia de prompt</strong> é habilidade essencial em 2026.</p>
+  <div class="tab-group" id="prompt-tabs">
+    <div class="tab-btns">
+      <button class="tab-btn active" onclick="switchTab('prompt-tabs','t1')">Zero-shot</button>
+      <button class="tab-btn" onclick="switchTab('prompt-tabs','t2')">Few-shot</button>
+      <button class="tab-btn" onclick="switchTab('prompt-tabs','t3')">Chain-of-Thought</button>
+      <button class="tab-btn" onclick="switchTab('prompt-tabs','t4')">Role Prompting</button>
+      <button class="tab-btn" onclick="switchTab('prompt-tabs','t5')">Structured Output</button>
+    </div>
+    <div class="tab-panel active" id="t1"><div class="card"><h4>Zero-shot — sem exemplos</h4><p style="margin-bottom:.5rem">Instrução direta. Funciona para tarefas simples.</p><div class="prompt-box"><div class="prompt-label user">👤 Prompt</div><div class="prompt-content">Classifique o sentimento: "O produto chegou rápido mas a qualidade é péssima."</div></div><div class="prompt-box"><div class="prompt-label ai">🤖 Resposta</div><div class="prompt-content"><strong>Negativo</strong> — elogio à entrega, mas crítica à qualidade domina.</div></div></div></div>
+    <div class="tab-panel" id="t2"><div class="card"><h4>Few-shot — com exemplos</h4><p style="margin-bottom:.5rem">Dá exemplos do padrão esperado. In-context learning.</p><div class="prompt-box"><div class="prompt-label user">👤 Prompt</div><div class="prompt-content">"Amei!" → Positivo<br>"Nunca mais compro." → Negativo<br>"Ok, nada especial." → Neutro<br>"Rápido mas qualidade péssima." →</div></div><div class="prompt-box"><div class="prompt-label ai">🤖 Resposta</div><div class="prompt-content">Negativo</div></div></div></div>
+    <div class="tab-panel" id="t3"><div class="card"><h4>Chain-of-Thought — passo a passo</h4><p style="margin-bottom:.5rem">"Pense passo a passo" melhora raciocínio lógico e matemático.</p><div class="prompt-box"><div class="prompt-label user">👤 Prompt</div><div class="prompt-content">Uma loja tinha 23 maçãs. Vendeu 15, recebeu 8, vendeu mais 6. Quantas? <strong>Pense passo a passo.</strong></div></div><div class="prompt-box"><div class="prompt-label ai">🤖 Resposta</div><div class="prompt-content">1. Início: 23<br>2. Vendeu 15: 23−15 = 8<br>3. Recebeu 8: 8+8 = 16<br>4. Vendeu 6: 16−6 = <strong>10 maçãs</strong></div></div></div></div>
+    <div class="tab-panel" id="t4"><div class="card"><h4>Role Prompting — atribuir papel</h4><p style="margin-bottom:.5rem">Definir "quem" o modelo é muda estilo e profundidade.</p><div class="prompt-box"><div class="prompt-label user">👤 Prompt</div><div class="prompt-content">Você é um professor de CC da UFPA. Explique overfitting para um aluno que acabou de aprender regressão linear. Use analogia.</div></div><div class="prompt-box"><div class="prompt-label ai">🤖 Resposta</div><div class="prompt-content">Imagina decorar 50 questões do caderno — tira 10 se cair igual, trava se mudar algo. Overfitting: o modelo "decorou" os dados em vez de aprender padrões gerais...</div></div></div></div>
+    <div class="tab-panel" id="t5"><div class="card"><h4>Structured Output — formato específico</h4><p style="margin-bottom:.5rem">JSON, tabela, XML. Essencial para integração com código.</p><div class="prompt-box"><div class="prompt-label user">👤 Prompt</div><div class="prompt-content">Analise esta review. Retorne APENAS JSON: sentimento, confianca (0-1), temas (lista), resumo.<br><br>"Produto rápido mas qualidade péssima. Atendimento ótimo."</div></div><div class="prompt-box"><div class="prompt-label ai">🤖 Resposta</div><div class="prompt-content" style="font-family:'JetBrains Mono',monospace;font-size:.82rem">{"sentimento":"negativo","confianca":0.7,"temas":["entrega","qualidade","atendimento"],"resumo":"Entrega rápida e bom atendimento, mas qualidade insatisfatória."}</div></div></div></div>
+  </div>
+  <h3>Anatomia de um bom prompt</h3>
+  <div class="code-block"><div class="code-header"><span class="code-lang">Template profissional</span></div><div class="code-body"><span class="cm"># CONTEXTO</span>
+Você é um [PAPEL] com experiência em [DOMÍNIO].
+
+<span class="cm"># TAREFA</span>
+[Verbo de ação claro]
+
+<span class="cm"># FORMATO</span>
+Responda em [JSON / tabela / lista / parágrafos].
+
+<span class="cm"># RESTRIÇÕES</span>
+- Não faça [X]
+- Limite a [N] palavras
+- Linguagem [formal/informal]
+
+<span class="cm"># EXEMPLOS (opcional)</span>
+Entrada: "..." → Saída: "..."</div></div>
+  <div class="quiz" id="q6"><h4>⚡ Quick Check #6</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual técnica é melhor para problemas de lógica?</p><div class="quiz-options"><button class="quiz-opt" onclick="checkQ('q6',this,false)">Zero-shot</button><button class="quiz-opt" onclick="checkQ('q6',this,false)">Few-shot</button><button class="quiz-opt" onclick="checkQ('q6',this,true)">Chain-of-Thought</button><button class="quiz-opt" onclick="checkQ('q6',this,false)">Role Prompting</button></div><div class="quiz-fb ok">✅ <strong>Chain-of-Thought</strong> melhora raciocínio multi-etapa.</div><div class="quiz-fb nok">❌ <strong>Chain-of-Thought</strong> — "pense passo a passo" ativa raciocínio explícito.</div></div>
+</section>
+
+<section id="setup" class="ls">
+  <div class="sn">4º Horário · Parte 09</div>
+  <h2>💻 Setup do Ambiente</h2>
+  <div class="steps">
+    <div class="step"><h4>Google Colab</h4><p><strong>colab.research.google.com</strong> — nuvem, gratuito, GPU.</p></div>
+    <div class="step"><h4>GitHub</h4><p><strong>github.com</strong> + Student Developer Pack. Entregas via repo.</p></div>
+    <div class="step"><h4>Kaggle</h4><p><strong>kaggle.com</strong> — datasets reais para labs.</p></div>
+    <div class="step"><h4>Hugging Face</h4><p><strong>huggingface.co</strong> — modelos, datasets, inferência.</p></div>
+    <div class="step"><h4>Testar o ambiente</h4><p>Executem no Colab:</p></div>
+  </div>
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Google Colab</span></div><div class="code-body"><span class="cm"># Teste do Ambiente — CC0121</span>
+<span class="kw">import</span> sys, numpy <span class="kw">as</span> np, pandas <span class="kw">as</span> pd, sklearn, torch
+<span class="fn">print</span>(<span class="str">f"Python: {sys.version}"</span>)
+<span class="fn">print</span>(<span class="str">f"NumPy: {np.__version__}, Pandas: {pd.__version__}"</span>)
+<span class="fn">print</span>(<span class="str">f"Scikit-learn: {sklearn.__version__}, PyTorch: {torch.__version__}"</span>)
+<span class="fn">print</span>(<span class="str">f"GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Não disponível'}"</span>)
+<span class="kw">try</span>:
+    <span class="kw">import</span> transformers
+    <span class="fn">print</span>(<span class="str">f"Transformers: {transformers.__version__}"</span>)
+<span class="kw">except</span>: <span class="fn">print</span>(<span class="str">"⚠️ !pip install transformers"</span>)
+<span class="fn">print</span>(<span class="str">"\n🎉 Ambiente pronto!"</span>)</div></div>
+</section>
+
+<section id="exercicio" class="ls">
+  <div class="sn">4º Horário · Parte 10</div>
+  <h2>Exercício Prático: Prompt Engineering</h2>
+  <div class="card" style="border:1px solid var(--accent)">
+    <h4 style="color:var(--accent)">🎯 7 Tarefas (documente prompt + resposta + análise no Colab)</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.88rem"><strong style="color:var(--blue)">1 — Zero-shot:</strong> Explique ML para criança de 10 anos.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.88rem"><strong style="color:var(--purple)">2 — Few-shot:</strong> 3 exemplos spam/não-spam → classifique um 4º.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.88rem"><strong style="color:var(--accent)">3 — Chain-of-Thought:</strong> Problema de lógica com "pense passo a passo". Compare sem a instrução.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.88rem"><strong style="color:var(--orange)">4 — Role Prompting:</strong> Mesma pergunta técnica com 3 papéis (professor, criança, CEO). Compare.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--pink)"><p style="font-size:.88rem"><strong style="color:var(--pink)">5 — Structured Output:</strong> Prompt que retorne JSON a partir de texto livre.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--green)"><p style="font-size:.88rem"><strong style="color:var(--green)">6 — Prompt completo:</strong> Use o template (contexto+tarefa+formato+restrições) para resumir artigo do Google Scholar.</p></div>
+      <div style="padding:.7rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--text-muted)"><p style="font-size:.88rem"><strong>7 — Reflexão:</strong> Compare técnicas. O que funcionou? Onde falhou? Conseguiu provocar alucinação?</p></div>
+    </div>
+  </div>
+  <div class="callout warning" style="margin-top:1rem"><div class="cl">📌 Para 02/04</div><p><strong>Tragam:</strong> (1) contas criadas, (2) exercício no Colab (link compartilhável), (3) Cap. 2 do Russell & Norvig lido (Agentes Inteligentes). Próxima aula: <strong>Agentes Inteligentes e Ambientes</strong>.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que aprendemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🧠</div><p style="font-size:.76rem;font-weight:600">IA: 4 abordagens</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📜</div><p style="font-size:.76rem;font-weight:600">70 anos de história</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📄</div><p style="font-size:.76rem;font-weight:600">10 papers fundamentais</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🚀</div><p style="font-size:.76rem;font-weight:600">Panorama 2026</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📊</div><p style="font-size:.76rem;font-weight:600">Taxonomia completa</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">⚙️</div><p style="font-size:.76rem;font-weight:600">Como LLMs funcionam</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">💼</div><p style="font-size:.76rem;font-weight:600">Carreiras em IA</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🌿</div><p style="font-size:.76rem;font-weight:600">IA na Amazônia</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">⚖️</div><p style="font-size:.76rem;font-weight:600">Ética desde dia 1</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">💬</div><p style="font-size:.76rem;font-weight:600">5 técnicas de prompt</p></div>
+  </div>
+</section>
+
+</div>
+
+<footer class="footer">
+  <p>CC0121 · Inteligência Artificial · Ciência da Computação · UFPA · 2026.1</p>
+  <p style="margin-top:.3rem">Aula 01 — 26 de março de 2026 · Belém, PA</p>
+</footer>
+
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+function switchTab(groupId,panelId){const g=document.getElementById(groupId);g.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));g.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.getElementById(panelId).classList.add('active');event.target.classList.add('active')}
+function toggleAcc(btn){const body=btn.nextElementSibling;const isOpen=body.classList.contains('open');document.querySelectorAll('.acc-body').forEach(b=>b.classList.remove('open'));document.querySelectorAll('.acc-toggle').forEach(b=>b.classList.remove('open'));if(!isOpen){body.classList.add('open');btn.classList.add('open')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

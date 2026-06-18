@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Representação do Conhecimento — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 05 · 23/04/2026 · Laboratório · 4 horários</div>
+<h1>Representação do Conhecimento</h1>
+<p class="hero-sub">Lógica, sistemas especialistas, grafos de conhecimento e IA neuro-simbólica — do MYCIN ao RAG.</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#logica" class="nav-link">Lógica</a><a href="#inferencia" class="nav-link">Inferência</a><a href="#especialista" class="nav-link">Sist. Especialista</a><a href="#grafos" class="nav-link">Grafos Conhec.</a><a href="#networkx" class="nav-link">KG Python</a><a href="#neurosim" class="nav-link">Neuro-Simbólico</a><a href="#desafio" class="nav-link">Desafio</a></div></nav>
+<div class="container">
+<!-- AGENDA -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Representação do Conhecimento</h2>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text">Aula em <strong>laboratório</strong> — teoria curta → código imediato em cada horário.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Lógica Proposicional</h4><p>Proposições, conectivos, tabela-verdade (15 min). <strong>💻 Implementar motor de inferência proposicional.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — Sistemas de Regras</h4><p>Sistemas especialistas e encadeamento (10 min). <strong>💻 Construir sistema especialista de diagnóstico.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Grafos de Conhecimento</h4><p>Ontologias, triplas, knowledge graphs (15 min). <strong>💻 Construir e consultar grafo de conhecimento com NetworkX. Explorar Wikidata.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — IA Simbólica + LLMs</h4><p>Neuro-simbólico: combinando o melhor dos dois mundos (10 min). <strong>💻 LLM como motor de raciocínio + base de conhecimento. Desafio final.</strong></p></div>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Lembrete</div><p><strong>Proposta do Projeto Final:</strong> entrega na próxima aula (28/05). Comecem a pensar em equipes e temas!</p></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- 1º HORÁRIO — LÓGICA PROPOSICIONAL -->
+<!-- ═══════════════════════════════════ -->
+<section id="logica" class="ls">
+  <div class="sn">1º Horário · Parte A — Lógica Proposicional (~15 min teoria)</div>
+  <h2>Representando Conhecimento com Lógica</h2>
+  <p class="body">Antes do deep learning, a IA era dominada pela <strong>representação simbólica</strong>: conhecimento representado por fórmulas lógicas que a máquina pode manipular formalmente. Isso ainda é fundamental para sistemas que precisam ser <strong>explicáveis e auditáveis</strong>.</p>
+
+  <h3>Lógica proposicional — o básico</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Conectivo</th><th>Símbolo</th><th>Python</th><th>Significado</th><th>Exemplo</th></tr></thead>
+    <tbody>
+      <tr><td style="font-weight:600">NÃO (negação)</td><td>¬</td><td><code>not</code></td><td>Inverte</td><td>¬chovendo = "não está chovendo"</td></tr>
+      <tr><td style="font-weight:600">E (conjunção)</td><td>∧</td><td><code>and</code></td><td>Ambos verdadeiros</td><td>chovendo ∧ frio = "chovendo E frio"</td></tr>
+      <tr><td style="font-weight:600">OU (disjunção)</td><td>∨</td><td><code>or</code></td><td>Ao menos um</td><td>sol ∨ nublado = "sol OU nublado"</td></tr>
+      <tr><td style="font-weight:600">IMPLICA</td><td>→</td><td><code><=</code> *</td><td>Se...então</td><td>chuva → guarda-chuva</td></tr>
+      <tr><td style="font-weight:600">SE E SOMENTE SE</td><td>↔</td><td><code>==</code></td><td>Equivalência</td><td>aprovado ↔ nota ≥ 7</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout important"><div class="cl">💡 Implicação material</div><p><strong>P → Q</strong> é falso SOMENTE quando P é verdadeiro e Q é falso. "Se chove, levo guarda-chuva" — só é mentira se chove e eu não levo. Se não chove, a promessa não é quebrada.</p></div>
+</section>
+
+<section id="inferencia" class="ls">
+  <div class="sn">1º Horário · Parte B — Motor de inferência em Python (~35 min)</div>
+  <h2>💻 Construindo um Motor de Inferência</h2>
+  <p class="body">Vamos criar um sistema que recebe <strong>fatos</strong> e <strong>regras</strong> em lógica proposicional e infere novos fatos automaticamente.</p>
+
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text">Criem <code style="color:var(--accent)">CC0121_Aula05_Conhecimento.ipynb</code>.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Motor de Inferência Proposicional</span></div><div class="code-body"><span class="cm"># ═══ CC0121 Aula 05 — Motor de Inferência ═══</span>
+
+<span class="kw">class</span> <span class="fn">BaseConhecimento</span>:
+    <span class="cm">"""Base de conhecimento com fatos e regras → inferência por encadeamento para frente."""</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self):
+        self.fatos = set()
+        self.regras = []  <span class="cm"># lista de (premissas, conclusão)</span>
+
+    <span class="kw">def</span> <span class="fn">adicionar_fato</span>(self, fato):
+        self.fatos.add(fato)
+        <span class="fn">print</span>(<span class="str">f"  ✅ Fato: {fato}"</span>)
+
+    <span class="kw">def</span> <span class="fn">adicionar_regra</span>(self, premissas, conclusao):
+        <span class="cm">"""premissas = lista de strings, conclusao = string"""</span>
+        self.regras.append((set(premissas), conclusao))
+        <span class="fn">print</span>(<span class="str">f"  📐 Regra: {' ∧ '.join(premissas)} → {conclusao}"</span>)
+
+    <span class="kw">def</span> <span class="fn">inferir</span>(self):
+        <span class="cm">"""Encadeamento para frente: aplica regras até não inferir mais nada."""</span>
+        <span class="fn">print</span>(<span class="str">f"\n🔍 Iniciando inferência com {len(self.fatos)} fatos..."</span>)
+        novos = <span class="kw">True</span>
+        rodada = <span class="num">0</span>
+        <span class="kw">while</span> novos:
+            novos = <span class="kw">False</span>
+            rodada += <span class="num">1</span>
+            <span class="kw">for</span> premissas, conclusao <span class="kw">in</span> self.regras:
+                <span class="kw">if</span> premissas.issubset(self.fatos) <span class="kw">and</span> conclusao <span class="kw">not in</span> self.fatos:
+                    self.fatos.add(conclusao)
+                    novos = <span class="kw">True</span>
+                    <span class="fn">print</span>(<span class="str">f"  💡 Rodada {rodada}: {' ∧ '.join(premissas)} → {conclusao}"</span>)
+        <span class="fn">print</span>(<span class="str">f"\n📋 Fatos finais: {sorted(self.fatos)}"</span>)
+
+    <span class="kw">def</span> <span class="fn">consultar</span>(self, pergunta):
+        resp = pergunta <span class="kw">in</span> self.fatos
+        <span class="fn">print</span>(<span class="str">f"  ❓ {pergunta}? → {'✅ SIM' if resp else '❌ NÃO'}"</span>)
+        <span class="kw">return</span> resp
+
+<span class="cm"># ─── Exemplo: Clima e atividades ───</span>
+<span class="fn">print</span>(<span class="str">"═══ Base de Conhecimento: Clima ═══"</span>)
+kb = BaseConhecimento()
+
+<span class="cm"># Fatos</span>
+kb.adicionar_fato(<span class="str">"chovendo"</span>)
+kb.adicionar_fato(<span class="str">"frio"</span>)
+
+<span class="cm"># Regras</span>
+kb.adicionar_regra([<span class="str">"chovendo"</span>], <span class="str">"levar_guarda_chuva"</span>)
+kb.adicionar_regra([<span class="str">"frio"</span>], <span class="str">"levar_casaco"</span>)
+kb.adicionar_regra([<span class="str">"chovendo"</span>, <span class="str">"frio"</span>], <span class="str">"risco_gripe"</span>)
+kb.adicionar_regra([<span class="str">"risco_gripe"</span>], <span class="str">"tomar_vitamina_c"</span>)
+kb.adicionar_regra([<span class="str">"levar_guarda_chuva"</span>, <span class="str">"levar_casaco"</span>], <span class="str">"preparado_para_sair"</span>)
+
+<span class="cm"># Inferir!</span>
+kb.inferir()
+
+<span class="cm"># Consultas</span>
+<span class="fn">print</span>()
+kb.consultar(<span class="str">"preparado_para_sair"</span>)
+kb.consultar(<span class="str">"tomar_vitamina_c"</span>)
+kb.consultar(<span class="str">"dia_ensolarado"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e observem a <strong>cadeia de inferências</strong>: fatos simples ("chovendo", "frio") levam a conclusões em cascata. Adicionem novos fatos (ex: "vento_forte") e novas regras. O sistema infere automaticamente!</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">No encadeamento para frente (forward chaining), o sistema:</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">Parte dos fatos e aplica regras até inferir novos fatos</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Parte do objetivo e busca quais fatos sustentam ele</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">Testa todas as combinações possíveis de verdadeiro/falso</button>
+  </div><div class="quiz-fb ok">✅ Forward chaining: fatos → regras → novos fatos → mais regras... até estabilizar. A opção B seria <strong>backward chaining</strong> (Prolog).</div><div class="quiz-fb nok">❌ Forward chaining parte dos <strong>fatos</strong> e vai aplicando regras até não inferir mais nada. Backward chaining parte do objetivo.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════ -->
+<!-- 2º HORÁRIO — SISTEMA ESPECIALISTA -->
+<!-- ═══════════════════════════════════ -->
+<section id="especialista" class="ls">
+  <div class="sn">2º Horário · Sistema Especialista (~50 min)</div>
+  <h2>💻 Sistema Especialista de Diagnóstico</h2>
+  <p class="body">Sistemas especialistas foram a primeira "IA aplicada" com sucesso comercial (anos 80). Usam regras IF-THEN capturadas de especialistas humanos. Vamos construir um para diagnóstico médico simplificado.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Sistema Especialista Interativo</span></div><div class="code-body"><span class="cm"># ═══ Sistema Especialista — Diagnóstico Simplificado ═══</span>
+
+<span class="kw">class</span> <span class="fn">SistemaEspecialista</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, nome):
+        self.nome = nome
+        self.fatos = set()
+        self.regras = []
+        self.diagnosticos = []
+
+    <span class="kw">def</span> <span class="fn">regra</span>(self, sintomas, diagnostico, confianca=<span class="num">1.0</span>):
+        self.regras.append({
+            <span class="str">'sintomas'</span>: set(sintomas),
+            <span class="str">'diagnostico'</span>: diagnostico,
+            <span class="str">'confianca'</span>: confianca
+        })
+
+    <span class="kw">def</span> <span class="fn">perguntar</span>(self, sintoma):
+        resp = input(<span class="str">f"  Você tem {sintoma}? (s/n): "</span>).strip().lower()
+        <span class="kw">if</span> resp == <span class="str">'s'</span>:
+            self.fatos.add(sintoma)
+            <span class="kw">return True</span>
+        <span class="kw">return False</span>
+
+    <span class="kw">def</span> <span class="fn">diagnosticar</span>(self):
+        <span class="fn">print</span>(<span class="str">f"\n🏥 {self.nome}"</span>)
+        <span class="fn">print</span>(<span class="str">"Responda as perguntas sobre seus sintomas:\n"</span>)
+
+        <span class="cm"># Coletar todos os sintomas únicos</span>
+        todos_sintomas = set()
+        <span class="kw">for</span> r <span class="kw">in</span> self.regras:
+            todos_sintomas.update(r[<span class="str">'sintomas'</span>])
+
+        <span class="kw">for</span> sintoma <span class="kw">in</span> sorted(todos_sintomas):
+            self.perguntar(sintoma)
+
+        <span class="cm"># Verificar regras</span>
+        <span class="fn">print</span>(<span class="str">f"\n🔍 Analisando {len(self.fatos)} sintomas contra {len(self.regras)} regras...\n"</span>)
+        resultados = []
+        <span class="kw">for</span> r <span class="kw">in</span> self.regras:
+            match = len(r[<span class="str">'sintomas'</span>] &amp; self.fatos)
+            total = len(r[<span class="str">'sintomas'</span>])
+            <span class="kw">if</span> match > <span class="num">0</span>:
+                score = (match / total) * r[<span class="str">'confianca'</span>]
+                resultados.append((r[<span class="str">'diagnostico'</span>], score, match, total))
+
+        resultados.sort(key=<span class="kw">lambda</span> x: -x[<span class="num">1</span>])
+        <span class="kw">if</span> resultados:
+            <span class="fn">print</span>(<span class="str">"📋 Possíveis diagnósticos:"</span>)
+            <span class="kw">for</span> diag, score, match, total <span class="kw">in</span> resultados:
+                bar = <span class="str">'█'</span> * int(score * <span class="num">20</span>) + <span class="str">'░'</span> * (<span class="num">20</span> - int(score * <span class="num">20</span>))
+                <span class="fn">print</span>(<span class="str">f"  {bar} {score*100:5.1f}%  {diag} ({match}/{total} sintomas)"</span>)
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(<span class="str">"  Nenhum diagnóstico encontrado com os sintomas informados."</span>)
+
+<span class="cm"># ─── Criar o sistema ───</span>
+doc = SistemaEspecialista(<span class="str">"Sistema de Diagnóstico CC0121"</span>)
+doc.regra([<span class="str">"febre"</span>, <span class="str">"tosse"</span>, <span class="str">"dor_corpo"</span>, <span class="str">"fadiga"</span>], <span class="str">"Gripe"</span>, <span class="num">0.9</span>)
+doc.regra([<span class="str">"febre"</span>, <span class="str">"tosse"</span>, <span class="str">"perda_olfato"</span>], <span class="str">"COVID-19 (suspeita)"</span>, <span class="num">0.85</span>)
+doc.regra([<span class="str">"espirros"</span>, <span class="str">"coriza"</span>, <span class="str">"coceira_olhos"</span>], <span class="str">"Alergia"</span>, <span class="num">0.95</span>)
+doc.regra([<span class="str">"febre"</span>, <span class="str">"dor_cabeca"</span>, <span class="str">"dor_corpo"</span>, <span class="str">"manchas_pele"</span>], <span class="str">"Dengue (suspeita)"</span>, <span class="num">0.8</span>)
+doc.regra([<span class="str">"dor_garganta"</span>, <span class="str">"febre"</span>, <span class="str">"dor_engolir"</span>], <span class="str">"Amigdalite"</span>, <span class="num">0.85</span>)
+doc.regra([<span class="str">"tosse"</span>, <span class="str">"coriza"</span>, <span class="str">"espirros"</span>], <span class="str">"Resfriado"</span>, <span class="num">0.9</span>)
+
+doc.diagnosticar()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e respondam as perguntas. O sistema dá diagnóstico com percentual de confiança! <strong>Tarefa:</strong> adicionem 3 novas doenças com sintomas próprios. Testem cenários onde mais de um diagnóstico aparece.</p></div>
+
+  <div class="callout think"><div class="cl">🤔 Discussão</div><p>Sistemas especialistas dominaram a IA nos anos 80. Por que caíram em desuso? <strong>Problemas:</strong> difícil adquirir regras de especialistas, frágeis (não lidam com incerteza), não aprendem. Hoje voltam combinados com ML (sistemas neuro-simbólicos).</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Qual foi a principal limitação dos sistemas especialistas dos anos 80?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Eram muito lentos computacionalmente</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">Frágeis, difíceis de manter e não aprendiam dos dados</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Não conseguiam fazer inferências lógicas</button>
+  </div><div class="quiz-fb ok">✅ Sistemas especialistas eram difíceis de construir (aquisição de conhecimento), frágeis fora do domínio, e não aprendiam. Isso levou ao 2º inverno da IA.</div><div class="quiz-fb nok">❌ A principal limitação era serem <strong>frágeis e não aprenderem</strong>. Capturar regras de especialistas era caro e as regras não cobriam todos os casos.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 3º HORÁRIO — GRAFOS DE CONHECIMENTO   -->
+<!-- ═══════════════════════════════════════ -->
+<section id="grafos" class="ls">
+  <div class="sn">3º Horário · Parte A — Grafos de Conhecimento (~15 min teoria)</div>
+  <h2>Grafos de Conhecimento</h2>
+  <p class="body">Grafos de conhecimento representam informação como <strong>triplas (sujeito, predicado, objeto)</strong>. É assim que Google, Wikipedia e Amazon organizam bilhões de fatos.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--accent)">📊 Estrutura: Triplas SPO</h4>
+      <ul class="sl">
+        <li>(Python, é_um, Linguagem_Programação)</li>
+        <li>(Python, criado_por, Guido_van_Rossum)</li>
+        <li>(PyTorch, usa, Python)</li>
+        <li>(Deep_Learning, requer, PyTorch)</li>
+      </ul>
+    </div>
+    <div class="card"><h4 style="color:var(--accent)">🌐 Exemplos reais</h4>
+      <ul class="sl">
+        <li><strong>Google Knowledge Graph:</strong> 500B+ fatos</li>
+        <li><strong>Wikidata:</strong> 100M+ itens, aberto</li>
+        <li><strong>DBpedia:</strong> extrai de Wikipedia</li>
+        <li><strong>Neo4j, Amazon Neptune:</strong> bancos de grafos</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="networkx" class="ls">
+  <div class="sn">3º Horário · Parte B — Construir e consultar KG (~35 min)</div>
+  <h2>💻 Knowledge Graph em Python</h2>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Grafo de Conhecimento com NetworkX</span></div><div class="code-body"><span class="cm"># ═══ Grafo de Conhecimento — Ecossistema de IA ═══</span>
+<span class="kw">import</span> networkx <span class="kw">as</span> nx
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Criar grafo direcionado</span>
+G = nx.DiGraph()
+
+<span class="cm"># Adicionar triplas (sujeito, objeto, predicado)</span>
+triplas = [
+    (<span class="str">"Python"</span>, <span class="str">"Linguagem"</span>, <span class="str">"é_um"</span>),
+    (<span class="str">"PyTorch"</span>, <span class="str">"Python"</span>, <span class="str">"usa"</span>),
+    (<span class="str">"Scikit-learn"</span>, <span class="str">"Python"</span>, <span class="str">"usa"</span>),
+    (<span class="str">"Transformers"</span>, <span class="str">"PyTorch"</span>, <span class="str">"usa"</span>),
+    (<span class="str">"GPT"</span>, <span class="str">"Transformers"</span>, <span class="str">"baseado_em"</span>),
+    (<span class="str">"BERT"</span>, <span class="str">"Transformers"</span>, <span class="str">"baseado_em"</span>),
+    (<span class="str">"Claude"</span>, <span class="str">"Transformers"</span>, <span class="str">"baseado_em"</span>),
+    (<span class="str">"GPT"</span>, <span class="str">"OpenAI"</span>, <span class="str">"criado_por"</span>),
+    (<span class="str">"Claude"</span>, <span class="str">"Anthropic"</span>, <span class="str">"criado_por"</span>),
+    (<span class="str">"BERT"</span>, <span class="str">"Google"</span>, <span class="str">"criado_por"</span>),
+    (<span class="str">"LangChain"</span>, <span class="str">"Python"</span>, <span class="str">"usa"</span>),
+    (<span class="str">"LangChain"</span>, <span class="str">"GPT"</span>, <span class="str">"integra"</span>),
+    (<span class="str">"LangChain"</span>, <span class="str">"Claude"</span>, <span class="str">"integra"</span>),
+    (<span class="str">"RAG"</span>, <span class="str">"LangChain"</span>, <span class="str">"implementado_com"</span>),
+    (<span class="str">"Agente_IA"</span>, <span class="str">"LangChain"</span>, <span class="str">"implementado_com"</span>),
+    (<span class="str">"AlphaFold"</span>, <span class="str">"Deep_Learning"</span>, <span class="str">"usa"</span>),
+    (<span class="str">"Deep_Learning"</span>, <span class="str">"PyTorch"</span>, <span class="str">"implementado_com"</span>),
+    (<span class="str">"CNN"</span>, <span class="str">"Deep_Learning"</span>, <span class="str">"tipo_de"</span>),
+    (<span class="str">"Transformers"</span>, <span class="str">"Deep_Learning"</span>, <span class="str">"tipo_de"</span>),
+]
+
+<span class="kw">for</span> s, o, p <span class="kw">in</span> triplas:
+    G.add_edge(s, o, relation=p)
+
+<span class="cm"># Visualizar</span>
+plt.figure(figsize=(<span class="num">14</span>, <span class="num">10</span>))
+pos = nx.spring_layout(G, k=<span class="num">2</span>, seed=<span class="num">42</span>)
+
+<span class="cm"># Cores por tipo</span>
+cores_no = []
+<span class="kw">for</span> node <span class="kw">in</span> G.nodes():
+    <span class="kw">if</span> node <span class="kw">in</span> [<span class="str">'OpenAI'</span>,<span class="str">'Anthropic'</span>,<span class="str">'Google'</span>]: cores_no.append(<span class="str">'#f59e0b'</span>)
+    <span class="kw">elif</span> node <span class="kw">in</span> [<span class="str">'GPT'</span>,<span class="str">'BERT'</span>,<span class="str">'Claude'</span>]: cores_no.append(<span class="str">'#3b82f6'</span>)
+    <span class="kw">elif</span> node <span class="kw">in</span> [<span class="str">'Python'</span>,<span class="str">'PyTorch'</span>,<span class="str">'Scikit-learn'</span>,<span class="str">'LangChain'</span>]: cores_no.append(<span class="str">'#00d4aa'</span>)
+    <span class="kw">else</span>: cores_no.append(<span class="str">'#8b5cf6'</span>)
+
+nx.draw_networkx_nodes(G, pos, node_color=cores_no, node_size=<span class="num">1500</span>, alpha=<span class="num">0.9</span>)
+nx.draw_networkx_labels(G, pos, font_size=<span class="num">7</span>, font_weight=<span class="str">'bold'</span>)
+nx.draw_networkx_edges(G, pos, edge_color=<span class="str">'#555'</span>, arrows=<span class="kw">True</span>, arrowsize=<span class="num">15</span>, alpha=<span class="num">0.6</span>)
+edge_labels = nx.get_edge_attributes(G, <span class="str">'relation'</span>)
+nx.draw_networkx_edge_labels(G, pos, edge_labels, font_size=<span class="num">6</span>, font_color=<span class="str">'#888'</span>)
+plt.title(<span class="str">'Knowledge Graph: Ecossistema de IA'</span>, fontsize=<span class="num">14</span>, fontweight=<span class="str">'bold'</span>)
+plt.axis(<span class="str">'off'</span>); plt.tight_layout(); plt.show()
+
+<span class="cm"># ─── Consultas no grafo ───</span>
+<span class="fn">print</span>(<span class="str">"🔍 Consultas ao Knowledge Graph:\n"</span>)
+<span class="fn">print</span>(<span class="str">"O que usa Python?"</span>)
+<span class="kw">for</span> s, o, d <span class="kw">in</span> G.edges(data=<span class="kw">True</span>):
+    <span class="kw">if</span> o == <span class="str">"Python"</span> <span class="kw">and</span> d[<span class="str">'relation'</span>] == <span class="str">"usa"</span>:
+        <span class="fn">print</span>(<span class="str">f"  → {s}"</span>)
+
+<span class="fn">print</span>(<span class="str">"\nQuem criou cada modelo?"</span>)
+<span class="kw">for</span> s, o, d <span class="kw">in</span> G.edges(data=<span class="kw">True</span>):
+    <span class="kw">if</span> d[<span class="str">'relation'</span>] == <span class="str">"criado_por"</span>:
+        <span class="fn">print</span>(<span class="str">f"  → {s} foi criado por {o}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"\nCaminho de RAG até Python:"</span>)
+path = nx.shortest_path(G, <span class="str">"RAG"</span>, <span class="str">"Python"</span>)
+<span class="fn">print</span>(<span class="str">f"  → {' → '.join(path)}"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e explorem o grafo visual. Depois: (1) adicionem 5 novas triplas sobre a Amazônia (ex: "INPE", "monitora", "Desmatamento"), (2) consultem caminhos entre nós distantes, (3) encontrem o nó com mais conexões (<code>max(G.degree(), key=lambda x: x[1])</code>).</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Em um grafo de conhecimento, a informação é armazenada como:</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Tabelas com linhas e colunas</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">Triplas (sujeito, predicado, objeto)</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Vetores de embeddings</button>
+  </div><div class="quiz-fb ok">✅ Knowledge graphs usam <strong>triplas SPO</strong>: (sujeito, predicado, objeto). Ex: (Python, é_um, Linguagem). Cada aresta é uma relação.</div><div class="quiz-fb nok">❌ A estrutura fundamental é a <strong>tripla (sujeito, predicado, objeto)</strong>. Tabelas = bancos relacionais. Vetores = embeddings de ML.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═════════════════════════════════════════ -->
+<!-- 4º HORÁRIO — NEURO-SIMBÓLICO + DESAFIO  -->
+<!-- ═════════════════════════════════════════ -->
+<section id="neurosim" class="ls">
+  <div class="sn">4º Horário · Parte A — IA Neuro-Simbólica (~10 min teoria + 20 min prática)</div>
+  <h2>Combinando Simbólico + Neural</h2>
+  <p class="body">Em 2026, a fronteira da IA é <strong>neuro-simbólica</strong>: combinar a flexibilidade dos LLMs com a precisão da lógica formal. RAG (Retrieval-Augmented Generation) é exatamente isso — LLM + base de conhecimento.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--orange)">🧠 Neural (LLMs)</h4><p>✅ Flexível, generaliza, linguagem natural<br>❌ Alucina, caixa-preta, não auditável</p></div>
+    <div class="card"><h4 style="color:var(--blue)">📐 Simbólico (Lógica/KG)</h4><p>✅ Preciso, explicável, auditável<br>❌ Frágil, não generaliza, difícil escalar</p></div>
+  </div>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🔗 Neuro-Simbólico = Melhor dos dois mundos</h4><p>LLM para entender linguagem + Knowledge Graph para fatos verificáveis. O LLM raciocina, o KG garante que os fatos estão corretos. É a base de RAG, agentes com ferramentas, e fact-checking automático.</p></div>
+
+  <h3>💻 LLM como motor de raciocínio sobre base de conhecimento</h3>
+  <p class="body">Vamos simular o padrão: o "LLM" recebe uma pergunta + fatos da base e produz uma resposta fundamentada.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Simulando RAG com nossa base de conhecimento</span></div><div class="code-body"><span class="cm"># ═══ Simulação: base de conhecimento + raciocínio ═══</span>
+
+<span class="kw">def</span> <span class="fn">consultar_kg</span>(grafo, pergunta_tokens):
+    <span class="cm">"""Busca fatos relevantes no KG baseado em palavras-chave."""</span>
+    fatos = []
+    <span class="kw">for</span> s, o, d <span class="kw">in</span> grafo.edges(data=<span class="kw">True</span>):
+        <span class="kw">for</span> token <span class="kw">in</span> pergunta_tokens:
+            <span class="kw">if</span> token.lower() <span class="kw">in</span> s.lower() <span class="kw">or</span> token.lower() <span class="kw">in</span> o.lower():
+                fatos.append(<span class="str">f"{s} {d['relation']} {o}"</span>)
+    <span class="kw">return</span> list(set(fatos))
+
+<span class="kw">def</span> <span class="fn">gerar_prompt_rag</span>(pergunta, fatos):
+    <span class="cm">"""Gera prompt no padrão RAG: contexto + pergunta."""</span>
+    contexto = <span class="str">"\n"</span>.join(<span class="str">f"- {f}"</span> <span class="kw">for</span> f <span class="kw">in</span> fatos)
+    prompt = <span class="str">f"""Com base nos seguintes fatos verificados:
+{contexto}
+
+Pergunta: {pergunta}
+
+Responda usando APENAS os fatos acima. Se não souber, diga "Não encontrado na base"."""</span>
+    <span class="kw">return</span> prompt
+
+<span class="cm"># Exemplo</span>
+pergunta = <span class="str">"Quem criou o Claude e qual tecnologia ele usa?"</span>
+tokens = [<span class="str">"Claude"</span>, <span class="str">"criou"</span>, <span class="str">"tecnologia"</span>]
+fatos = consultar_kg(G, tokens)
+
+<span class="fn">print</span>(<span class="str">"📋 Fatos recuperados do Knowledge Graph:"</span>)
+<span class="kw">for</span> f <span class="kw">in</span> fatos:
+    <span class="fn">print</span>(<span class="str">f"  → {f}"</span>)
+
+prompt = gerar_prompt_rag(pergunta, fatos)
+<span class="fn">print</span>(<span class="str">f"\n📝 Prompt RAG gerado:\n{prompt}"</span>)
+<span class="fn">print</span>(<span class="str">"\n💡 Cole este prompt num LLM (ChatGPT/Claude) e veja a resposta fundamentada!"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem, copiem o prompt gerado e colem num LLM. Comparem: o LLM responde <strong>com base nos fatos</strong> (sem alucinações) vs responder a mesma pergunta sem o contexto. Essa é a essência do RAG!</p></div>
+</section>
+
+<section id="desafio" class="ls">
+  <div class="sn">4º Horário · Parte B — Desafio</div>
+  <h2>🏆 Desafio: Entrega</h2>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🎯 Tarefas para entregar</h4>
+    <div style="margin-top:.7rem;display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1.</strong> Expanda o sistema especialista com <strong>pelo menos 5 doenças tropicais</strong> relevantes para o Pará (dengue, malária, chikungunya, etc.).</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.</strong> Construa um KG sobre o <strong>ecossistema amazônico</strong>: espécies, rios, ameaças, políticas. Mínimo 20 triplas. Visualize.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.</strong> Use o padrão RAG: consulte seu KG da Amazônia e gere prompts para um LLM responder perguntas fundamentadas nos fatos.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4. Reflexão:</strong> Compare IA simbólica vs conexionista vs neuro-simbólica. Quando usar cada uma? Dê exemplos do mundo real.</p></div>
+    </div>
+  </div>
+  <div class="callout warning"><div class="cl">📌 Para 28/05</div><p><strong>Entrega lab:</strong> Notebook no GitHub até 27/05. <strong>IMPORTANTE: Entrega da proposta do Projeto Final (1 página)!</strong> Próxima aula: <strong>Aprendizado de Máquina I — Supervisionado (Scikit-learn)</strong>. Leitura: Géron Cap. 1-4.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📐</div><p style="font-size:.76rem;font-weight:600">Lógica proposicional</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">⚙️</div><p style="font-size:.76rem;font-weight:600">Motor de inferência</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🏥</div><p style="font-size:.76rem;font-weight:600">Sistema especialista</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🕸️</div><p style="font-size:.76rem;font-weight:600">Knowledge Graph</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🔗</div><p style="font-size:.76rem;font-weight:600">Neuro-simbólico + RAG</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🌿</div><p style="font-size:.76rem;font-weight:600">KG da Amazônia</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 05 — 23 de abril de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>

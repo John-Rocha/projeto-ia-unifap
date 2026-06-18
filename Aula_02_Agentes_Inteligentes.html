@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 02 — Agentes Inteligentes — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:600px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-copy{font-size:.68rem;color:var(--text-dim);cursor:pointer;padding:.2rem .5rem;border-radius:6px;border:1px solid var(--border);background:none;font-family:'JetBrains Mono',monospace;transition:all .2s}
+.code-copy:hover{color:var(--accent);border-color:var(--accent)}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}.op{color:var(--pink)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.tab-group{margin:1rem 0}
+.tab-btns{display:flex;gap:.3rem;margin-bottom:.8rem;flex-wrap:wrap}
+.tab-btn{padding:.4rem .9rem;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.tab-btn.active{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 02 · 02/04/2026 · Laboratório · 4 horários</div>
+<h1>Agentes Inteligentes e Ambientes</h1>
+<p class="hero-sub">O conceito central da IA — agentes que percebem e agem — implementado do zero em Python.</p>
+<div class="hero-tags"><span class="hero-tag">CC0121</span><span class="hero-tag">5º Semestre</span><span class="hero-tag">UFPA</span><span class="hero-tag">🖥️ Aula em Lab</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#agenda" class="nav-link">Agenda</a><a href="#setup" class="nav-link">Setup</a><a href="#agente" class="nav-link">Agentes</a><a href="#primeiro-agente" class="nav-link">1º Agente</a><a href="#ambientes" class="nav-link">Ambientes</a><a href="#env-code" class="nav-link">Env. Código</a><a href="#tipos" class="nav-link">Tipos</a><a href="#implementacao" class="nav-link">3 Agentes</a><a href="#llm-agents" class="nav-link">Agentes LLM</a><a href="#react-lab" class="nav-link">ReAct Lab</a><a href="#desafio" class="nav-link">Desafio</a></div></nav>
+<div class="container">
+
+<!-- ═══ AGENDA ═══ -->
+<section id="agenda" class="ls">
+  <div class="sn">Agenda da Aula</div>
+  <h2>4 horários — Teoria + Prática intercalados</h2>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text">Aula em <strong>laboratório</strong> — teoria curta → código imediato em cada horário.</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:.8rem">
+    <div class="card" style="border-top:3px solid var(--blue)"><h4 style="color:var(--blue);font-size:.82rem">🕐 1º Horário — Setup + Primeiros Conceitos</h4><p>Instalar tudo: Colab, GitHub, Python. Conceito de agente (10 min de teoria). <strong>💻 Já rodar o primeiro agente em Python.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--purple)"><h4 style="color:var(--purple);font-size:.82rem">🕑 2º Horário — Ambientes + Implementação</h4><p>Propriedades de ambientes (15 min). <strong>💻 Implementar a classe Environment e testar diferentes configurações.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--orange)"><h4 style="color:var(--orange);font-size:.82rem">🕒 3º Horário — Tipos de Agentes no Código</h4><p>5 tipos de agentes (10 min). <strong>💻 Implementar 3 agentes diferentes e comparar desempenho com gráficos.</strong></p></div>
+    <div class="card" style="border-top:3px solid var(--accent)"><h4 style="color:var(--accent);font-size:.82rem">🕓 4º Horário — Agentes LLM + Desafio</h4><p>Agentes modernos com LLMs (10 min). <strong>💻 Construir mini-agente ReAct com prompt engineering. Desafio final.</strong></p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ═══ 1º HORÁRIO — SETUP + CONCEITO ═══ -->
+<!-- ═══════════════════════════════════════ -->
+
+<section id="setup" class="ls">
+  <div class="sn">1º Horário · Parte A — Setup (~25 min)</div>
+  <h2>💻 Configuração do Ambiente</h2>
+  <p class="body">Antes de tudo, vamos garantir que todo mundo tem as ferramentas funcionando. Sigam o passo a passo:</p>
+
+  <div class="steps">
+    <div class="step"><h4>Google Colab</h4><p>Abram <strong>colab.research.google.com</strong> com a conta Google de vocês. Criem um novo notebook chamado <code style="color:var(--accent)">CC0121_Aula02_Agentes.ipynb</code>.</p></div>
+    <div class="step"><h4>GitHub</h4><p>Quem ainda não tem conta: <strong>github.com</strong>. Ativem o <strong>Student Developer Pack</strong> (github.com/education). Criem um repositório <code style="color:var(--accent)">cc0121-ia-2026</code> — todas as entregas vão ser por lá.</p></div>
+    <div class="step"><h4>Kaggle + Hugging Face</h4><p>Criem contas em <strong>kaggle.com</strong> e <strong>huggingface.co</strong>. Vamos usar mais à frente, mas já deixem pronto.</p></div>
+    <div class="step"><h4>Testar o ambiente</h4><p>Colem e executem o código abaixo no Colab:</p></div>
+  </div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Teste do Ambiente</span></div><div class="code-body"><span class="cm"># ═══ CC0121 — Teste do Ambiente ═══</span>
+<span class="kw">import</span> sys, platform
+<span class="fn">print</span>(<span class="str">f"✅ Python {sys.version.split()[0]} em {platform.system()}"</span>)
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> matplotlib
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="fn">print</span>(<span class="str">f"✅ NumPy {np.__version__}, Pandas {pd.__version__}, Matplotlib {matplotlib.__version__}"</span>)
+
+<span class="kw">import</span> sklearn
+<span class="fn">print</span>(<span class="str">f"✅ Scikit-learn {sklearn.__version__}"</span>)
+
+<span class="kw">import</span> torch
+<span class="fn">print</span>(<span class="str">f"✅ PyTorch {torch.__version__}"</span>)
+<span class="fn">print</span>(<span class="str">f"   GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'Não disponível (tudo bem por agora)'}"</span>)
+
+<span class="fn">print</span>(<span class="str">"\n🎉 Ambiente pronto! Vamos começar."</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora</div><p>Todo mundo executou? Aparecem todos os ✅? Se alguma biblioteca falhou, executem <code>!pip install nome_da_lib</code> numa célula separada. Levantem a mão se precisarem de ajuda.</p></div>
+</section>
+
+<section id="agente" class="ls">
+  <div class="sn">1º Horário · Parte B — O que é um Agente? (~15 min teoria)</div>
+  <h2>Agentes Inteligentes — O Conceito Central</h2>
+  <p class="body">O conceito de <strong>agente</strong> é o coração da IA. Russell & Norvig: um agente <strong>percebe</strong> o ambiente (sensores) e <strong>age</strong> sobre ele (atuadores).</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4>🤖 Agente robô</h4><p><strong>Sensores:</strong> câmeras, LIDAR, GPS<br><strong>Atuadores:</strong> rodas, braços<br><strong>Ambiente:</strong> fábrica, rua</p></div>
+    <div class="card"><h4>💻 Agente software</h4><p><strong>Sensores:</strong> inputs, APIs, dados<br><strong>Atuadores:</strong> outputs, chamadas de API<br><strong>Ambiente:</strong> sistema, internet</p></div>
+    <div class="card"><h4>🧑 Agente humano</h4><p><strong>Sensores:</strong> olhos, ouvidos, tato<br><strong>Atuadores:</strong> mãos, voz, pernas<br><strong>Ambiente:</strong> mundo físico</p></div>
+    <div class="card"><h4>🤖 Agente LLM</h4><p><strong>Sensores:</strong> prompt, ferramentas<br><strong>Atuadores:</strong> texto, chamadas de função<br><strong>Ambiente:</strong> contexto + APIs</p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 Conceitos-chave (guardem estes!)</div><p><strong>Agente racional</strong> = escolhe a ação que maximiza a medida de desempenho, dado o que percebeu. Racionalidade ≠ onisciência. Um agente pode errar — desde que a ação fosse a mais razoável com a informação disponível.</p></div>
+
+  <h3>PEAS — Framework para especificar agentes</h3>
+  <table class="cmp-table">
+    <thead><tr><th>Letra</th><th>Significado</th><th>Exemplo: Aspirador</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--accent);font-weight:700">P</td><td>Performance (medida de desempenho)</td><td>Qtd de sujeira removida, energia gasta</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">E</td><td>Environment (ambiente)</td><td>Salas com sujeira, obstáculos</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">A</td><td>Actuators (atuadores)</td><td>Motor de sucção, rodas</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">S</td><td>Sensors (sensores)</td><td>Sensor de sujeira, sensor de posição</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="primeiro-agente" class="ls">
+  <div class="sn">1º Horário · Parte C — Mão na massa (~20 min)</div>
+  <h2>💻 Seu primeiro agente em Python</h2>
+  <p class="body">Vamos sair da teoria e construir um agente agora mesmo. O exemplo clássico: o <strong>aspirador de pó</strong>.</p>
+
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text"><strong>Copiem o código abaixo</strong> numa nova célula do Colab e executem.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Meu Primeiro Agente</span></div><div class="code-body"><span class="cm"># ═══ Meu Primeiro Agente — O Aspirador de Pó ═══</span>
+<span class="kw">import</span> random
+
+<span class="kw">class</span> <span class="fn">Ambiente</span>:
+    <span class="cm">&quot;&quot;&quot;Ambiente com N salas que podem estar limpas (0) ou sujas (1).&quot;&quot;&quot;</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_salas=<span class="num">2</span>):
+        self.salas = [random.choice([<span class="num">0</span>, <span class="num">1</span>]) <span class="kw">for</span> _ <span class="kw">in</span> range(n_salas)]
+        self.pos = <span class="num">0</span>              <span class="cm"># posição do agente</span>
+        self.score = <span class="num">0</span>
+        self.historico = []
+
+    <span class="kw">def</span> <span class="fn">perceber</span>(self):
+        <span class="cm">&quot;&quot;&quot;O agente percebe: (posição, está_sujo?)&quot;&quot;&quot;</span>
+        <span class="kw">return</span> (self.pos, self.salas[self.pos])
+
+    <span class="kw">def</span> <span class="fn">executar</span>(self, acao):
+        <span class="cm">&quot;&quot;&quot;Executa a ação e atualiza o score.&quot;&quot;&quot;</span>
+        self.score -= <span class="num">1</span>  <span class="cm"># custo de energia</span>
+        <span class="kw">if</span> acao == <span class="str">"aspirar"</span>:
+            self.salas[self.pos] = <span class="num">0</span>
+        <span class="kw">elif</span> acao == <span class="str">"direita"</span> <span class="kw">and</span> self.pos &lt; len(self.salas) - <span class="num">1</span>:
+            self.pos += <span class="num">1</span>
+        <span class="kw">elif</span> acao == <span class="str">"esquerda"</span> <span class="kw">and</span> self.pos > <span class="num">0</span>:
+            self.pos -= <span class="num">1</span>
+        <span class="cm"># Bônus: +10 por cada sala limpa</span>
+        self.score += self.salas.count(<span class="num">0</span>) * <span class="num">10</span>
+        self.historico.append({<span class="str">'pos'</span>: self.pos, <span class="str">'salas'</span>: self.salas[:], <span class="str">'score'</span>: self.score})
+
+<span class="cm"># ─── Agente Reativo Simples ───</span>
+<span class="kw">def</span> <span class="fn">agente_reativo</span>(percepcao):
+    <span class="cm">"""Se sujo, aspira. Se não, move para o outro lado."""</span>
+    pos, sujo = percepcao
+    <span class="kw">if</span> sujo:
+        <span class="kw">return</span> <span class="str">"aspirar"</span>
+    <span class="kw">elif</span> pos == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="str">"direita"</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="str">"esquerda"</span>
+
+<span class="cm"># ─── Rodar ───</span>
+env = Ambiente(n_salas=<span class="num">2</span>)
+<span class="fn">print</span>(<span class="str">f"🏠 Estado inicial: salas = {env.salas}, agente na sala {env.pos}\n"</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">6</span>):
+    p = env.perceber()
+    a = agente_reativo(p)
+    env.executar(a)
+    status = [<span class="str">'🟩'</span> <span class="kw">if</span> s == <span class="num">0</span> <span class="kw">else</span> <span class="str">'🟫'</span> <span class="kw">for</span> s <span class="kw">in</span> env.salas]
+    cursor = [<span class="str">' '</span>] * len(env.salas)
+    cursor[env.pos] = <span class="str">'🤖'</span>
+    <span class="fn">print</span>(<span class="str">f"Passo {i+1}: percepção={p} → ação={a:&lt;10s} salas={''.join(status)} agente={''.join(cursor)} score={env.score}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"\n📊 Score final: {env.score}"</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 5 min</div><p>Executem. Observem: o agente toma decisões <strong>só baseado na percepção atual</strong> (posição + sujo/limpo). Não tem memória. Não planeja. Mesmo assim, funciona para 2 salas!</p></div>
+
+  <div class="quiz" id="q1"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">No framework PEAS, o "P" do nosso aspirador é:</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">A posição do agente</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,true)">O score (sujeira removida − energia gasta)</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">O programa do agente</button>
+    <button class="quiz-opt" onclick="checkQ('q1',this,false)">A percepção (pos, sujo)</button>
+  </div><div class="quiz-fb ok">✅ P = Performance measure = o score! É assim que avaliamos se o agente está fazendo um bom trabalho.</div><div class="quiz-fb nok">❌ P = <strong>Performance</strong> = o score. É a medida de desempenho (sujeira removida − energia).</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ═══ 2º HORÁRIO — AMBIENTES + CÓDIGO ═══ -->
+<!-- ═══════════════════════════════════════════ -->
+
+<section id="ambientes" class="ls">
+  <div class="sn">2º Horário · Parte A — Propriedades de Ambientes (~15 min teoria)</div>
+  <h2>Classificando Ambientes</h2>
+  <p class="body">O tipo de ambiente determina qual agente funciona. Russell & Norvig classificam em 6 dimensões — e logo vamos mexer em cada uma no código:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>Propriedade</th><th>Opção fácil</th><th>Opção difícil</th><th>Nosso aspirador</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--accent);font-weight:700">Observabilidade</td><td>Totalmente observável</td><td>Parcialmente observável</td><td>Total (vê a sala atual)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Determinismo</td><td>Determinístico</td><td>Estocástico</td><td>Determinístico (por enquanto!)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Episodicidade</td><td>Episódico</td><td>Sequencial</td><td>Sequencial</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Dinamismo</td><td>Estático</td><td>Dinâmico</td><td>Estático (por enquanto!)</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Continuidade</td><td>Discreto</td><td>Contínuo</td><td>Discreto</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Nº de agentes</td><td>Agente único</td><td>Multiagente</td><td>Único</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout important"><div class="cl">💡 Regra geral</div><p>Quanto mais à direita (parcial, estocástico, dinâmico, contínuo, multiagente), <strong>mais difícil</strong> é construir o agente. Nosso aspirador começa no modo fácil — e vamos complicar passo a passo!</p></div>
+</section>
+
+<section id="env-code" class="ls">
+  <div class="sn">2º Horário · Parte B — Complicando o ambiente no código (~35 min)</div>
+  <h2>💻 Ambiente turbinado: 5 salas + estocasticidade</h2>
+  <p class="body">Agora vamos <strong>mexer nas propriedades do ambiente</strong> e ver como o agente reage.</p>
+
+  <h3>Desafio 1 — Expandir para 5 salas</h3>
+  <div class="lab-banner"><span class="icon">⌨️</span><span class="text"><strong>Modifiquem</strong> o código: troquem <code>n_salas=2</code> por <code>n_salas=5</code> e rodem de novo.</span></div>
+  <div class="callout think"><div class="cl">🤔 Observem e respondam</div><p>O agente reativo simples funciona com 5 salas? Ele consegue limpar tudo? Qual o problema?</p></div>
+
+  <h3>Desafio 2 — Ambiente dinâmico (estocástico)</h3>
+  <p class="body">Agora vamos tornar o ambiente <strong>dinâmico</strong> — salas podem ficar sujas de novo aleatoriamente:</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Ambiente Estocástico</span></div><div class="code-body"><span class="cm"># ═══ Ambiente Dinâmico — salas sujam sozinhas ═══</span>
+
+<span class="kw">class</span> <span class="fn">AmbienteDinamico</span>(Ambiente):
+    <span class="cm">&quot;&quot;&quot;Ambiente onde salas podem ficar sujas aleatoriamente.&quot;&quot;&quot;</span>
+
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_salas=<span class="num">5</span>, prob_sujeira=<span class="num">0.1</span>):
+        super().__init__(n_salas)
+        self.prob_sujeira = prob_sujeira
+
+    <span class="kw">def</span> <span class="fn">executar</span>(self, acao):
+        super().executar(acao)
+        <span class="cm"># Depois da ação, salas podem ficar sujas de novo!</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(len(self.salas)):
+            <span class="kw">if</span> self.salas[i] == <span class="num">0</span> <span class="kw">and</span> random.random() &lt; self.prob_sujeira:
+                self.salas[i] = <span class="num">1</span>
+
+<span class="cm"># Rodar por mais passos para ver o efeito</span>
+env2 = AmbienteDinamico(n_salas=<span class="num">5</span>, prob_sujeira=<span class="num">0.1</span>)
+<span class="fn">print</span>(<span class="str">f"🏠 Estado inicial: {env2.salas}\n"</span>)
+
+scores = []
+<span class="kw">for</span> i <span class="kw">in</span> range(<span class="num">30</span>):
+    p = env2.perceber()
+    a = agente_reativo(p)
+    env2.executar(a)
+    scores.append(env2.score)
+    <span class="kw">if</span> (i+<span class="num">1</span>) % <span class="num">5</span> == <span class="num">0</span>:
+        status = [<span class="str">'🟩'</span> <span class="kw">if</span> s==<span class="num">0</span> <span class="kw">else</span> <span class="str">'🟫'</span> <span class="kw">for</span> s <span class="kw">in</span> env2.salas]
+        <span class="fn">print</span>(<span class="str">f"Passo {i+1:2d}: {''.join(status)} pos={env2.pos} score={env2.score}"</span>)
+
+<span class="cm"># Gráfico do score</span>
+plt.figure(figsize=(<span class="num">10</span>, <span class="num">4</span>))
+plt.plot(scores, color=<span class="str">'#00d4aa'</span>, linewidth=<span class="num">2</span>)
+plt.title(<span class="str">'Score do Agente Reativo em Ambiente Dinâmico'</span>)
+plt.xlabel(<span class="str">'Passo'</span>); plt.ylabel(<span class="str">'Score acumulado'</span>)
+plt.grid(alpha=<span class="num">0.3</span>); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Executem e observem o gráfico. O score continua subindo? Estabiliza? O agente dá conta de um ambiente que "suja sozinho"? Experimentem mudar <code>prob_sujeira</code> para <code>0.3</code> e vejam a diferença.</p></div>
+
+  <div class="quiz" id="q2"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">Ao adicionar probabilidade de sujeira aleatória, o ambiente mudou de:</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Episódico → Sequencial</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,true)">Determinístico → Estocástico</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Discreto → Contínuo</button>
+    <button class="quiz-opt" onclick="checkQ('q2',this,false)">Observável → Parcialmente observável</button>
+  </div><div class="quiz-fb ok">✅ A aleatoriedade tornou o ambiente <strong>estocástico</strong> — o mesmo estado + ação pode levar a resultados diferentes.</div><div class="quiz-fb nok">❌ Aleatoriedade = <strong>estocasticidade</strong>. Determinístico → estocástico.</div></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- ═══ 3º HORÁRIO — TIPOS DE AGENTES + CÓDIGO ═══ -->
+<!-- ═══════════════════════════════════════════════ -->
+
+<section id="tipos" class="ls">
+  <div class="sn">3º Horário · Parte A — Tipos de Agentes (~10 min teoria)</div>
+  <h2>5 Arquiteturas de Agentes</h2>
+  <p class="body">Russell & Norvig apresentam agentes em ordem crescente de inteligência. Vamos implementar os 3 primeiros:</p>
+
+  <table class="cmp-table">
+    <thead><tr><th>#</th><th>Tipo</th><th>Tem memória?</th><th>Tem objetivo?</th><th>Aprende?</th><th>Vamos implementar?</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td style="font-weight:600">Reativo simples</td><td>❌</td><td>❌</td><td>❌</td><td style="color:var(--green)">✅ Já fizemos!</td></tr>
+      <tr><td>2</td><td style="font-weight:600">Reativo com modelo</td><td>✅</td><td>❌</td><td>❌</td><td style="color:var(--green)">✅ Agora!</td></tr>
+      <tr><td>3</td><td style="font-weight:600">Baseado em objetivo</td><td>✅</td><td>✅</td><td>❌</td><td style="color:var(--green)">✅ Agora!</td></tr>
+      <tr><td>4</td><td style="font-weight:600">Baseado em utilidade</td><td>✅</td><td>✅</td><td>❌</td><td style="color:var(--text-dim)">Semana 4</td></tr>
+      <tr><td>5</td><td style="font-weight:600">Com aprendizado</td><td>✅</td><td>✅</td><td>✅</td><td style="color:var(--text-dim)">Semana 6+</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="implementacao" class="ls">
+  <div class="sn">3º Horário · Parte B — Implementando 3 agentes (~40 min)</div>
+  <h2>💻 Agente Aleatório vs Reativo vs Com Modelo</h2>
+  <p class="body">Vamos implementar 3 agentes e compará-los no mesmo ambiente. Quem ganha?</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · 3 Agentes Comparados</span></div><div class="code-body"><span class="cm"># ═══ Comparação: Aleatório vs Reativo vs Com Modelo ═══</span>
+
+<span class="cm"># 1. Agente Aleatório (baseline ruim)</span>
+<span class="kw">def</span> <span class="fn">agente_aleatorio</span>(percepcao):
+    <span class="cm">&quot;&quot;&quot;Escolhe ação aleatória. Usado como baseline.&quot;&quot;&quot;</span>
+    <span class="kw">return</span> random.choice([<span class="str">"aspirar"</span>, <span class="str">"esquerda"</span>, <span class="str">"direita"</span>])
+
+<span class="cm"># 2. Agente Reativo (já temos)</span>
+<span class="cm"># agente_reativo já definido acima</span>
+
+<span class="cm"># 3. Agente com Modelo — lembra quais salas já limpou!</span>
+<span class="kw">class</span> <span class="fn">AgenteComModelo</span>:
+    <span class="cm">&quot;&quot;&quot;Mantém estado interno: mapa de salas conhecidas.&quot;&quot;&quot;</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_salas):
+        <span class="cm"># modelo interno: None = desconhecido, 0 = limpo, 1 = sujo</span>
+        self.modelo = [<span class="kw">None</span>] * n_salas
+        self.n_salas = n_salas
+
+    <span class="kw">def</span> <span class="fn">decidir</span>(self, percepcao):
+        pos, sujo = percepcao
+        <span class="cm"># Atualiza modelo interno</span>
+        self.modelo[pos] = sujo
+
+        <span class="kw">if</span> sujo:
+            <span class="kw">return</span> <span class="str">"aspirar"</span>
+
+        <span class="cm"># Procura sala desconhecida ou suja no modelo</span>
+        <span class="cm"># Primeiro à direita, depois à esquerda</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(pos + <span class="num">1</span>, self.n_salas):
+            <span class="kw">if</span> self.modelo[i] <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> self.modelo[i] == <span class="num">1</span>:
+                <span class="kw">return</span> <span class="str">"direita"</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(pos - <span class="num">1</span>, -<span class="num">1</span>, -<span class="num">1</span>):
+            <span class="kw">if</span> self.modelo[i] <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> self.modelo[i] == <span class="num">1</span>:
+                <span class="kw">return</span> <span class="str">"esquerda"</span>
+
+        <span class="cm"># Tudo limpo e conhecido? Fica parado (ação sem efeito)</span>
+        <span class="kw">return</span> <span class="str">"direita"</span> <span class="kw">if</span> pos == <span class="num">0</span> <span class="kw">else</span> <span class="str">"esquerda"</span>
+
+
+<span class="cm"># ─── Simulação comparativa ───</span>
+<span class="kw">def</span> <span class="fn">simular</span>(agente_fn, n_salas=<span class="num">5</span>, n_passos=<span class="num">50</span>, prob_sujeira=<span class="num">0.05</span>, n_rodadas=<span class="num">100</span>):
+    <span class="cm">&quot;&quot;&quot;Roda várias simulações e retorna média dos scores.&quot;&quot;&quot;</span>
+    todos_scores = []
+    <span class="kw">for</span> _ <span class="kw">in</span> range(n_rodadas):
+        env = AmbienteDinamico(n_salas, prob_sujeira)
+        <span class="kw">for</span> _ <span class="kw">in</span> range(n_passos):
+            p = env.perceber()
+            a = agente_fn(p)
+            env.executar(a)
+        todos_scores.append(env.score)
+    <span class="kw">return</span> np.mean(todos_scores), np.std(todos_scores)
+
+<span class="cm"># Wrapper para o agente com modelo</span>
+<span class="kw">def</span> <span class="fn">criar_agente_modelo</span>(n_salas):
+    agente = AgenteComModelo(n_salas)
+    <span class="kw">return</span> agente.decidir
+
+n = <span class="num">5</span>
+resultados = {}
+<span class="kw">for</span> nome, fn <span class="kw">in</span> [(<span class="str">"Aleatório"</span>, agente_aleatorio),
+                    (<span class="str">"Reativo"</span>, agente_reativo),
+                    (<span class="str">"Com Modelo"</span>, criar_agente_modelo(n))]:
+    media, desvio = simular(fn, n_salas=n)
+    resultados[nome] = (media, desvio)
+    <span class="fn">print</span>(<span class="str">f"{nome:&lt;12s}: score médio = {media:8.1f} ± {desvio:.1f}"</span>)
+
+<span class="cm"># ─── Gráfico de barras ───</span>
+nomes = list(resultados.keys())
+medias = [resultados[n][<span class="num">0</span>] <span class="kw">for</span> n <span class="kw">in</span> nomes]
+desvios = [resultados[n][<span class="num">1</span>] <span class="kw">for</span> n <span class="kw">in</span> nomes]
+cores = [<span class="str">'#ef4444'</span>, <span class="str">'#3b82f6'</span>, <span class="str">'#00d4aa'</span>]
+
+plt.figure(figsize=(<span class="num">8</span>, <span class="num">5</span>))
+bars = plt.bar(nomes, medias, yerr=desvios, color=cores, capsize=<span class="num">5</span>, edgecolor=<span class="str">'white'</span>, linewidth=<span class="num">0.5</span>)
+plt.title(<span class="str">'Comparação de Agentes (100 simulações, 5 salas)'</span>, fontsize=<span class="num">14</span>, fontweight=<span class="str">'bold'</span>)
+plt.ylabel(<span class="str">'Score médio'</span>)
+plt.grid(axis=<span class="str">'y'</span>, alpha=<span class="num">0.3</span>)
+<span class="kw">for</span> bar, m <span class="kw">in</span> zip(bars, medias):
+    plt.text(bar.get_x() + bar.get_width()/<span class="num">2</span>, bar.get_height() + <span class="num">50</span>,
+             <span class="str">f'{m:.0f}'</span>, ha=<span class="str">'center'</span>, fontweight=<span class="str">'bold'</span>)
+plt.tight_layout(); plt.show()</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 15 min</div><p>Executem e analisem o gráfico. Perguntas para discutir em dupla: (1) Por que o agente com modelo ganha? (2) O que ele sabe que o reativo não sabe? (3) Experimentem mudar <code>prob_sujeira</code> para <code>0.2</code> — a vantagem do modelo aumenta ou diminui?</p></div>
+
+  <div class="quiz" id="q3"><h4>⚡ Quick Check</h4><p style="font-size:.88rem;margin-bottom:.5rem">O que diferencia o agente "com modelo" do agente "reativo simples"?</p><div class="quiz-options">
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Ele tem acesso a mais sensores</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,true)">Ele mantém estado interno — lembra o que já viu</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Ele usa redes neurais</button>
+    <button class="quiz-opt" onclick="checkQ('q3',this,false)">Ele pode aspirar mais rápido</button>
+  </div><div class="quiz-fb ok">✅ O agente com modelo mantém um <strong>estado interno</strong> (mapa de salas). Isso permite lidar com observabilidade parcial e agir mais inteligentemente.</div><div class="quiz-fb nok">❌ A diferença é o <strong>estado interno</strong>: o agente com modelo "lembra" quais salas já visitou e seus estados.</div></div>
+
+  <h3>💻 Exercício extra: Agente baseado em objetivo</h3>
+  <div class="card" style="border:1px solid var(--purple)"><h4 style="color:var(--purple)">🎯 Desafio (quem terminar antes)</h4><p>Implemente um <code>AgenteComObjetivo</code> cujo objetivo é: <strong>"todas as 5 salas devem estar limpas"</strong>. Quando atingir o objetivo, ele deve parar de agir (retornar <code>"noop"</code>). Dica: modifique o <code>AgenteComModelo</code> adicionando checagem do objetivo.</p></div>
+</section>
+<hr class="divider">
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- ═══ 4º HORÁRIO — AGENTES LLM + DESAFIO FINAL ═══ -->
+<!-- ═══════════════════════════════════════════════════ -->
+
+<section id="llm-agents" class="ls">
+  <div class="sn">4º Horário · Parte A — Agentes LLM (~15 min teoria)</div>
+  <h2>Agentes Modernos: LLMs como Cérebro</h2>
+  <p class="body">Em 2026, os conceitos de Russell & Norvig ganharam vida real com <strong>agentes baseados em LLMs</strong>. O LLM funciona como o "cérebro" do agente — decide ações com base em linguagem natural.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4 style="color:var(--accent)">🔧 Padrão ReAct</h4><p><strong>Reason + Act.</strong> O LLM alterna: pensa ("preciso buscar X"), age (chama ferramenta), observa resultado, pensa de novo. Loop: Pensamento → Ação → Observação → ...</p></div>
+    <div class="card"><h4 style="color:var(--accent)">🔗 Agente com ferramentas</h4><p>LLM + calculadora + busca web + APIs. O modelo "decide" quando e qual ferramenta usar. Como um agente baseado em objetivo — mas o "planejador" é linguagem natural.</p></div>
+    <div class="card"><h4 style="color:var(--accent)">👥 Multi-agente</h4><p>Vários LLMs cooperando: pesquisador + escritor + revisor. Frameworks: CrewAI, AutoGen, LangGraph. Divisão de trabalho como numa equipe real.</p></div>
+    <div class="card"><h4 style="color:var(--accent)">🔄 Autônomo</h4><p>Opera com mínima supervisão. Define sub-objetivos, executa, auto-avalia. Ex: Devin (agente de código). Ainda limitados, mas evoluindo rápido.</p></div>
+  </div>
+
+  <div class="callout important"><div class="cl">💡 Conexão com Russell & Norvig</div><p>Agente LLM com ferramentas = <strong>agente baseado em objetivo com modelo</strong>. O modelo interno é o próprio LLM (conhecimento do mundo). O objetivo vem do prompt do usuário. Os atuadores são chamadas de ferramenta. Os sensores são os resultados dessas chamadas. Os conceitos de 1995 se aplicam perfeitamente em 2026!</p></div>
+</section>
+
+<section id="react-lab" class="ls">
+  <div class="sn">4º Horário · Parte B — Mini-agente ReAct (~25 min)</div>
+  <h2>💻 Construindo um Mini-Agente ReAct com Prompt</h2>
+  <p class="body">Vamos simular o padrão ReAct usando engenharia de prompt. Abram o ChatGPT, Claude ou outro LLM e colem o prompt abaixo:</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Prompt · Agente ReAct simulado</span></div><div class="code-body"><span class="cm">Cole este prompt num LLM (ChatGPT ou Claude):</span>
+
+Você é um agente de IA que resolve problemas passo a passo
+usando o padrão ReAct (Reason + Act).
+
+Para cada passo, siga EXATAMENTE este formato:
+PENSAMENTO: [o que você está pensando]
+AÇÃO: [a ação que vai tomar: buscar, calcular, ou responder]
+OBSERVAÇÃO: [o resultado da ação]
+
+Ferramentas disponíveis:
+- buscar(termo): busca informação sobre o termo
+- calcular(expressão): calcula uma expressão matemática
+- responder(texto): dá a resposta final
+
+PROBLEMA: "Qual é a população do Pará dividida pelo
+número de municípios do estado?"
+
+Comece agora. Mostre cada passo explicitamente.</div></div>
+
+  <div class="callout hands"><div class="cl">🖥️ Façam agora — 10 min</div><p>Colem o prompt e observem: o LLM vai alternar entre PENSAMENTO → AÇÃO → OBSERVAÇÃO, como um agente real. Isso é o padrão <strong>ReAct</strong> na prática! Depois, tentem com outros problemas e verifiquem se as respostas estão corretas.</p></div>
+
+  <h3>💻 Documentando no Colab</h3>
+  <p class="body">Criem uma célula Markdown no notebook documentando:</p>
+  <div class="card"><ul class="sl">
+    <li>O prompt que usaram</li>
+    <li>A resposta do LLM (copiem os passos ReAct)</li>
+    <li>Análise: o agente usou as ferramentas corretamente? Errou em algum passo? Alucinações?</li>
+    <li>Mapeamento PEAS do agente LLM: qual é P, E, A, S?</li>
+  </ul></div>
+</section>
+
+<section id="desafio" class="ls">
+  <div class="sn">4º Horário · Parte C — Desafio Final (~15 min)</div>
+  <h2>🏆 Desafio: Melhor Agente Aspirador</h2>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">🎯 Desafio para entregar (vale participação)</h4>
+    <p style="margin-bottom:.8rem">No mesmo notebook Colab, criem uma seção "Desafio" e implementem:</p>
+    <div style="display:grid;gap:.5rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">1.</strong> Um agente <strong>melhorado</strong> que supere o agente com modelo no ambiente estocástico de 5 salas. Pode usar qualquer estratégia!</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.</strong> Rode a simulação comparativa com <strong>4 agentes</strong> (aleatório, reativo, com modelo, o seu) e mostre o gráfico de barras.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.</strong> Escreva em Markdown: qual a <strong>estratégia do seu agente</strong>? Qual tipo de agente (da taxonomia R&N) ele é? Classifique o ambiente usando as 6 propriedades.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">4.</strong> Documente o <strong>exercício ReAct</strong> com prompt engineering (seção anterior).</p></div>
+    </div>
+  </div>
+
+  <div class="callout warning"><div class="cl">📌 Entrega + Próxima aula (09/04)</div><p><strong>Entrega:</strong> Compartilhem o link do notebook Colab no repositório GitHub até terça 08/04. <strong>Leitura:</strong> Russell & Norvig Cap. 3 (Resolução de Problemas via Busca). Próxima aula: <strong>Busca Cega e Informada — BFS, DFS, A*</strong>.</p></div>
+</section>
+
+<!-- ═══ RESUMO ═══ -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>O que fizemos hoje</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.6rem">
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🖥️</div><p style="font-size:.76rem;font-weight:600">Setup completo</p><p style="font-size:.68rem;color:var(--text-dim)">Colab, GitHub, Kaggle, HF</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🤖</div><p style="font-size:.76rem;font-weight:600">Agente = percepção + ação</p><p style="font-size:.68rem;color:var(--text-dim)">PEAS framework</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🌍</div><p style="font-size:.76rem;font-weight:600">6 propriedades de ambiente</p><p style="font-size:.68rem;color:var(--text-dim)">Testadas no código</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">📊</div><p style="font-size:.76rem;font-weight:600">3 agentes comparados</p><p style="font-size:.68rem;color:var(--text-dim)">Aleatório vs Reativo vs Modelo</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">🔧</div><p style="font-size:.76rem;font-weight:600">Agentes LLM modernos</p><p style="font-size:.68rem;color:var(--text-dim)">ReAct, ferramentas, multi-agente</p></div>
+    <div class="card" style="padding:.8rem;text-align:center"><div style="font-size:1.4rem">💬</div><p style="font-size:.76rem;font-weight:600">Mini-agente ReAct</p><p style="font-size:.68rem;color:var(--text-dim)">Prompt engineering prático</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 02 — 2 de abril de 2026 · Laboratório</p></footer>
+<script>
+function checkQ(id,btn,ok){const q=document.getElementById(id),os=q.querySelectorAll('.quiz-opt'),fb=q.querySelectorAll('.quiz-fb');os.forEach(o=>{o.disabled=true;o.style.pointerEvents='none'});if(ok){btn.classList.add('correct');fb[0].classList.add('show')}else{btn.classList.add('wrong');os.forEach(o=>{if(o!==btn)o.style.opacity='.4'});os.forEach(o=>{if(o.getAttribute('onclick')?.includes('true'))o.classList.add('correct')});fb[1].classList.add('show')}}
+function switchTab(g,p){const el=document.getElementById(g);el.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));el.querySelectorAll('.tab-panel').forEach(x=>x.classList.remove('active'));document.getElementById(p).classList.add('active');event.target.classList.add('active')}
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>
