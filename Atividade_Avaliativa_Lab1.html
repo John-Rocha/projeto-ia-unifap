@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atividade Avaliativa — Lab 1 — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Atividade Avaliativa · Lab 1 · 18/06/2026 · 15% da nota</div>
+<h1>Atividade Avaliativa Prática de ML</h1>
+<p class="hero-sub">Você decide a técnica. O LLM ajuda a implementar. A justificativa é o que vale. Como no mercado real.</p>
+<div class="hero-tags"><span class="hero-tag">Individual</span><span class="hero-tag">🤖 LLM liberado</span><span class="hero-tag">Aulas 1–7</span><span class="hero-tag">10,0 pontos</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#intro" class="nav-link">Como funciona</a><a href="#formato" class="nav-link">Formato</a><a href="#q1" class="nav-link">Q1 Técnica</a><a href="#q2" class="nav-link">Q2 Supervisionado</a><a href="#q3" class="nav-link">Q3 Clustering</a><a href="#q4" class="nav-link">Q4 Diagnóstico</a><a href="#q5" class="nav-link">Q5 Uso do LLM</a><a href="#entrega" class="nav-link">Entrega</a><a href="#apresentacao" class="nav-link">Projeto</a></div></nav>
+<div class="container">
+<!-- INTRO -->
+<section id="intro" class="ls">
+  <div class="sn">Como funciona</div>
+  <h2>A Atividade do Século XXI</h2>
+  <p class="body">Esta não é uma atividade de decorar sintaxe. No mercado real de IA, ninguém memoriza a assinatura do <code>train_test_split</code> — todos consultam documentação e usam assistentes de IA. <strong>O que separa um bom profissional é saber QUAL técnica aplicar e POR QUÊ.</strong> Esta atividade avalia exatamente isso.</p>
+
+  <div class="lab-banner"><span class="icon">🤖</span><span class="text"><strong>LLM LIBERADO.</strong> Vocês PODEM usar ChatGPT, Claude, Copilot. A regra: vocês decidem a estratégia, o LLM ajuda a implementar — e vocês devem saber explicar cada linha.</span></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:1.2rem 0">
+    <div class="card" style="border-top:3px solid var(--green)">
+      <h4 style="color:var(--green)">✅ O que VOCÊ decide (vale a nota)</h4>
+      <ul class="sl">
+        <li>Qual algoritmo usar em cada situação</li>
+        <li>Qual métrica importa para o problema</li>
+        <li>Como interpretar os resultados</li>
+        <li>Diagnosticar overfitting e propor a cura</li>
+        <li>Justificar TODA decisão técnica</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:3px solid var(--blue)">
+      <h4 style="color:var(--blue)">🤖 O que o LLM pode fazer (ferramenta)</h4>
+      <ul class="sl">
+        <li>Lembrar a sintaxe de uma função</li>
+        <li>Escrever o boilerplate do gráfico</li>
+        <li>Sugerir como tratar valores faltantes</li>
+        <li>Ajudar a debugar um erro</li>
+        <li>Acelerar a digitação do que VOCÊ planejou</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout warning"><div class="cl">⚠️ A regra de ouro</div><p>Em cada questão, há um campo <strong>"Justifique"</strong>. Se o LLM escreveu o código mas vocês não souberem explicar a escolha, <strong>perdem a maior parte dos pontos</strong>. Na correção (e na apresentação), vou perguntar: "por que esse modelo e não outro?". Saibam responder.</p></div>
+</section>
+<hr class="divider">
+
+<!-- FORMATO -->
+<section id="formato" class="ls">
+  <div class="sn">Estrutura</div>
+  <h2>Formato e Pontuação</h2>
+  <table class="cmp-table">
+    <thead><tr><th>Parte</th><th>Tema</th><th>O que avalia</th><th>Pontos</th></tr></thead>
+    <tbody>
+      <tr><td style="color:var(--accent);font-weight:700">Q1</td><td>Escolha da Técnica</td><td>Julgamento: que algoritmo para cada cenário</td><td>2,0</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Q2</td><td>EDA + Supervisionado</td><td>Pipeline completo num dataset novo</td><td>3,0</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Q3</td><td>Não Supervisionado</td><td>Clustering + interpretação de negócio</td><td>2,0</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Q4</td><td>Diagnóstico</td><td>Identificar e curar overfitting</td><td>2,0</td></tr>
+      <tr><td style="color:var(--accent);font-weight:700">Q5</td><td>Uso do LLM</td><td>Documentar como usaram a IA criticamente</td><td>1,0</td></tr>
+      <tr><td style="font-weight:700">Total</td><td></td><td></td><td style="color:var(--accent);font-weight:700">10,0</td></tr>
+    </tbody>
+  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-top:1rem">
+    <div class="card" style="padding:1rem;text-align:center"><div style="font-size:1.6rem">⏱️</div><h4 style="font-size:.85rem">Duração</h4><p style="font-size:.8rem">3 horários (~3h). 4º horário: apresentação do projeto.</p></div>
+    <div class="card" style="padding:1rem;text-align:center"><div style="font-size:1.6rem">💻</div><h4 style="font-size:.85rem">Individual</h4><p style="font-size:.8rem">Cada aluno no seu Colab. Entrega no GitHub pessoal.</p></div>
+    <div class="card" style="padding:1rem;text-align:center"><div style="font-size:1.6rem">🤖</div><h4 style="font-size:.85rem">LLM permitido</h4><p style="font-size:.8rem">Documentando o uso (Q5). Consulta livre à internet.</p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- Q1 -->
+<section id="q1" class="ls">
+  <div class="sn">Questão 1 · 2,0 pontos · ~25 min</div>
+  <h2>🧭 Escolha da Técnica (sem código)</h2>
+  <p class="body">Para cada cenário abaixo, responda numa célula Markdown: <strong>(a)</strong> qual técnica/algoritmo você usaria, <strong>(b)</strong> qual métrica de avaliação, <strong>(c)</strong> uma frase justificando. Aqui o LLM é seu consultor — mas a decisão final e a justificativa são suas.</p>
+
+  <div style="display:grid;gap:.6rem">
+    <div class="card"><h4>Cenário A — 0,4 pt</h4><p>Um hospital quer prever se um paciente tem uma doença rara (afeta 2% dos casos) a partir de 30 exames. Falso negativo (não detectar a doença) é catastrófico.</p><p style="font-size:.82rem;color:var(--text-dim);margin-top:.3rem">→ Qual abordagem? Qual métrica? Por quê?</p></div>
+    <div class="card"><h4>Cenário B — 0,4 pt</h4><p>Uma rede de farmácias tem dados de 50 mil clientes (idade, frequência, valor gasto) e quer descobrir <em>grupos naturais</em> de comportamento para campanhas direcionadas. Não há rótulos.</p><p style="font-size:.82rem;color:var(--text-dim);margin-top:.3rem">→ Qual abordagem? Como decidir o número de grupos?</p></div>
+    <div class="card"><h4>Cenário C — 0,4 pt</h4><p>Uma fintech quer prever o valor (em R$) que um cliente vai gastar no próximo mês, baseado no histórico. A saída é um número contínuo.</p><p style="font-size:.82rem;color:var(--text-dim);margin-top:.3rem">→ Classificação ou regressão? Qual métrica de erro?</p></div>
+    <div class="card"><h4>Cenário D — 0,4 pt</h4><p>Você tem um dataset tabular com 100 mil linhas e 40 colunas para um problema de classificação. Quer a melhor performance possível sem semanas de trabalho.</p><p style="font-size:.82rem;color:var(--text-dim);margin-top:.3rem">→ Que família de algoritmos? Por que não rede neural?</p></div>
+    <div class="card"><h4>Cenário E — 0,4 pt</h4><p>Um modelo de previsão de crédito atinge 99% de acurácia no treino e 68% no teste.</p><p style="font-size:.82rem;color:var(--text-dim);margin-top:.3rem">→ Qual o diagnóstico? Cite 3 formas de resolver.</p></div>
+  </div>
+
+  <div class="callout hands"><div class="cl">💡 Dica de uso do LLM aqui</div><p>Pergunte ao LLM: <em>"Quais os prós e contras de usar recall vs precisão em detecção de doença rara?"</em> — e então <strong>forme sua própria opinião</strong>. Copiar a resposta crua sem entender vai aparecer na justificativa rasa.</p></div>
+</section>
+<hr class="divider">
+
+<!-- Q2 -->
+<section id="q2" class="ls">
+  <div class="sn">Questão 2 · 3,0 pontos · ~50 min</div>
+  <h2>🔬 Pipeline Supervisionado num Dataset NOVO</h2>
+  <p class="body">Esqueçam o Titanic — vocês já o conhecem. Agora é um dataset que vocês <strong>nunca viram</strong>: previsão de diabetes (Pima Indians). É assim no mercado: chega um dado novo, e você aplica o método.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Ponto de partida (o resto é com vocês)</span></div><div class="code-body"><span class="cm"># ═══ ATIVIDADE — Q2: Previsão de Diabetes ═══</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+url = <span class="str">"https://raw.githubusercontent.com/jbrownlee/Datasets/master/pima-indians-diabetes.data.csv"</span>
+colunas = [<span class="str">'Gravidezes'</span>, <span class="str">'Glicose'</span>, <span class="str">'PressaoArterial'</span>, <span class="str">'EspessuraPele'</span>,
+           <span class="str">'Insulina'</span>, <span class="str">'IMC'</span>, <span class="str">'HistoricoFamiliar'</span>, <span class="str">'Idade'</span>, <span class="str">'Diabetes'</span>]
+df = pd.read_csv(url, names=colunas)
+<span class="fn">print</span>(df.shape)   <span class="cm"># (768, 9) — alvo: 'Diabetes' (0/1)</span>
+df.head()</div></div>
+
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">📋 Suas tarefas</h4>
+    <div style="display:grid;gap:.5rem;margin-top:.6rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">2.1 (0,6 pt) — EDA:</strong> investiguem os dados. <strong>Atenção:</strong> há um problema sério escondido — algumas colunas têm valor 0 onde é biologicamente impossível (glicose 0? pressão 0?). Encontrem e tratem. Justifiquem a estratégia.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">2.2 (1,0 pt) — Modelagem:</strong> treinem no mínimo 3 modelos diferentes com validação cruzada. Lembrem do que aprenderam: alguns precisam de escalonamento, outros não.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">2.3 (0,8 pt) — Avaliação:</strong> matriz de confusão + precisão/recall do melhor modelo. <strong>Pergunta-chave:</strong> num teste de diabetes, qual erro é mais grave — falso positivo ou falso negativo? Sua escolha de métrica deve refletir isso.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--orange)"><p style="font-size:.86rem"><strong style="color:var(--orange)">2.4 (0,6 pt) — Interpretação:</strong> qual variável mais prediz diabetes? Faz sentido clínico? Escrevam 2-3 frases conectando o resultado do modelo com o mundo real.</p></div>
+    </div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- Q3 -->
+<section id="q3" class="ls">
+  <div class="sn">Questão 3 · 2,0 pontos · ~35 min</div>
+  <h2>🛰️ Não Supervisionado: Padrões Ocultos</h2>
+  <p class="body">Dataset de sementes de trigo (Seeds): 7 medidas geométricas de grãos, sem rótulo de variedade. Descubram quantos tipos de trigo existem — só pelos padrões.</p>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Ponto de partida</span></div><div class="code-body"><span class="kw">import</span> pandas <span class="kw">as</span> pd
+url = <span class="str">"https://raw.githubusercontent.com/jbrownlee/Datasets/master/wheat-seeds.csv"</span>
+colunas = [<span class="str">'Area'</span>, <span class="str">'Perimetro'</span>, <span class="str">'Compacidade'</span>, <span class="str">'Comprimento'</span>,
+           <span class="str">'Largura'</span>, <span class="str">'Assimetria'</span>, <span class="str">'Sulco'</span>, <span class="str">'Variedade'</span>]
+df = pd.read_csv(url, names=colunas)
+<span class="fn">print</span>(df.shape)   <span class="cm"># (210, 8)</span>
+<span class="cm"># 7 medidas geométricas + 'Variedade' (ignorem 'Variedade' no clustering!)</span></div></div>
+
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">📋 Suas tarefas</h4>
+    <div style="display:grid;gap:.5rem;margin-top:.6rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">3.1 (0,5 pt):</strong> apliquem o método do cotovelo. Quantos grupos os dados sugerem? Justifiquem com o gráfico.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">3.2 (0,7 pt):</strong> rodem K-Means. Como têm 7 dimensões, usem <strong>PCA</strong> para visualizar os grupos em 2D. Lembrem de escalar os dados antes!</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">3.3 (0,8 pt):</strong> caracterizem cada grupo (qual o grão "médio" de cada cluster?) e proponham uma aplicação real: como uma cooperativa agrícola usaria essa segmentação?</p></div>
+    </div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- Q4 -->
+<section id="q4" class="ls">
+  <div class="sn">Questão 4 · 2,0 pontos · ~30 min</div>
+  <h2>🔍 Diagnóstico: O Caso do Modelo Doente</h2>
+  <p class="body">Esta questão simula o dia a dia: você herda um modelo de um colega e precisa diagnosticar o que há de errado. <strong>Voltem ao dataset de diabetes (Q2).</strong></p>
+
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">📋 Suas tarefas</h4>
+    <div style="display:grid;gap:.5rem;margin-top:.6rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">4.1 (0,8 pt):</strong> treinem uma árvore de decisão e plotem acurácia de treino vs teste para profundidades de 1 a 20 (a "curva do overfitting"). Identifiquem visualmente: onde começa o overfitting?</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">4.2 (0,6 pt):</strong> qual a profundidade ideal? Justifiquem usando validação cruzada, não o olhômetro.</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">4.3 (0,6 pt) — Conceitual:</strong> expliquem com SUAS palavras (não as do LLM) o que é overfitting, usando uma analogia própria. Citem 3 técnicas para combatê-lo.</p></div>
+    </div>
+  </div>
+
+  <div class="callout warning"><div class="cl">🎯 Atenção na 4.3</div><p>Esta é a questão onde o uso preguiçoso de LLM mais aparece. Respostas genéricas copiadas ("overfitting é quando o modelo se ajusta demais aos dados de treino...") valem metade. Quero a analogia DE VOCÊS — como explicariam para a sua avó?</p></div>
+</section>
+<hr class="divider">
+
+<!-- Q5 -->
+<section id="q5" class="ls">
+  <div class="sn">Questão 5 · 1,0 ponto · ~15 min</div>
+  <h2>🤖 Como Você Usou a IA?</h2>
+  <p class="body">Esta é a questão mais "2026" da atividade. Numa célula Markdown ao final do notebook, documentem criticamente o uso do LLM. Honestidade vale ponto — fingir que não usou vale zero.</p>
+
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">📋 Documentem</h4>
+    <div style="display:grid;gap:.5rem;margin-top:.6rem">
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--blue)"><p style="font-size:.86rem"><strong style="color:var(--blue)">5.1 (0,4 pt):</strong> citem 2 prompts específicos que usaram e para quê. Ex: "Pedi ao Claude para lembrar a sintaxe do ConfusionMatrixDisplay."</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--purple)"><p style="font-size:.86rem"><strong style="color:var(--purple)">5.2 (0,3 pt):</strong> o LLM errou ou sugeriu algo ruim em algum momento? Como perceberam? (Se disserem que nunca errou, não estavam prestando atenção 😉)</p></div>
+      <div style="padding:.6rem 1rem;background:var(--surface-2);border-radius:10px;border-left:3px solid var(--accent)"><p style="font-size:.86rem"><strong style="color:var(--accent)">5.3 (0,3 pt):</strong> qual decisão da atividade foi 100% SUA, sem ajuda do LLM? Por que o LLM não poderia ter decidido por vocês?</p></div>
+    </div>
+  </div>
+  <div class="callout important"><div class="cl">💡 Por que essa questão existe</div><p>No mercado de 2026, todo mundo usa IA. O que te torna valioso não é evitar a IA — é <strong>usá-la com julgamento crítico</strong>, saber quando confiar e quando questionar. Esta questão treina exatamente essa habilidade que vai definir a carreira de vocês.</p></div>
+</section>
+<hr class="divider">
+
+<!-- ENTREGA -->
+<section id="entrega" class="ls">
+  <div class="sn">Entrega</div>
+  <h2>📦 Como Entregar</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem">
+    <div class="card"><h4>📓 Formato</h4><ul class="sl"><li>Notebook único: <code>Atividade_Lab1_SeuNome.ipynb</code></li><li>Cada questão claramente marcada com título Markdown</li><li>Código + saídas (rodado!) + justificativas em Markdown</li><li>Commit no GitHub pessoal até o fim da aula</li></ul></div>
+    <div class="card"><h4>✅ Checklist antes de entregar</h4><ul class="sl"><li>Todas as células rodaram sem erro?</li><li>Cada "Justifique" foi respondido?</li><li>Q5 (uso do LLM) preenchida com honestidade?</li><li>Gráficos têm título e estão legíveis?</li></ul></div>
+  </div>
+  <div class="callout warning"><div class="cl">⚖️ Critério anti-cópia</div><p>Notebooks idênticos = nota dividida entre os envolvidos. O LLM gera código parecido, mas as <strong>justificativas e analogias revelam quem entendeu</strong>. Foquem em explicar bem — é onde está a maior parte dos pontos e onde a cópia não funciona.</p></div>
+</section>
+<hr class="divider">
+
+<!-- APRESENTAÇÃO -->
+<section id="apresentacao" class="ls">
+  <div class="sn">Se sobrar tempo · 4º Horário</div>
+  <h2>🚀 Andamento do Projeto Final</h2>
+  <p class="body">Quem terminar a atividade com tempo de sobra: as equipes apresentam informalmente o <strong>andamento do projeto final</strong> (o checkpoint que estava previsto). Não precisa de slides — pode ser direto do notebook.</p>
+  <div class="card" style="border:1px solid var(--accent)"><h4 style="color:var(--accent)">⚡ Checkpoint relâmpago (3-5 min por equipe)</h4>
+    <ul class="sl" style="margin-top:.5rem">
+      <li>Qual problema escolheram e por quê</li>
+      <li>Onde conseguiram os dados (já têm? quanto?)</li>
+      <li>O que já funciona e o que está travado</li>
+      <li>Qual técnica das aulas vão usar (e talvez como o LLM vai ajudar!)</li>
+    </ul>
+  </div>
+  <div class="callout important"><div class="cl">💡 Objetivo do checkpoint</div><p>Não vale nota separada, mas é a chance de receber feedback antes da reta final. Equipes que estão travadas: <strong>tragam as dúvidas</strong>. Quem está adiantado: inspirem os colegas. A entrega final é 09/07.</p></div>
+</section>
+
+<!-- RESUMO -->
+<section class="ls">
+  <div class="sn">Resumo</div>
+  <h2>A filosofia desta atividade</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.7rem">
+    <div class="card" style="padding:1rem;text-align:center;border-top:3px solid var(--accent)"><div style="font-size:1.5rem">🧭</div><p style="font-size:.82rem;font-weight:700;margin-top:.3rem">Saber QUAL técnica</p><p style="font-size:.72rem;color:var(--text-muted)">O julgamento é seu</p></div>
+    <div class="card" style="padding:1rem;text-align:center;border-top:3px solid var(--blue)"><div style="font-size:1.5rem">🤖</div><p style="font-size:.82rem;font-weight:700;margin-top:.3rem">LLM como copiloto</p><p style="font-size:.72rem;color:var(--text-muted)">Acelera, não decide</p></div>
+    <div class="card" style="padding:1rem;text-align:center;border-top:3px solid var(--purple)"><div style="font-size:1.5rem">💬</div><p style="font-size:.82rem;font-weight:700;margin-top:.3rem">Justificar tudo</p><p style="font-size:.72rem;color:var(--text-muted)">Aqui está a nota</p></div>
+    <div class="card" style="padding:1rem;text-align:center;border-top:3px solid var(--green)"><div style="font-size:1.5rem">🌍</div><p style="font-size:.82rem;font-weight:700;margin-top:.3rem">Datasets reais e novos</p><p style="font-size:.72rem;color:var(--text-muted)">Como no mercado</p></div>
+  </div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Atividade Avaliativa — Lab 1 · 18 de junho de 2026</p></footer>
+<script>
+const secs=document.querySelectorAll('.ls');const navs=document.querySelectorAll('.nav-link');
+const obs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){navs.forEach(l=>l.classList.remove('active'));const id=e.target.id;if(id){const a=document.querySelector('.nav-link[href="#'+id+'"]');if(a)a.classList.add('active')}}})},{rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(s=>{if(s.id)obs.observe(s)});
+</script>
+</body>
+</html>
