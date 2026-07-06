@@ -31,21 +31,20 @@ graph TB
             RAGSvc["rag_service"]
             DiagSvc["diagnostic_service"]
             PlanSvc["study_plan_service"]
-            RetrSvc["local_retrieval_service\n(Jaccard)"]
-            LLMSvc["local_llm_service\n(ReAct)"]
+            EmbSvc["embedding_service\n(OpenAI)"]
+            PinSvc["pinecone_service\n(busca vetorial)"]
+            LLMSvc["llm_service\n(GPT-4o-mini)"]
             StudySvc["local_study_plan_service\n(determinístico)"]
         end
     end
 
-    subgraph Local["Algoritmos locais — sem API externa"]
-        Jaccard["Similaridade de Jaccard\n(recuperação léxica)"]
-        ReAct["Loop ReAct\n(geração determinística)"]
-        Tiktoken["Tiktoken cl100k_base\n(chunking por tokens)"]
+    subgraph External["APIs Externas"]
+        OpenAI["OpenAI API\n(embeddings + chat)"]
+        Pinecone["Pinecone\n(índice vetorial)"]
     end
 
-    Ingest["ingest_html.py\n(script de ingestão)"]
+    Ingest["ingest_openai.py\n(script de ingestão)"]
     HTML["docs/Aula_*.html\n(8 arquivos)"]
-    Chunks["data/chunks.json"]
 
     Home -->|GET| Topics
     Quiz -->|GET quiz / POST submit| DiagAPI
@@ -55,41 +54,41 @@ graph TB
     ChatAPI --> RAGSvc
     DiagAPI --> DiagSvc
     PlanAPI --> PlanSvc
-    RAGSearch --> RetrSvc
+    RAGSearch --> EmbSvc
 
-    RAGSvc --> RetrSvc
+    RAGSvc --> EmbSvc
+    RAGSvc --> PinSvc
     RAGSvc --> LLMSvc
     PlanSvc --> StudySvc
 
-    RetrSvc --> Jaccard
-    LLMSvc --> ReAct
-    LLMSvc --> RetrSvc
+    EmbSvc --> OpenAI
+    LLMSvc --> OpenAI
+    PinSvc --> Pinecone
 
     HTML --> Ingest
-    Ingest --> Tiktoken
-    Ingest --> Chunks
-    RetrSvc --> Chunks
+    Ingest --> OpenAI
+    Ingest --> Pinecone
 ```
 
-### Fluxo do chat (RAG local)
+### Fluxo do chat (RAG com OpenAI + Pinecone)
 
 ```mermaid
 sequenceDiagram
     actor Aluno
     participant FE as Frontend
     participant BE as Backend
-    participant RET as local_retrieval_service
-    participant LLM as local_llm_service
+    participant OAI as OpenAI API
+    participant PIN as Pinecone
 
     Aluno->>FE: digita pergunta
     FE->>BE: POST /api/v1/chat {question}
-    BE->>RET: search(question, top_k=5)
-    RET->>RET: Jaccard(question, chunk) para cada chunk em chunks.json
-    RET-->>BE: top-k chunks com scores
+    BE->>OAI: embeddings.create(question) → vetor 512d
+    OAI-->>BE: vetor semântico
+    BE->>PIN: index.query(vector, top_k=5)
+    PIN-->>BE: top-k chunks com scores de similaridade cosseno
     BE->>BE: monta prompt com contexto dos chunks
-    BE->>LLM: generate(prompt)
-    LLM->>LLM: ReAct — Pensamento → buscar_disciplina() → Observação → Resposta
-    LLM-->>BE: resposta baseada no chunk mais relevante
+    BE->>OAI: chat.completions.create(gpt-4o-mini, prompt)
+    OAI-->>BE: resposta em linguagem natural
     BE-->>FE: {answer, sources, confidence}
     FE-->>Aluno: exibe resposta + fontes (aula + score)
 ```
@@ -138,9 +137,9 @@ sequenceDiagram
 
 ### Chat com o tutor (`/chat`)
 - Pergunta livre em linguagem natural.
-- Recuperação por similaridade de Jaccard sobre chunks extraídos dos HTMLs das aulas.
-- Resposta gerada pelo loop ReAct com a ferramenta `buscar_disciplina()`.
-- Exibe fonte (aula + título) e score de similaridade por chunk.
+- Recuperação semântica via OpenAI Embeddings (`text-embedding-3-small`) + Pinecone.
+- Resposta gerada por `gpt-4o-mini` com contexto dos chunks recuperados.
+- Exibe fonte (aula + título) e score de similaridade cosseno por chunk.
 
 ### Plano de estudos (`/study-plan`)
 - Gerado deterministicamente com base nas fraquezas do quiz.
@@ -157,7 +156,7 @@ sequenceDiagram
 | Node.js | 20 |
 | npm | 10 |
 
-> Nenhuma conta externa necessária. O sistema roda 100% offline.
+> Também necessário: conta na **OpenAI** (para embeddings e GPT-4o-mini) e conta no **Pinecone** (índice vetorial, plano free suficiente).
 
 ---
 
@@ -182,19 +181,35 @@ source .venv/bin/activate        # Linux/macOS
 pip install -r requirements.txt
 ```
 
-### 3. Ingestão dos HTMLs (primeira vez)
+### 3. Configurar variáveis de ambiente
 
-> Necessário apenas uma vez para gerar o arquivo de chunks local.
-
-Os arquivos HTML das aulas já estão em `docs/Aula_*.html`. Execute:
+Copie o arquivo de exemplo e preencha as chaves:
 
 ```bash
-python ingest_html.py
+cp .env.example .env
 ```
 
-O script usa **BeautifulSoup** para extrair texto limpo do `<div class="container">` de cada aula (ignora nav/header/footer), e **tiktoken** (encoder `cl100k_base`) para dividir em chunks de ~800 tokens com sobreposição de 100. Salva 8 aulas → ~67 chunks em `data/chunks.json`. Sem chamadas externas.
+Edite `.env` com suas chaves:
 
-### 4. Iniciar o backend
+```env
+OPENAI_API_KEY=sk-...
+PINECONE_API_KEY=...
+PINECONE_HOST=https://seu-index.svc.aped-xxxx.pinecone.io
+```
+
+> `PINECONE_HOST` é a URL do seu índice no painel do Pinecone. Crie um índice com dimensão **512** e métrica **cosine**.
+
+### 4. Ingestão (primeira vez)
+
+Extrai os HTMLs das aulas, gera embeddings e envia ao Pinecone:
+
+```bash
+python ingest_openai.py
+```
+
+~67 chunks de 8 aulas. Leva alguns minutos (rate limit OpenAI). Execute novamente apenas se o material mudar.
+
+### 5. Iniciar o backend
 
 ```bash
 python run.py
@@ -203,7 +218,7 @@ python run.py
 API disponível em `http://localhost:8000`.
 Documentação interativa em `http://localhost:8000/docs`.
 
-### 5. Frontend (Next.js)
+### 6. Frontend (Next.js)
 
 ```bash
 cd tutoria
@@ -225,7 +240,7 @@ App disponível em `http://localhost:3000`.
 
 | Comando | Descrição |
 |---|---|
-| `python ingest_html.py` | Extrai HTMLs das aulas e salva chunks em `data/chunks.json` |
+| `python ingest_openai.py` | Gera embeddings dos HTMLs e envia ao Pinecone |
 | `python run.py` | Inicia o backend com hot-reload |
 | `cd tutoria && npm run dev` | Inicia o frontend em dev |
 | `cd tutoria && npm run build` | Build de produção do frontend |
@@ -244,9 +259,10 @@ projeto-ia-unifap/
 │   │   ├── config.py           # Configurações via pydantic-settings
 │   │   └── exceptions.py       # Exceções customizadas
 │   ├── services/               # Lógica de negócio
-│   │   ├── rag_service.py      # Orquestra recuperação + geração
-│   │   ├── local_retrieval_service.py  # Jaccard similarity sobre chunks.json
-│   │   ├── local_llm_service.py        # Loop ReAct com buscar_disciplina()
+│   │   ├── rag_service.py              # Orquestra embed → query → generate
+│   │   ├── embedding_service.py        # OpenAI text-embedding-3-small
+│   │   ├── pinecone_service.py         # Busca vetorial no Pinecone
+│   │   ├── llm_service.py              # GPT-4o-mini para geração de respostas
 │   │   ├── local_study_plan_service.py # Planejador determinístico
 │   │   ├── diagnostic_service.py
 │   │   └── study_plan_service.py
@@ -260,10 +276,8 @@ projeto-ia-unifap/
 │   │   └── study-plan/         # Plano de estudos
 │   └── lib/
 │       └── api.ts              # Cliente tipado para a API REST
-├── data/
-│   └── chunks.json             # Chunks gerados por ingest_html.py
 ├── docs/                       # Slides das aulas em HTML (Aula_01 a Aula_08)
-├── ingest_html.py              # Script de ingestão — BeautifulSoup + tiktoken
+├── ingest_openai.py            # Ingestão: HTML → embeddings → Pinecone
 ├── run.py                      # Entry point do backend
 ├── requirements.txt
 └── .env.example
@@ -277,8 +291,8 @@ projeto-ia-unifap/
 
 **Frontend:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4
 
-**Algoritmos de IA (locais):**
-- `tiktoken` (cl100k_base) — chunking dos HTMLs por tokens
-- Similaridade de Jaccard — recuperação léxica de chunks relevantes
-- Loop ReAct — agente com ferramenta de busca para geração de respostas
-- Planejador determinístico — mapa fraqueza → passos de estudo
+**IA e busca:**
+- OpenAI `text-embedding-3-small` (512d) — embeddings semânticos dos chunks
+- Pinecone — índice vetorial com similaridade cosseno
+- OpenAI `gpt-4o-mini` — geração de respostas em linguagem natural
+- Planejador determinístico — mapa fraqueza → passos de estudo (sem LLM)
