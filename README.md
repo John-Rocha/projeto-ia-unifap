@@ -43,8 +43,8 @@ graph TB
         Tiktoken["Tiktoken cl100k_base\n(chunking por tokens)"]
     end
 
-    Ingest["ingest_local.py\n(script de ingestão)"]
-    PDF["data/disciplina_ia.pdf"]
+    Ingest["ingest_html.py\n(script de ingestão)"]
+    HTML["docs/Aula_*.html\n(8 arquivos)"]
     Chunks["data/chunks.json"]
 
     Home -->|GET| Topics
@@ -65,7 +65,7 @@ graph TB
     LLMSvc --> ReAct
     LLMSvc --> RetrSvc
 
-    PDF --> Ingest
+    HTML --> Ingest
     Ingest --> Tiktoken
     Ingest --> Chunks
     RetrSvc --> Chunks
@@ -91,7 +91,7 @@ sequenceDiagram
     LLM->>LLM: ReAct — Pensamento → buscar_disciplina() → Observação → Resposta
     LLM-->>BE: resposta baseada no chunk mais relevante
     BE-->>FE: {answer, sources, confidence}
-    FE-->>Aluno: exibe resposta + fontes (página + score)
+    FE-->>Aluno: exibe resposta + fontes (aula + score)
 ```
 
 ### Fluxo do diagnóstico → plano de estudos
@@ -128,7 +128,7 @@ sequenceDiagram
 ## Funcionalidades
 
 ### Home — lista de aulas
-- 7 aulas da disciplina exibidas em cards.
+- 8 aulas da disciplina exibidas em cards (Panorama da IA até Tópicos Modernos: LLMs, RAG e Agentes).
 - Cada card tem atalho direto para o quiz diagnóstico e para o chat filtrado pela aula.
 
 ### Quiz diagnóstico (`/diagnostic/[id]`)
@@ -138,9 +138,9 @@ sequenceDiagram
 
 ### Chat com o tutor (`/chat`)
 - Pergunta livre em linguagem natural.
-- Recuperação por similaridade de Jaccard sobre os chunks do PDF da disciplina.
+- Recuperação por similaridade de Jaccard sobre chunks extraídos dos HTMLs das aulas.
 - Resposta gerada pelo loop ReAct com a ferramenta `buscar_disciplina()`.
-- Exibe fonte (página do PDF) e score de similaridade por chunk.
+- Exibe fonte (aula + título) e score de similaridade por chunk.
 
 ### Plano de estudos (`/study-plan`)
 - Gerado deterministicamente com base nas fraquezas do quiz.
@@ -182,17 +182,17 @@ source .venv/bin/activate        # Linux/macOS
 pip install -r requirements.txt
 ```
 
-### 3. Ingestão do PDF (primeira vez)
+### 3. Ingestão dos HTMLs (primeira vez)
 
 > Necessário apenas uma vez para gerar o arquivo de chunks local.
 
-Coloque o PDF do material da disciplina em `data/disciplina_ia.pdf` e execute:
+Os arquivos HTML das aulas já estão em `docs/Aula_*.html`. Execute:
 
 ```bash
-python ingest_local.py
+python ingest_html.py
 ```
 
-O script usa **tiktoken** (encoder `cl100k_base`) para dividir o PDF em chunks de ~800 tokens com sobreposição de 100, salvando o resultado em `data/chunks.json`. Sem chamadas externas.
+O script usa **BeautifulSoup** para extrair texto limpo do `<div class="container">` de cada aula (ignora nav/header/footer), e **tiktoken** (encoder `cl100k_base`) para dividir em chunks de ~800 tokens com sobreposição de 100. Salva 8 aulas → ~67 chunks em `data/chunks.json`. Sem chamadas externas.
 
 ### 4. Iniciar o backend
 
@@ -225,7 +225,7 @@ App disponível em `http://localhost:3000`.
 
 | Comando | Descrição |
 |---|---|
-| `python ingest_local.py` | Processa PDF e salva chunks em `data/chunks.json` |
+| `python ingest_html.py` | Extrai HTMLs das aulas e salva chunks em `data/chunks.json` |
 | `python run.py` | Inicia o backend com hot-reload |
 | `cd tutoria && npm run dev` | Inicia o frontend em dev |
 | `cd tutoria && npm run build` | Build de produção do frontend |
@@ -261,10 +261,9 @@ projeto-ia-unifap/
 │   └── lib/
 │       └── api.ts              # Cliente tipado para a API REST
 ├── data/
-│   ├── disciplina_ia.pdf       # Material da disciplina (necessário para ingestão)
-│   └── chunks.json             # Chunks gerados por ingest_local.py
-├── docs/                       # Slides e materiais das aulas (HTML)
-├── ingest_local.py             # Script de ingestão — tiktoken, salva chunks.json
+│   └── chunks.json             # Chunks gerados por ingest_html.py
+├── docs/                       # Slides das aulas em HTML (Aula_01 a Aula_08)
+├── ingest_html.py              # Script de ingestão — BeautifulSoup + tiktoken
 ├── run.py                      # Entry point do backend
 ├── requirements.txt
 └── .env.example
@@ -279,7 +278,7 @@ projeto-ia-unifap/
 **Frontend:** Next.js 16 · React 19 · TypeScript · Tailwind CSS 4
 
 **Algoritmos de IA (locais):**
-- `tiktoken` (cl100k_base) — chunking do PDF por tokens
+- `tiktoken` (cl100k_base) — chunking dos HTMLs por tokens
 - Similaridade de Jaccard — recuperação léxica de chunks relevantes
 - Loop ReAct — agente com ferramenta de busca para geração de respostas
 - Planejador determinístico — mapa fraqueza → passos de estudo
