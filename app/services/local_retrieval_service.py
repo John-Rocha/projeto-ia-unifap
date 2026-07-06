@@ -1,7 +1,7 @@
 """
 Substituição local de embedding_service + pinecone_service.
 Usa similaridade de Jaccard (sobreposição de palavras) para recuperação.
-Chunks carregados de data/chunks.json (gerado por ingest_local.py).
+Chunks carregados de data/chunks.json (gerado por ingest_html.py).
 """
 import json
 import os
@@ -46,10 +46,15 @@ class Match:
 def search(query: str, top_k: int = 5, filter: Optional[dict] = None) -> list[Match]:
     """
     Busca os top_k chunks mais similares à query por Jaccard.
-    Parâmetro `filter` ignorado (não há metadados de aula nos chunks locais).
+    filter: dict opcional com {"aula": "aula01"} para restringir por aula.
     Interface compatível com pinecone_service.query().
     """
     chunks = _load_chunks()
+
+    if filter and "aula" in filter:
+        aula = filter["aula"]
+        chunks = [c for c in chunks if c.get("aula") == aula]
+
     scored = [
         Match(metadata=c, score=_jaccard(query, c["text"]))
         for c in chunks

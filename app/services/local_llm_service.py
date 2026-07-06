@@ -14,10 +14,11 @@ def _buscar_disciplina(query: str) -> str:
         return "Nenhum trecho relevante encontrado no material."
     parts = []
     for m in matches:
-        pagina = m.metadata.get("pagina", "?")
+        aula = m.metadata.get("aula", "?")
+        titulo = m.metadata.get("titulo_aula", "")
         texto = m.metadata.get("text", "")[:600]
         score = round(m.score, 3)
-        parts.append(f"[p.{pagina} · score={score}] {texto}")
+        parts.append(f"[{aula} · {titulo} · score={score}] {texto}")
     return "\n\n".join(parts)
 
 
@@ -59,16 +60,21 @@ def _react(objetivo: str) -> tuple[str, list[dict]]:
         )
     else:
         # Pega o primeiro trecho como base da resposta
+        # Formato: [aula01 · Titulo da Aula · score=0.091] texto...
         primeiro = resultado_busca.split("\n\n")[0]
-        pagina = "?"
+        aula = "?"
+        titulo = ""
         texto_trecho = primeiro
-        if primeiro.startswith("[p."):
+        if primeiro.startswith("["):
             header, _, corpo = primeiro.partition("] ")
-            pagina = header.split("·")[0].replace("[p.", "").strip()
+            partes = header.lstrip("[").split(" · ")
+            aula = partes[0] if len(partes) > 0 else "?"
+            titulo = partes[1] if len(partes) > 1 else ""
             texto_trecho = corpo.strip()
 
+        ref = f"{titulo} ({aula})" if titulo else aula
         resposta = (
-            f"Com base no material da disciplina (p. {pagina}):\n\n"
+            f"Com base no material da disciplina — {ref}:\n\n"
             f"{texto_trecho}"
         )
 
