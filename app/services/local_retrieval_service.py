@@ -26,15 +26,29 @@ def _load_chunks() -> list[dict]:
     return _chunks
 
 
+_STOPWORDS = {
+    "o", "a", "os", "as", "um", "uma", "uns", "umas",
+    "de", "da", "do", "das", "dos", "em", "na", "no", "nas", "nos",
+    "para", "por", "com", "que", "se", "é", "e", "ou",
+    "ao", "à", "às", "aos", "mais", "mas", "como", "qual", "quais",
+    "este", "esta", "estes", "estas", "esse", "essa", "isso", "isto",
+    "seu", "sua", "seus", "suas", "me", "te", "nos", "lhe", "lhes",
+}
+
+
 def _tokenize(text: str) -> set[str]:
-    return set(text.lower().replace(".", "").replace(",", "").replace("?", "").split())
+    import re
+    tokens = re.sub(r"[^\w\s]", " ", text.lower()).split()
+    return {t for t in tokens if t not in _STOPWORDS and len(t) > 1}
 
 
-def _jaccard(a: str, b: str) -> float:
-    ta, tb = _tokenize(a), _tokenize(b)
-    if not ta or not tb:
+def _score(query: str, doc: str) -> float:
+    """Overlap coefficient: |A∩B| / |A|  (fração das palavras da query no doc).
+    Melhor que Jaccard para queries curtas contra chunks longos."""
+    tq, td = _tokenize(query), _tokenize(doc)
+    if not tq:
         return 0.0
-    return len(ta & tb) / len(ta | tb)
+    return len(tq & td) / len(tq)
 
 
 @dataclass
@@ -56,7 +70,7 @@ def search(query: str, top_k: int = 5, filter: Optional[dict] = None) -> list[Ma
         chunks = [c for c in chunks if c.get("aula") == aula]
 
     scored = [
-        Match(metadata=c, score=_jaccard(query, c["text"]))
+        Match(metadata=c, score=_score(query, c["text"]))
         for c in chunks
     ]
     scored.sort(key=lambda m: m.score, reverse=True)

@@ -3,7 +3,16 @@ Substituição local do llm_service.
 Implementa loop ReAct com uma ferramenta: buscar_disciplina().
 Sem chamadas externas — geração determinística baseada nos chunks recuperados.
 """
+import re
 from app.services.local_retrieval_service import search
+
+
+def _limpar_texto(texto: str) -> str:
+    # Remove emojis e caracteres não-ASCII decorativos
+    texto = re.sub(r"[^\x00-\x7FÀ-ɏḀ-ỿ]", "", texto)
+    # Colapsa espaços múltiplos
+    texto = re.sub(r" {2,}", " ", texto)
+    return texto.strip()
 
 
 # ─── Ferramentas disponíveis para o agente ───
@@ -16,7 +25,7 @@ def _buscar_disciplina(query: str) -> str:
     for m in matches:
         aula = m.metadata.get("aula", "?")
         titulo = m.metadata.get("titulo_aula", "")
-        texto = m.metadata.get("text", "")[:600]
+        texto = _limpar_texto(m.metadata.get("text", "")[:800])
         score = round(m.score, 3)
         parts.append(f"[{aula} · {titulo} · score={score}] {texto}")
     return "\n\n".join(parts)
