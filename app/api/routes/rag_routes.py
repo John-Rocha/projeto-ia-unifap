@@ -1,13 +1,15 @@
 from fastapi import APIRouter
 from app.api.schemas.rag_schema import RagMatch, RagMatchMetadata, RagSearchRequest, RagSearchResponse
-from app.services.local_retrieval_service import search
+from app.services.embedding_service import embed
+from app.services.pinecone_service import query
 
 router = APIRouter(prefix="/rag", tags=["rag"])
 
 
 @router.post("/search", response_model=RagSearchResponse)
 def rag_search(req: RagSearchRequest) -> RagSearchResponse:
-    matches = search(req.query, top_k=req.top_k)
+    vector = embed(req.query)
+    matches = query(vector, top_k=req.top_k)
 
     results = [
         RagMatch(
