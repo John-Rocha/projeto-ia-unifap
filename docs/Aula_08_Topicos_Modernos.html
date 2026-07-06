@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aula 08 — Tópicos Modernos: LLMs, RAG, Agentes e Ética — CC0121</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+<style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--surface:#111827;--surface-2:#1a2236;--surface-3:#212b42;
+  --accent:#00d4aa;--accent-glow:rgba(0,212,170,.15);--accent-dim:#0a9e80;
+  --blue:#3b82f6;--purple:#8b5cf6;--pink:#ec4899;--orange:#f59e0b;--red:#ef4444;--green:#22c55e;
+  --text:#e8ecf4;--text-muted:#8892a8;--text-dim:#5a6275;
+  --border:rgba(255,255,255,.06);--radius:14px;--glow:0 0 30px rgba(0,212,170,.08);
+}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:.025;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.hero{min-height:80vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,rgba(0,212,170,.08) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(59,130,246,.06) 0%,transparent 50%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 70%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--surface-2);border:1px solid var(--border);padding:.4rem 1.2rem;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--accent);margin-bottom:2rem}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.5rem,6vw,4.2rem);font-weight:900;line-height:1.1;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:1.1rem;color:var(--text-muted);max-width:620px;margin:0 auto 2rem}
+.hero-tags{display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem}
+.hero-tag{font-family:'JetBrains Mono',monospace;font-size:.72rem;padding:.3rem .8rem;border-radius:99px;border:1px solid var(--border);color:var(--text-muted);background:var(--surface)}
+.sticky-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.88);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:.55rem 1rem}
+.nav-inner{max-width:960px;margin:0 auto;display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none}
+.nav-inner::-webkit-scrollbar{display:none}
+.nav-link{padding:.35rem .75rem;border-radius:99px;font-size:.72rem;font-weight:600;color:var(--text-dim);text-decoration:none;white-space:nowrap;transition:all .2s}
+.nav-link:hover,.nav-link.active{background:var(--accent);color:var(--bg)}
+.container{max-width:920px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.ls{margin-bottom:3.5rem;scroll-margin-top:75px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:700;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.sn::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--accent-dim),transparent)}
+.ls h2{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:800;margin-bottom:1rem;color:#fff}
+.ls h3{font-size:1.1rem;font-weight:700;color:var(--accent);margin:1.6rem 0 .6rem}
+p.body{font-size:.92rem;color:var(--text-muted);margin-bottom:.6rem;line-height:1.7}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin-bottom:.8rem;transition:all .25s}
+.card:hover{border-color:rgba(0,212,170,.15);box-shadow:var(--glow)}
+.card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:#fff}
+.card p{font-size:.88rem;color:var(--text-muted);line-height:1.6}
+.callout{border-radius:var(--radius);padding:1.1rem 1.4rem;margin:1rem 0;font-size:.9rem}
+.callout.think{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout.important{background:rgba(0,212,170,.06);border-left:3px solid var(--accent)}
+.callout.warning{background:rgba(245,158,11,.06);border-left:3px solid var(--orange)}
+.callout.hands{background:rgba(59,130,246,.06);border-left:3px solid var(--blue)}
+.cl{font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.callout.think .cl{color:var(--purple)}.callout.important .cl{color:var(--accent)}.callout.warning .cl{color:var(--orange)}.callout.hands .cl{color:var(--blue)}
+.code-block{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin:1rem 0}
+.code-header{display:flex;align-items:center;padding:.45rem 1rem;background:var(--surface-3);border-bottom:1px solid var(--border)}
+.code-lang{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--accent);font-weight:600}
+.code-body{padding:1rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto;color:var(--text-muted);white-space:pre}
+.kw{color:var(--purple)}.fn{color:var(--blue)}.str{color:var(--accent)}.cm{color:var(--text-dim);font-style:italic}.num{color:var(--orange)}
+.quiz{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;margin:1.4rem 0}
+.quiz h4{color:var(--purple);margin-bottom:.7rem;font-size:.95rem}
+.quiz-options{display:grid;gap:.4rem}
+.quiz-opt{padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font-size:.88rem;transition:all .2s;text-align:left;font-family:'DM Sans',sans-serif;color:var(--text)}
+.quiz-opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-glow)}
+.quiz-opt.correct{border-color:var(--accent)!important;background:rgba(0,212,170,.12)!important;color:var(--accent)!important}
+.quiz-opt.wrong{border-color:var(--red)!important;background:rgba(239,68,68,.08)!important;color:var(--red)!important;opacity:.6}
+.quiz-fb{margin-top:.7rem;padding:.7rem 1rem;border-radius:10px;font-size:.85rem;display:none}
+.quiz-fb.show{display:block}
+.quiz-fb.ok{background:rgba(0,212,170,.08);color:var(--accent)}
+.quiz-fb.nok{background:rgba(239,68,68,.06);color:var(--red)}
+.sl{list-style:none;padding:0}
+.sl li{position:relative;padding-left:1.4rem;margin-bottom:.45rem;font-size:.9rem;color:var(--text-muted)}
+.sl li::before{content:'';position:absolute;left:0;top:.55rem;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.cmp-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.82rem}
+.cmp-table th{background:var(--surface-3);color:var(--accent);padding:.6rem .8rem;text-align:left;font-family:'JetBrains Mono',monospace;font-size:.72rem;text-transform:uppercase;letter-spacing:.04em;border-bottom:2px solid var(--accent-dim)}
+.cmp-table td{padding:.55rem .8rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.cmp-table tr:hover td{background:var(--surface-2)}
+.steps{counter-reset:step}
+.step{counter-increment:step;position:relative;padding-left:3rem;margin-bottom:1.1rem}
+.step::before{content:counter(step);position:absolute;left:0;top:.15rem;width:2rem;height:2rem;border-radius:50%;background:var(--surface-3);border:2px solid var(--accent);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+.step h4{font-size:.92rem;font-weight:700;color:#fff;margin-bottom:.15rem}
+.step p{font-size:.86rem;color:var(--text-muted)}
+.divider{margin:2.5rem 0;border:none;height:1px;background:linear-gradient(to right,transparent,var(--accent-dim),transparent)}
+.lab-banner{background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(0,212,170,.08));border:1px solid rgba(59,130,246,.2);border-radius:var(--radius);padding:1rem 1.4rem;margin:1rem 0;display:flex;align-items:center;gap:.8rem}
+.lab-banner .icon{font-size:1.5rem}
+.lab-banner .text{font-size:.88rem;color:var(--text)}
+.lab-banner .text strong{color:var(--blue)}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.82rem}
+@media(max-width:640px){.hero h1{font-size:2.2rem}.hero{min-height:60vh;padding:2rem 1rem}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-grid"></div><div class="hero-content">
+<div class="hero-badge"><span class="dot"></span> Aula 08 · 18/06/2026 · CC0121 Inteligência Artificial</div>
+<h1>Tópicos Modernos: LLMs, RAG, Agentes e Ética</h1>
+<p class="hero-sub">A tecnologia por trás das IAs que você já usa — entendida por dentro, com código que roda. Do token à auditoria de viés.</p>
+<div class="hero-tags"><span class="hero-tag">🧠 Como LLMs funcionam</span><span class="hero-tag">📚 RAG</span><span class="hero-tag">🤖 Agentes ReAct</span><span class="hero-tag">⚖️ Ética & LGPD</span></div>
+</div></header>
+<nav class="sticky-nav"><div class="nav-inner"><a href="#intro" class="nav-link">Abertura</a><a href="#h1" class="nav-link">1º · LLMs</a><a href="#h2" class="nav-link">2º · RAG</a><a href="#h3" class="nav-link">3º · Agentes</a><a href="#h4" class="nav-link">4º · Ética</a><a href="#fechamento" class="nav-link">Fechamento</a></div></nav>
+<div class="container">
+<!-- INTRO -->
+<section id="intro" class="ls">
+  <div class="sn">Abertura</div>
+  <h2>A IA que você usa todo dia</h2>
+  <p class="body">Nas últimas 7 aulas construímos a base: agentes, busca, lógica, machine learning clássico. Hoje chegamos ao presente — as tecnologias por trás do ChatGPT, do Claude, do Copilot que vocês já usam. E o melhor: vocês vão entender <strong>como funcionam por dentro</strong>, não só usar como caixa-preta.</p>
+
+  <div class="callout think"><div class="cl">🎯 O que muda hoje</div><p>Até agora vocês <em>implementaram</em> algoritmos. Hoje vocês vão entender os sistemas que já usam como ferramenta de trabalho — e sair daqui sabendo montar um assistente com RAG e um agente que raciocina. Tudo com código que roda.</p></div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.7rem;margin-top:1.2rem">
+    <div class="card" style="padding:1rem;border-top:3px solid var(--accent)"><div style="font-size:1.5rem">🧠</div><h4 style="font-size:.9rem">1º horário</h4><p style="font-size:.78rem;color:var(--text-muted)">Como LLMs funcionam de verdade</p></div>
+    <div class="card" style="padding:1rem;border-top:3px solid var(--blue)"><div style="font-size:1.5rem">📚</div><h4 style="font-size:.9rem">2º horário</h4><p style="font-size:.78rem;color:var(--text-muted)">RAG: dando memória à IA</p></div>
+    <div class="card" style="padding:1rem;border-top:3px solid var(--purple)"><div style="font-size:1.5rem">🤖</div><h4 style="font-size:.9rem">3º horário</h4><p style="font-size:.78rem;color:var(--text-muted)">Agentes que raciocinam e agem</p></div>
+    <div class="card" style="padding:1rem;border-top:3px solid var(--pink)"><div style="font-size:1.5rem">⚖️</div><h4 style="font-size:.9rem">4º horário</h4><p style="font-size:.78rem;color:var(--text-muted)">Ética, viés e regulação</p></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ══════ 1º HORÁRIO ══════ -->
+<section id="h1" class="ls">
+  <div class="sn">1º Horário · ~50 min</div>
+  <h2>🧠 Como um LLM funciona de verdade</h2>
+
+  <h3>Parte A — A ideia central (teoria curta)</h3>
+  <p class="body">Um LLM (Large Language Model) faz <strong>uma coisa só</strong>: prever a próxima palavra. Só isso. Toda a "inteligência" emerge de fazer isso muito bem, treinando em trilhões de palavras.</p>
+
+  <div class="callout think"><div class="cl">💭 A analogia do autocompletar turbinado</div><p>Sabe o autocompletar do celular? Um LLM é isso levado ao extremo: em vez de sugerir 3 palavras, ele modela a probabilidade de <em>qualquer</em> próxima palavra, considerando todo o contexto anterior. "O céu é ___" → ele calcula que "azul" é muito provável.</p></div>
+
+  <p class="body">Três conceitos que vocês precisam dominar:</p>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-c"><strong>Token</strong> — o LLM não vê palavras, vê "pedaços" (tokens). "computador" pode virar "comput" + "ador". O modelo prevê token por token.</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><strong>Contexto</strong> — a "janela" de texto que o modelo considera. Tudo que você escreve no prompt entra aqui. Quanto maior, mais o modelo "lembra".</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-c"><strong>Temperatura</strong> — controla a aleatoriedade. Temperatura 0 = sempre a palavra mais provável (determinístico). Alta = mais criativo e imprevisível.</div></div>
+  </div>
+
+  <h3>Parte B — Vendo tokens e probabilidade na prática</h3>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text"><strong>Façam agora (10 min):</strong> vamos visualizar como um texto vira tokens e simular a previsão de próxima palavra.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Tokenização na prática</span></div><div class="code-body"><span class="cm"># Instalar a biblioteca de tokenização da OpenAI (a mesma do GPT)</span>
+<span class="cm"># !pip install tiktoken</span>
+<span class="kw">import</span> tiktoken
+
+enc = tiktoken.get_encoding(<span class="str">"cl100k_base"</span>)  <span class="cm"># encoder do GPT-4</span>
+
+texto = <span class="str">"Inteligência Artificial na Amazônia é o futuro!"</span>
+tokens = enc.encode(texto)
+
+<span class="fn">print</span>(<span class="str">f"Texto: {texto}"</span>)
+<span class="fn">print</span>(<span class="str">f"Número de tokens: {len(tokens)}"</span>)
+<span class="fn">print</span>(<span class="str">f"IDs dos tokens: {tokens}"</span>)
+
+<span class="cm"># Ver cada pedaço que o modelo "enxerga"</span>
+<span class="fn">print</span>(<span class="str">"\nComo o modelo fatia o texto:"</span>)
+<span class="kw">for</span> t <span class="kw">in</span> tokens:
+    <span class="fn">print</span>(<span class="str">f"  {t} → '{enc.decode([t])}'"</span>)</div></div>
+
+  <div class="callout warning"><div class="cl">🔌 Se o tiktoken não instalar</div><p>Em raras vezes a instalação falha por rede. Plano B, sem instalar nada: <code>tokens = texto.split()</code> — divide por espaços. Não é o tokenizador real do GPT, mas serve para a ideia de "fatiar texto em pedaços". O conceito é o que importa.</p></div>
+
+  <div class="callout hands"><div class="cl">🔬 Experimentem</div><p>Testem com o nome de vocês, com uma palavra em inglês e uma gíria. Descubram: por que "Amazônia" pode virar mais tokens que "casa"? (Dica: palavras raras e acentos custam mais tokens — e tokens custam dinheiro nas APIs!)</p></div>
+
+  <div class="quiz" data-correct="b">
+    <div class="quiz-q">❓ Se um LLM só prevê a próxima palavra, como ele "responde perguntas"?</div>
+    <div class="quiz-opt" data-opt="a">a) Ele tem um banco de dados de respostas prontas</div>
+    <div class="quiz-opt" data-opt="b">b) Prever a continuação de "Pergunta: X? Resposta:" naturalmente gera a resposta</div>
+    <div class="quiz-opt" data-opt="c">c) Ele pesquisa no Google internamente</div>
+    <div class="quiz-fb"></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ══════ 2º HORÁRIO ══════ -->
+<section id="h2" class="ls">
+  <div class="sn">2º Horário · ~50 min</div>
+  <h2>📚 RAG: Dando Memória e Fontes à IA</h2>
+
+  <h3>Parte A — O problema que o RAG resolve</h3>
+  <p class="body">LLMs têm dois problemas sérios: <strong>(1)</strong> não sabem de nada após a data de treino, e <strong>(2)</strong> às vezes "alucinam" — inventam fatos com confiança. Como resolver sem retreinar o modelo (que custa milhões)?</p>
+
+  <div class="callout important"><div class="cl">💡 A sacada do RAG</div><p><strong>RAG = Retrieval-Augmented Generation.</strong> Em vez de confiar na memória do modelo, você <em>busca</em> os documentos relevantes primeiro e <em>entrega junto com a pergunta</em>. É a diferença entre uma prova de memória e uma prova com consulta.</p></div>
+
+  <p class="body">O fluxo tem 3 passos:</p>
+  <div class="steps">
+    <div class="step"><div class="step-n">1</div><div class="step-c"><strong>Indexar</strong> — quebrar seus documentos em pedaços e guardar.</div></div>
+    <div class="step"><div class="step-n">2</div><div class="step-c"><strong>Recuperar</strong> — dada uma pergunta, achar os pedaços mais parecidos.</div></div>
+    <div class="step"><div class="step-n">3</div><div class="step-c"><strong>Gerar</strong> — mandar pergunta + pedaços recuperados para o LLM responder <em>com base nas fontes</em>.</div></div>
+  </div>
+
+  <h3>Parte B — Construindo um RAG do zero</h3>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text"><strong>Façam agora (20 min):</strong> vamos construir o coração de um RAG — a busca por similaridade — sem nenhuma API, só Python puro. Vocês vão entender o mecanismo real.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · O coração do RAG: busca por similaridade</span></div><div class="code-body"><span class="cm"># Nossa "base de conhecimento" sobre a Amazônia</span>
+docs = [
+    <span class="str">"O açaí é um fruto amazônico rico em antioxidantes e energia."</span>,
+    <span class="str">"A capivara é o maior roedor do mundo e vive perto de rios."</span>,
+    <span class="str">"O boto-cor-de-rosa habita os rios da bacia amazônica."</span>,
+    <span class="str">"Python é uma linguagem popular em ciência de dados."</span>,
+    <span class="str">"O guaraná é um estimulante natural usado em bebidas energéticas."</span>,
+]
+
+<span class="kw">def</span> <span class="fn">tokenize</span>(t):
+    <span class="kw">return</span> set(t.lower().replace(<span class="str">'.'</span>,<span class="str">''</span>).replace(<span class="str">','</span>,<span class="str">''</span>).split())
+
+<span class="kw">def</span> <span class="fn">similaridade</span>(a, b):
+    <span class="cm"># Similaridade de Jaccard: palavras em comum / palavras totais</span>
+    ta, tb = tokenize(a), tokenize(b)
+    <span class="kw">if</span> <span class="kw">not</span> ta <span class="kw">or</span> <span class="kw">not</span> tb: <span class="kw">return</span> <span class="num">0</span>
+    <span class="kw">return</span> len(ta & tb) / len(ta | tb)
+
+<span class="cm"># ─── PASSO 2 do RAG: RECUPERAR ───</span>
+pergunta = <span class="str">"Qual fruto amazônico dá energia?"</span>
+ranking = sorted([(similaridade(pergunta, d), d) <span class="kw">for</span> d <span class="kw">in</span> docs], reverse=<span class="kw">True</span>)
+
+<span class="fn">print</span>(<span class="str">f"❓ Pergunta: {pergunta}\n"</span>)
+<span class="fn">print</span>(<span class="str">"📄 Documentos recuperados (por relevância):"</span>)
+<span class="kw">for</span> score, doc <span class="kw">in</span> ranking[:<span class="num">3</span>]:
+    <span class="fn">print</span>(<span class="str">f"  [{score:.2f}] {doc}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"\n✅ Melhor fonte: {ranking[0][1]}"</span>)</div></div>
+
+  <div class="callout warning"><div class="cl">⚠️ Na vida real</div><p>Sistemas reais usam <strong>embeddings</strong> (vetores densos que capturam <em>significado</em>, não só palavras iguais) e bancos vetoriais como FAISS, Chroma ou Pinecone. Mas o princípio é exatamente este: transformar texto em números e medir distância. Vocês acabaram de construir a versão didática.</p></div>
+
+  <div class="callout hands"><div class="cl">🔬 Desafio (5 min)</div><p>Adicionem 3 documentos sobre um tema de vocês (futebol, games, música). Depois façam uma pergunta e vejam se o RAG recupera o documento certo. Testem uma pergunta "pegadinha" cujas palavras não aparecem em nenhum doc — o que acontece? (Aqui aparece a limitação do Jaccard: ele não entende sinônimos.)</p></div>
+
+  <div class="quiz" data-correct="c">
+    <div class="quiz-q">❓ Por que RAG reduz alucinações do LLM?</div>
+    <div class="quiz-opt" data-opt="a">a) Porque deixa o modelo mais lento e cuidadoso</div>
+    <div class="quiz-opt" data-opt="b">b) Porque retreina o modelo com dados novos</div>
+    <div class="quiz-opt" data-opt="c">c) Porque fornece fontes reais para o modelo se basear, em vez da memória</div>
+    <div class="quiz-fb"></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ══════ 3º HORÁRIO ══════ -->
+<section id="h3" class="ls">
+  <div class="sn">3º Horário · ~50 min</div>
+  <h2>🤖 Agentes: LLMs que Raciocinam e Agem</h2>
+
+  <h3>Parte A — De "responder" para "fazer"</h3>
+  <p class="body">Um LLM sozinho só produz texto. Um <strong>agente</strong> usa o LLM como "cérebro" que decide <em>ações</em>: buscar na web, rodar código, consultar um banco. Ele fecha o ciclo entre pensar e agir.</p>
+
+  <div class="callout think"><div class="cl">💭 Lembram da Aula 02?</div><p>Voltamos aos agentes — mas agora o "cérebro" não é uma regra <code>if/else</code>, é um LLM. O padrão mais famoso se chama <strong>ReAct</strong> (Reasoning + Acting): o agente alterna entre <em>pensar</em> e <em>agir</em> até resolver a tarefa.</p></div>
+
+  <p class="body">O loop ReAct funciona assim, repetindo até chegar à resposta:</p>
+  <div class="cmp-table-wrap"><table class="cmp-table">
+    <thead><tr><th>Etapa</th><th>O que o agente faz</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Pensamento</strong></td><td>Raciocina sobre o que precisa fazer agora</td></tr>
+      <tr><td><strong>Ação</strong></td><td>Escolhe e usa uma ferramenta (calculadora, busca, código)</td></tr>
+      <tr><td><strong>Observação</strong></td><td>Lê o resultado da ferramenta</td></tr>
+      <tr><td><strong>(repete)</strong></td><td>Pensa de novo com a nova informação, até concluir</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Parte B — Um mini-agente ReAct em Python</h3>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text"><strong>Façam agora (20 min):</strong> vamos construir um agente que usa ferramentas. Sem API paga — a "decisão" é simulada para vocês verem o mecanismo do loop.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Agente ReAct com ferramentas</span></div><div class="code-body"><span class="cm"># ─── As FERRAMENTAS que o agente pode usar ───</span>
+<span class="kw">def</span> <span class="fn">calculadora</span>(expr):
+    <span class="kw">try</span>: <span class="kw">return</span> str(eval(expr, {<span class="str">"__builtins__"</span>:{}}))
+    <span class="kw">except</span>: <span class="kw">return</span> <span class="str">"erro no cálculo"</span>
+
+<span class="kw">def</span> <span class="fn">base_dados</span>(consulta):
+    dados = {<span class="str">"alunos"</span>: <span class="num">40</span>, <span class="str">"equipes"</span>: <span class="num">10</span>, <span class="str">"projetos"</span>: <span class="num">10</span>}
+    <span class="kw">return</span> str(dados.get(consulta.lower(), <span class="str">"não encontrado"</span>))
+
+ferramentas = {<span class="str">"calculadora"</span>: calculadora, <span class="str">"base_dados"</span>: base_dados}
+
+<span class="cm"># ─── O LOOP ReAct ───</span>
+<span class="kw">def</span> <span class="fn">agente</span>(objetivo, plano):
+    <span class="fn">print</span>(<span class="str">f"🎯 Objetivo: {objetivo}\n"</span>)
+    <span class="kw">for</span> passo <span class="kw">in</span> plano:
+        tipo, conteudo = passo
+        <span class="kw">if</span> tipo == <span class="str">"Pensamento"</span>:
+            <span class="fn">print</span>(<span class="str">f"🧠 {tipo}: {conteudo}"</span>)
+        <span class="kw">elif</span> tipo == <span class="str">"Ação"</span>:
+            nome, arg = conteudo
+            resultado = ferramentas[nome](arg)
+            <span class="fn">print</span>(<span class="str">f"⚙️  Ação: {nome}('{arg}')"</span>)
+            <span class="fn">print</span>(<span class="str">f"👁️  Observação: {resultado}"</span>)
+        <span class="kw">elif</span> tipo == <span class="str">"Resposta"</span>:
+            <span class="fn">print</span>(<span class="str">f"✅ {tipo}: {conteudo}"</span>)
+
+<span class="cm"># O "raciocínio" que um LLM geraria:</span>
+plano = [
+    (<span class="str">"Pensamento"</span>, <span class="str">"Preciso saber quantos alunos há na turma."</span>),
+    (<span class="str">"Ação"</span>, (<span class="str">"base_dados"</span>, <span class="str">"alunos"</span>)),
+    (<span class="str">"Pensamento"</span>, <span class="str">"Agora divido por 4 para achar o nº de equipes."</span>),
+    (<span class="str">"Ação"</span>, (<span class="str">"calculadora"</span>, <span class="str">"40 / 4"</span>)),
+    (<span class="str">"Resposta"</span>, <span class="str">"A turma forma 10 equipes de 4 alunos."</span>),
+]
+agente(<span class="str">"Quantas equipes de 4 a turma forma?"</span>, plano)</div></div>
+
+  <div class="callout important"><div class="cl">🌐 O que muda com um LLM real</div><p>Num agente de verdade (LangChain, framework de agentes), o <strong>LLM gera o plano sozinho</strong> — decide qual ferramenta chamar e quando parar. Vocês forneceram o plano à mão para ver o mecanismo. É assim que o Claude, ao usar ferramentas, ou o Copilot, ao editar seu código, funcionam por dentro.</p></div>
+
+  <div class="callout hands"><div class="cl">🔬 Desafio (5 min)</div><p>Adicionem uma ferramenta nova (por exemplo, <code>buscar_clima(cidade)</code> que retorna um valor fixo). Depois criem um plano que use as três ferramentas em sequência para responder a uma pergunta composta. Percebam: o poder do agente vem de <strong>encadear</strong> ferramentas.</p></div>
+
+  <div class="quiz" data-correct="a">
+    <div class="quiz-q">❓ Qual a diferença entre um LLM e um agente?</div>
+    <div class="quiz-opt" data-opt="a">a) O agente usa o LLM como cérebro para decidir e executar ações no mundo</div>
+    <div class="quiz-opt" data-opt="b">b) O agente é um LLM maior e mais caro</div>
+    <div class="quiz-opt" data-opt="c">c) Não há diferença, são sinônimos</div>
+    <div class="quiz-fb"></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- ══════ 4º HORÁRIO ══════ -->
+<section id="h4" class="ls">
+  <div class="sn">4º Horário · ~50 min</div>
+  <h2>⚖️ Ética, Viés e Regulação</h2>
+
+  <h3>Parte A — Por que isso é problema de engenharia</h3>
+  <p class="body">Ética em IA não é "filosofia opcional" — é parte do trabalho técnico. Um modelo enviesado pode negar crédito, emprego ou liberdade a pessoas de forma injusta. E vocês, como quem constrói, são responsáveis.</p>
+
+  <div class="callout warning"><div class="cl">⚠️ Casos reais que aconteceram</div><p>Sistema de recrutamento que rejeitava currículos de mulheres (aprendeu com dados históricos enviesados). Modelo de reincidência criminal que penalizava mais réus negros. Reconhecimento facial que erra muito mais em peles escuras. <strong>Nenhum foi mal-intencionado</strong> — todos refletiram vieses dos dados.</p></div>
+
+  <h3>Parte B — Auditando viés na prática</h3>
+  <div class="lab-banner"><span class="icon">🖥️</span><span class="text"><strong>Façam agora (15 min):</strong> vamos medir viés num modelo de decisão de crédito, do jeito que um auditor de IA faz.</span></div>
+
+  <div class="code-block"><div class="code-header"><span class="code-lang">Python · Auditoria de fairness</span></div><div class="code-body"><span class="kw">import</span> numpy <span class="kw">as</span> np
+np.random.seed(<span class="num">42</span>)
+
+<span class="cm"># Simulação: decisões de crédito de um modelo para dois grupos</span>
+<span class="cm"># (1 = crédito aprovado, 0 = negado)</span>
+grupo_A = np.random.choice([<span class="num">0</span>,<span class="num">1</span>], <span class="num">100</span>, p=[<span class="num">0.3</span>, <span class="num">0.7</span>])
+grupo_B = np.random.choice([<span class="num">0</span>,<span class="num">1</span>], <span class="num">100</span>, p=[<span class="num">0.6</span>, <span class="num">0.4</span>])
+
+taxa_A = grupo_A.mean()
+taxa_B = grupo_B.mean()
+
+<span class="fn">print</span>(<span class="str">"📊 AUDITORIA DE FAIRNESS — Modelo de Crédito\n"</span>)
+<span class="fn">print</span>(<span class="str">f"  Grupo A — taxa de aprovação: {taxa_A:.0%}"</span>)
+<span class="fn">print</span>(<span class="str">f"  Grupo B — taxa de aprovação: {taxa_B:.0%}"</span>)
+<span class="fn">print</span>(<span class="str">f"\n  ⚠️  Disparidade: {abs(taxa_A - taxa_B):.0%}"</span>)
+
+<span class="cm"># Regra prática (dos "4/5" ou 80%): se a razão entre grupos < 0.8, há sinal de viés</span>
+razao = min(taxa_A, taxa_B) / max(taxa_A, taxa_B)
+<span class="fn">print</span>(<span class="str">f"  Razão de impacto: {razao:.2f}"</span>)
+<span class="kw">if</span> razao < <span class="num">0.8</span>:
+    <span class="fn">print</span>(<span class="str">"  🚨 ALERTA: possível discriminação — investigar o modelo e os dados!"</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">"  ✅ Dentro do limite aceitável."</span>)</div></div>
+
+  <div class="callout hands"><div class="cl">🔬 Discussão em dupla (5 min)</div><p>Achado o viés, o que fazer? Debatam: (1) dá para "consertar" só no código, ou o problema está nos dados? (2) Quem deve decidir o que é "justo" — o programador, a empresa, a lei? Não há resposta fácil — e é por isso que engenheiros de IA precisam pensar nisso.</p></div>
+
+  <h3>Parte C — O panorama regulatório</h3>
+  <p class="body">O mundo está criando regras para IA. Vocês vão trabalhar sob elas:</p>
+  <div class="cmp-table-wrap"><table class="cmp-table">
+    <thead><tr><th>Marco</th><th>Onde</th><th>O que exige</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LGPD</strong></td><td>🇧🇷 Brasil</td><td>Protege dados pessoais. Consentimento, finalidade, direito à explicação de decisões automatizadas.</td></tr>
+      <tr><td><strong>AI Act</strong></td><td>🇪🇺 Europa</td><td>Classifica IA por risco. Sistemas de "alto risco" (crédito, saúde) têm exigências rígidas.</td></tr>
+      <tr><td><strong>Marco Legal da IA</strong></td><td>🇧🇷 Brasil</td><td>Em tramitação (PL 2338). Vai definir responsabilidades e direitos no uso de IA no país.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout important"><div class="cl">💡 Para levar da aula</div><p>Quando vocês forem construir o projeto final (e depois, na carreira): perguntem sempre <strong>"quem pode ser prejudicado por isso?"</strong> e <strong>"de onde vieram estes dados?"</strong>. Essas duas perguntas evitam a maioria dos desastres éticos.</p></div>
+
+  <div class="quiz" data-correct="b">
+    <div class="quiz-q">❓ Um modelo aprendeu viés a partir de dados históricos. De quem é a responsabilidade?</div>
+    <div class="quiz-opt" data-opt="a">a) De ninguém — a culpa é dos dados</div>
+    <div class="quiz-opt" data-opt="b">b) De quem constrói e implanta o modelo, que deve auditar e mitigar</div>
+    <div class="quiz-opt" data-opt="c">c) Só do usuário final que usou o sistema</div>
+    <div class="quiz-fb"></div>
+  </div>
+</section>
+<hr class="divider">
+
+<!-- FECHAMENTO -->
+<section id="fechamento" class="ls">
+  <div class="sn">Fechamento</div>
+  <h2>🎓 O que vocês levam desta aula</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.2rem">
+    <div class="card"><h4 style="color:var(--accent)">🧠 LLMs</h4><p style="font-size:.85rem">Preveem o próximo token. Token, contexto e temperatura são os conceitos-chave. A "mágica" é estatística em escala gigante.</p></div>
+    <div class="card"><h4 style="color:var(--blue)">📚 RAG</h4><p style="font-size:.85rem">Busca fontes reais antes de responder. Reduz alucinação e dá conhecimento atualizado sem retreinar.</p></div>
+    <div class="card"><h4 style="color:var(--purple)">🤖 Agentes</h4><p style="font-size:.85rem">LLM como cérebro que decide ações. O loop ReAct (pensar→agir→observar) é o padrão central.</p></div>
+    <div class="card"><h4 style="color:var(--pink)">⚖️ Ética</h4><p style="font-size:.85rem">Viés é problema de engenharia. Auditar fairness e conhecer LGPD/AI Act faz parte do trabalho.</p></div>
+  </div>
+
+  <div class="callout think"><div class="cl">🚀 Próximas aulas</div><p><strong>25/06:</strong> laboratório dedicado ao projeto final — tragam o código, vamos destravar juntos. <strong>02/07:</strong> apresentação final dos projetos e encerramento do curso. Vocês percorreram da busca clássica aos agentes modernos em um semestre. Orgulho!</p></div>
+
+  <div class="callout important"><div class="cl">💼 Conexão com o projeto</div><p>Muito do que virem hoje pode entrar no projeto final: um chatbot com RAG sobre um tema amazônico, um agente que automatiza uma tarefa, ou uma análise de viés num dataset público. Pensem em como aplicar!</p></div>
+</section>
+
+</div>
+<footer class="footer"><p>CC0121 · Inteligência Artificial · UFPA · 2026.1</p><p style="margin-top:.3rem">Aula 08 — Tópicos Modernos · 18 de junho de 2026</p></footer>
+<script>
+// Quiz
+document.querySelectorAll('.quiz').forEach(function(quiz){
+  var correct = quiz.getAttribute('data-correct');
+  var fb = quiz.querySelector('.quiz-fb');
+  quiz.querySelectorAll('.quiz-opt').forEach(function(opt){
+    opt.addEventListener('click', function(){
+      quiz.querySelectorAll('.quiz-opt').forEach(function(o){ o.classList.remove('correct','wrong'); });
+      var chosen = opt.getAttribute('data-opt');
+      if(chosen === correct){
+        opt.classList.add('correct');
+        fb.textContent = '✅ Isso mesmo!';
+        fb.style.color = 'var(--green)';
+      } else {
+        opt.classList.add('wrong');
+        var right = quiz.querySelector('.quiz-opt[data-opt="'+correct+'"]');
+        if(right) right.classList.add('correct');
+        fb.textContent = '❌ Não é essa. A resposta certa está destacada.';
+        fb.style.color = 'var(--red)';
+      }
+    });
+  });
+});
+// Nav ativo via IntersectionObserver
+var secs = document.querySelectorAll('.ls');
+var navs = document.querySelectorAll('.nav-link');
+var obs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){
+      navs.forEach(function(l){ l.classList.remove('active'); });
+      var id = e.target.id;
+      if(id){ var a = document.querySelector('.nav-link[href="#'+id+'"]'); if(a) a.classList.add('active'); }
+    }
+  });
+}, {rootMargin:'-75px 0px -60% 0px'});
+secs.forEach(function(s){ if(s.id) obs.observe(s); });
+</script>
+</body>
+</html>
