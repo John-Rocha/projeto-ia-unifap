@@ -1,6 +1,5 @@
-from app.services.embedding_service import embed
-from app.services.pinecone_service import query
-from app.services.llm_service import generate
+from app.services.local_retrieval_service import search
+from app.services.local_llm_service import generate
 from app.utils.prompt_builder import build_prompt
 from app.api.schemas.chat_schema import ChatRequest, ChatResponse, Source
 
@@ -11,12 +10,9 @@ _NO_CONTEXT_ANSWER = (
 
 
 def chat(req: ChatRequest) -> ChatResponse:
-    vector = embed(req.question)
+    matches = search(req.question, top_k=req.top_k)
 
-    pinecone_filter = {"aula": req.topic_id} if req.topic_id else None
-    matches = query(vector, top_k=req.top_k, filter=pinecone_filter)
-
-    if not matches:
+    if not matches or matches[0].score == 0.0:
         return ChatResponse(
             answer=_NO_CONTEXT_ANSWER,
             sources=[],
