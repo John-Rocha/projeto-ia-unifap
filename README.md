@@ -148,6 +148,20 @@ sequenceDiagram
 
 ---
 
+## Demonstração
+
+Vídeo demonstrativo apresentando as principais funcionalidades do sistema:
+
+- Navegação pelas aulas;
+- Realização do quiz diagnóstico;
+- Geração do plano de estudos personalizado;
+- Interação com o tutor inteligente.
+
+Acesse o vídeo:
+https://drive.google.com/file/d/1Ubvnfw72wlCW4UyslYMMRQ02atdQ27Mm/view?usp=sharing
+
+---
+
 ## Pré-requisitos
 
 | Ferramenta | Versão mínima |
