@@ -291,8 +291,12 @@ projeto-ia-unifap/
 │   └── lib/
 │       └── api.ts              # Cliente tipado para a API REST
 ├── docs/                       # Slides das aulas em HTML (Aula_01 a Aula_08)
-├── relatorio/                  
+├── relatorio/
+│   ├── README.md             
 │   ├── relatorio_tecnico.pdf   # Relatório técnico do projeto
+├── slides/
+│   ├── README.md
+│   ├── pitch.pdf               # Arquivo utilizado na apresentação do projeto
 ├── ingest_openai.py            # Ingestão: HTML → embeddings → Pinecone
 ├── run.py                      # Entry point do backend
 ├── requirements.txt
